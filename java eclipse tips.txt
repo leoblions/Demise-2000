@@ -1,0 +1,18 @@
+ autocomplete show
+ctrl + shift
+tab + enter
+
+sysout
+ctrl + shift + 
+
+fix indentation
+ctrl shift f
+
+fix missing imports
+ctrl + shift + o
+
+use java version 17 for project
+
+
+
+Go to Windows >> Preferences » Java » Editor » Content Assist. Then Check the Auto activation triggers for java, Add this in the text box .abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
