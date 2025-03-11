@@ -89,6 +89,8 @@ public class GamePanel extends JPanel implements Runnable{
 	Wasp wasp2;
 	Editor editor;
 	PathFind pathFind;
+	TextBox dialogTextBox, toolTipTextBox;
+	Position dialogTextBoxPosition, toolTipTextBoxPosition;
 	
 	public enum InputAction{
 		UP,
@@ -178,6 +180,7 @@ public class GamePanel extends JPanel implements Runnable{
 		entityManager = new EntityManager(this);
 		item = new Item(this);
 		
+		initDialogTextBox();
 		
 		//enemyslime = new EnemySlime(this,8*TILE_SIZE_PX,20*TILE_SIZE_PX);
 		//wasp = new Wasp(this,58*TILE_SIZE_PX,55*TILE_SIZE_PX);
@@ -195,6 +198,32 @@ public class GamePanel extends JPanel implements Runnable{
 		
 		//this must come last, put nothing below it
 		launchGame();
+	}
+	
+	private void initDialogTextBox() {
+		int dialogTextBoxPositionH = HEIGHT / 10;
+		int dialogTextBoxPositionW = WIDTH/2;
+		int dialogTextBoxPositionX = (WIDTH/2) - (dialogTextBoxPositionW/2);
+		int dialogTextBoxPositionY = (HEIGHT) - (dialogTextBoxPositionH*2);
+		dialogTextBoxPosition = new Position(this,
+				dialogTextBoxPositionX,
+				dialogTextBoxPositionY,
+				dialogTextBoxPositionW,
+				dialogTextBoxPositionH);
+		this.dialogTextBox = new TextBox(this, dialogTextBoxPosition);
+		this.dialogTextBox.backgroundColor =new Color(200, 200, 200, 100);
+		
+		int toolTipTextBoxPositionH = HEIGHT / 20;
+		int toolTipTextBoxPositionW = WIDTH/6;
+		int toolTipTextBoxPositionX = (WIDTH) - (toolTipTextBoxPositionW) - (toolTipTextBoxPositionH);;
+		int toolTipTextBoxPositionY = (HEIGHT) - (toolTipTextBoxPositionH*2);
+		toolTipTextBoxPosition = new Position(this,
+				toolTipTextBoxPositionX,
+				toolTipTextBoxPositionY,
+				toolTipTextBoxPositionW,
+				toolTipTextBoxPositionH);
+		this.toolTipTextBox = new TextBox(this, toolTipTextBoxPosition);
+		this.toolTipTextBox.backgroundColor =new Color(255, 200, 200, 150);
 	}
 	
 	public void launchGame() {
@@ -300,7 +329,8 @@ public class GamePanel extends JPanel implements Runnable{
 		hud.update();
 		editor.update();
 		pathFind.update();
-		
+		dialogTextBox.update();
+		toolTipTextBox.update();
 		Point p = this.getMousePosition();
 		if (p != null){
 			this.mouseX = (int) p.getX();
@@ -326,7 +356,8 @@ public class GamePanel extends JPanel implements Runnable{
 		entityManager.draw();
 		
 		item.draw();
-		
+		dialogTextBox.draw();
+		toolTipTextBox.draw();
 		shadow.draw();
 		hud.draw();
 		editor.draw();

@@ -5,6 +5,7 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.rmi.server.UID;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -13,16 +14,14 @@ import java.util.Random;
 
 import javax.imageio.ImageIO;
 
-public class Item implements IEditableComponent{
-	private static final String DATA_FILE_PREFIX = "item";
+public class Widget implements IEditableComponent{
+	private static final String DATA_FILE_PREFIX = "widget";
 	private static final String DATA_FILE_SUFFIX = ".csv";
 	public final int ITEM_SCALE_PX = 25;
 	public final int ITEM_TLC_OFFSET= GamePanel.TILE_SIZE_PX/2;
 	public final float ITEM_DRAWSIZE_FACTOR = 0.5f;
 	
-	public final int MINIMUM_RANDOM_GRIDX = 10;
-	public final int MINIMUM_RANDOM_GRIDY = 10;
-	public final int RANDOM_ITEM_DENSITY = 50;
+
 	public final int ITEM_DEFAULT_W = 50;
 	public final int ITEM_DEFAULT_H = 50;
 	private final String SPRITE_SHEET_URL = "/images/itemA.png";
@@ -30,17 +29,20 @@ public class Item implements IEditableComponent{
 	
 	BufferedImage[] bufferedImages;
 	GamePanel gp;
-	int[][] itemGrid;
+	int[][] widgetGrid;
 	Random random;
 	CullRegion crg;
-	
+	ArrayList<WidgetRecord> widgetRecords;
 	Rectangle testRectangle;
-	Item(GamePanel gp) {
+	
+	
+	
+	Widget(GamePanel gp) {
 		this.gp=gp;;
-		//this.itemGrid = new int[gp.MAP_TILES_Y][gp.MAP_TILES_X];
-		itemGrid = Utils.initBlankGrid(gp.MAP_TILES_Y, gp.MAP_TILES_X, BLANK_ITEM_TYPE);
+		//this.widgetGrid = new int[gp.MAP_TILES_Y][gp.MAP_TILES_X];
+		widgetGrid = Utils.initBlankGrid(gp.MAP_TILES_Y, gp.MAP_TILES_X, BLANK_ITEM_TYPE);
 		crg = new CullRegion(gp, 15);
-		
+		widgetRecords = new ArrayList<>();
 		testRectangle = new Rectangle(
 				0,
 				0,
@@ -59,41 +61,20 @@ public class Item implements IEditableComponent{
 	
 	
 	
-	public void randomPlaceItem(int amount, int kind) {
-		int itemsPlaced = 0;
-		this.random = new Random();
-		int tmp=0;
-		// loop through tileGrid
-		// check if tile is colliding or open
-		// use random number to decide place item or not
-		do {
-			for (int y = 1; y< gp.tileGrid.length;y++) {
-				for (int x = 1; x< gp.tileGrid[0].length;x++) {
-					tmp = random.nextInt(RANDOM_ITEM_DENSITY);
-					if(gp.tileGrid[y][x]==1 || tmp!=10 ||
-							(x <  MINIMUM_RANDOM_GRIDX &&
-							y < MINIMUM_RANDOM_GRIDX)
-							
-							) {
-						continue;
-					}
-					try {
-						itemGrid[y][x] = kind;
-					}catch(Exception e) {
-						
-					}
-					itemsPlaced++;
-					if (itemsPlaced>=amount)break;
-				}if (itemsPlaced>=amount)break;
+	public int getUIDForWidgetGridCoords(int gridX, int gridY) {
+		for (WidgetRecord wr: widgetRecords) {
+			if (gridX==wr.gridX()&&gridY==wr.gridY()) {
+				return wr.UID();
 			}
-		}while(itemsPlaced<amount);
-		
+		}
+		return -1;
+	
 		
 	}
 	
 	
 	
-	public void pickupItem(int item) {
+	public void toggleWidget(int item, int UID) {
 		System.out.println("Picked up item "+ item);
 		
 		
@@ -176,11 +157,12 @@ public class Item implements IEditableComponent{
 		// check items n unculled area
 		int pgX = gp.player.worldX / GamePanel.TILE_SIZE_PX;
 		int pgY = gp.player.worldY/ GamePanel.TILE_SIZE_PX;
-		int kind = itemGrid[pgY][pgX];
+		int kind = widgetGrid[pgY][pgX];
 		if (kind!=BLANK_ITEM_TYPE) {
-			itemGrid[pgY][pgX] = BLANK_ITEM_TYPE;
+			widgetGrid[pgY][pgX] = BLANK_ITEM_TYPE;
 			//System.out.println("Got item "+kind);
-			pickupItem(kind);
+			int UID = getUIDForWidgetGridCoords(  pgY,   pgX);
+			toggleWidget(kind,UID);
 		}
 
 		
@@ -196,8 +178,8 @@ public class Item implements IEditableComponent{
 		int[] visible = gp.visibleArea;
 		int TopLeftCornerX = gp.wpScreenLocX;
 		int TopLeftCornerY = gp.wpScreenLocY;
-		int maxy = itemGrid.length;
-		int maxx = itemGrid[0].length;
+		int maxy = widgetGrid.length;
+		int maxx = widgetGrid[0].length;
 		int startx = clamp(0,maxx,visible[0]-50);
 		int starty = clamp(0,maxy,visible[1]-50);
 		int endx = clamp(0,maxx,visible[2]+50);
@@ -210,9 +192,9 @@ public class Item implements IEditableComponent{
 		for (int y = starty; y < endy; y++) {
 			
 			for (int x = startx; x < endx; x++) {
-				if (itemGrid[y][x]!=-1) {
+				if (widgetGrid[y][x]!=-1) {
 					
-					int kind=itemGrid[y][x];
+					int kind=widgetGrid[y][x];
 					int worldX = x * GamePanel.TILE_SIZE_PX;
 					int worldY = y * GamePanel.TILE_SIZE_PX;
 					screenX = worldX - TopLeftCornerX;
@@ -234,7 +216,7 @@ public class Item implements IEditableComponent{
 	
 	public void addItem(int tileGridX, int tileGridY, int kind) {
 		try {
-			itemGrid[tileGridY][tileGridX] = kind;
+			widgetGrid[tileGridY][tileGridX] = kind;
 		}catch(Exception e) {
 			
 		}
@@ -267,7 +249,7 @@ public class Item implements IEditableComponent{
 	@Override
 	public void paintAsset(int gridX, int gridY, int kind) {
 		try {
-			this.itemGrid[gridY][gridX] = kind;
+			this.widgetGrid[gridY][gridX] = kind;
 			
 			System.err.println(kind);
 		}
@@ -291,26 +273,26 @@ public class Item implements IEditableComponent{
 
 	@Override
 	public EditMode getEditMode() {
-		return EditMode.ITEM;
+		return EditMode.WIDGET;
 	}
 
 	@Override
 	public int[][] getGridData() {
 		// TODO Auto-generated method stub
-		return this.itemGrid;
+		return this.widgetGrid;
 	}
 
 	@Override
 	public void setGridData(int[][] data) {
 		if (null!=data) {
-			this.itemGrid = data;
+			this.widgetGrid = data;
 		}
 		
 		
 	}
 	
 	
-	
+	public record WidgetRecord(int gridX, int gridY, int kind, int UID) {}
 		
 		
 	}

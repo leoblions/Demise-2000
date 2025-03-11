@@ -15,7 +15,7 @@ public class Entity  {
 	private final boolean DRAW_SENSE_BLOCKS = false;
 	private BufferedImage[] bufferedImages;
 	public Rectangle wpSolidArea;
-	public Rectangle wpProposedMove;
+	public Rectangle wpProposedMove, testRect;
 	int startGX,   startGY,   kind,   UID;
 	int spriteHitboxOffsetX,spriteHitboxOffsetY;
 	int currentImageIndex = 0;
@@ -33,11 +33,18 @@ public class Entity  {
 	Direction4W currDirection;
 	private boolean[] movesRequested;
 	private int[] tileForward;
-	public Position position;
+	public Position position, testPosition;
 	
 	
 	
-
+/**
+ * 
+ * @param gp
+ * @param startGX
+ * @param startGY
+ * @param kind
+ * @param UID
+ */
 	public Entity(GamePanel gp, int startGX, int startGY, int kind, int UID) {
 		// TODO Auto-generated constructor stub
 		this.gp=gp;
@@ -49,10 +56,12 @@ public class Entity  {
 		int[] dimensions = getEntityWHFromKind(  kind);
 		
 		position = new Position(gp, 0, 0, dimensions[0], dimensions[1]);
+		testPosition = new Position(gp, 0, 0, dimensions[0], dimensions[1]);
 		position.setPositionToGridXY(startGX, startGY);
 		
 		wpSolidArea = new Rectangle();
 		wpProposedMove = new Rectangle();
+		testRect = new Rectangle();
 		movesRequested = new boolean[4];
 		tileForward = new int[2];
 		tileRight = new int[2];
@@ -61,6 +70,8 @@ public class Entity  {
 		wpProposedMove.width = spriteWidth;
 		wpSolidArea.height = spriteHeight;
 		wpSolidArea.width = spriteWidth;
+		testRect.height = spriteHeight;
+		testRect.width = spriteWidth;
 		
 		
 		try {
@@ -460,7 +471,37 @@ private boolean moveAllowedTiles() {
 		
 
 	}
-	
+	public boolean moveOverlapsOtherEntity() {
+		//stop enemies and NPCs from overlapping
+		testPosition.setPositionToWorldXY(position.getWorldX(), position.getWorldY());
+		switch(currDirection) {
+		case UP:
+			testPosition.applyVelocityXY(0, -currentSpeed);
+			break;
+		case DOWN:
+			testPosition.applyVelocityXY(0,  currentSpeed);
+			break;
+		case LEFT:
+			testPosition.applyVelocityXY( -currentSpeed,0);
+			break;
+		case RIGHT:
+			testPosition.applyVelocityXY(  currentSpeed,0);
+			break;
+		default:
+			testPosition.applyVelocityXY(  0,0);
+			break;
+		
+		}
+		testRect.x = testPosition.getWorldX();
+		testRect.y = testPosition.getWorldY();
+		for(Entity entity: gp.entityManager.entityList) {
+			if (this.testRect.intersects(entity.wpSolidArea)&& !(this==entity)) {
+
+				return true;
+			}
+		}
+		return false;
+	}
 
 	 
 	public void update() {
@@ -471,7 +512,10 @@ private boolean moveAllowedTiles() {
 		setDirectionByPathFind();
 		//moveByTile() ;
 		//borderBump();
-		moveDirection();
+		if(!moveOverlapsOtherEntity()) {
+			moveDirection();
+		}
+		
 		
 		
 		enemyCollidePlayer();

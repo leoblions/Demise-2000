@@ -1,5 +1,5 @@
 package main;
 
 public enum EditMode {
-    NORMAL, TILE, DECOR, ENTITY, WARP, FIDGET,ITEM
+    NORMAL, TILE, DECOR, ENTITY, WARP,ITEM, WIDGET
 }
