@@ -213,15 +213,70 @@ public class Widget implements IEditableComponent{
 			
 		}
 	}
+	public void addRecordOrReplace(int tileGridX, int tileGridY, int kind) {
+		
+		for(int i=0;i< widgetRecords.size() ;i++) {
+			WidgetRecord wr = widgetRecords.get(i);
+			if (tileGridX==wr.gridX()&&tileGridY==wr.gridY()) {
+				int UID = wr.UID();
+				widgetRecords.set(i,new WidgetRecord(tileGridX, tileGridY, kind, UID));
+				return;
+			}
+		}
+		
+		widgetRecords.add(new WidgetRecord(tileGridX, tileGridY, kind, getNewUIDFromRecords()));
+		 
+		
+	}
+	
+public int getNewUIDFromRecords( ) {
+		
+		boolean UIDfound = false;
+		int testUID = 0;
+		int maxPasses = 1000;
+		while(!UIDfound && testUID < maxPasses) {
+			A: for(WidgetRecord wr: widgetRecords) {
+				if (wr.UID()==testUID) {
+					testUID +=1;
+					break A;
+				}
+			}
+		}
+		if(testUID >= maxPasses) {
+			System.err.println("Widget::getNewUIDFromRecords failed to generate unique ID");
+		}
+		return testUID;
+		 
+		
+	}
 	
 	public void addItem(int tileGridX, int tileGridY, int kind) {
 		try {
 			widgetGrid[tileGridY][tileGridX] = kind;
+			
 		}catch(Exception e) {
 			
 		}
 		
 		 
+		
+	}
+	
+	public void initGridDataFromRecordsList() {
+		this.widgetGrid = new int[GamePanel.MAP_TILES_Y][GamePanel.MAP_TILES_X];
+		for (WidgetRecord wr : widgetRecords) {
+			widgetGrid[wr.gridY()][wr.gridX()]=wr.kind();
+		}
+		
+		
+	}
+	
+	public void initRecordsListFrom2DA(int[][] data) {
+		this.widgetRecords=new ArrayList<>();
+		for(int i = 0; i < data.length;i++) {
+			widgetRecords.add(new WidgetRecord(data[i][0],data[i][1],data[i][2],data[i][3]));
+		}
+		
 		
 	}
 	
@@ -291,7 +346,8 @@ public class Widget implements IEditableComponent{
 	@Override
 	public void setGridData(int[][] data) {
 		if (null!=data) {
-			this.widgetGrid = data;
+			initRecordsListFrom2DA(data);
+			initGridDataFromRecordsList();
 		}
 		
 		
