@@ -79,14 +79,12 @@ public class GamePanel extends JPanel implements Runnable{
 	Shadow shadow;
 	EntityManager entityManager;
 	Item item;
-	EnemySlime enemyslime;
 	HUD hud;
 	SettingsIO settingsio;
 	Decor decor;
 	Sound sound;
 	Thread soundThread;
-	Wasp wasp;
-	Wasp wasp2;
+	Widget widget;
 	Editor editor;
 	PathFind pathFind;
 	TextBox dialogTextBox, toolTipTextBox;
@@ -176,21 +174,16 @@ public class GamePanel extends JPanel implements Runnable{
 		this.shadow = new Shadow(this);
 		this.hud = new HUD(this);
 		this.pathFind = new PathFind(this);
+		this.widget = new Widget(this);
 		visibleArea = Utils.getVisibleArea(this);
 		entityManager = new EntityManager(this);
 		item = new Item(this);
 		
 		initDialogTextBox();
 		
-		//enemyslime = new EnemySlime(this,8*TILE_SIZE_PX,20*TILE_SIZE_PX);
-		//wasp = new Wasp(this,58*TILE_SIZE_PX,55*TILE_SIZE_PX);
-		//wasp2 = new Wasp(this,53*TILE_SIZE_PX,53*TILE_SIZE_PX);
 		decor = new Decor(this);
 		
 		sound = new Sound(this);
-		//soundThread = new Thread(sound);
-		//soundThread.start();
-		//sound.playSE(2);
 		if(LOAD_LEVEL_ON_START) {
 			level = LEVEL_TO_LOAD_ON_START;
 			this.editor.loadComponentData();
@@ -239,14 +232,11 @@ public class GamePanel extends JPanel implements Runnable{
 		long thisTime = System.currentTimeMillis();
 		long deltaTime=0;
 		long overshoot =0;
-		//milliseconds per frame is 1000ms / 60
 		long msPerFrame = 1000 / FRAMES_PER_SECOND;
-		//long msPerTick = 1000 / TICKS_PER_SECOND;
 		
 		while(gameThread!=null) {
 			thisTime= System.currentTimeMillis();
 			deltaTime = thisTime-lastTime;
-			//System.out.println(deltaTime / 1000);
 			overshoot = deltaTime - msPerFrame;
 			
 			if (deltaTime>=msPerFrame-overshoot) {
@@ -272,19 +262,15 @@ public class GamePanel extends JPanel implements Runnable{
 		
 		try {
 			settingsio = new SettingsIO(SETTINGS_FILE);
-			//settingsio.writeFile();
-			//settingsio.deleteFile();
 			settingsio.readFile();
 			String tmp;
 			
 			 
 			if(settingsio.stringsDict.get("drawShadows").equals("true")) {
 				GamePanel.drawShadows=true;
-				//System.out.println("drawShadows==true");
 			}else {
 				GamePanel.drawShadows=false;
 				settingsio.stringsDict.put("drawShadows","false");
-				//System.out.println("drawShadows==false ");
 			}
 			
 			if(settingsio.stringsDict.get("godMode").equals("true")) {
@@ -300,9 +286,6 @@ public class GamePanel extends JPanel implements Runnable{
 				noClip=true;
 				settingsio.stringsDict.put("noClip","false");
 			}
-			//settingsio.deleteFile();
-			//settingsio.stringsDict.put("noclip","false");
-			//settingsio.stringsDict.put("shadows","true");
 			settingsio.writeFile();
 			
 			
@@ -331,6 +314,7 @@ public class GamePanel extends JPanel implements Runnable{
 		pathFind.update();
 		dialogTextBox.update();
 		toolTipTextBox.update();
+		widget.update();
 		Point p = this.getMousePosition();
 		if (p != null){
 			this.mouseX = (int) p.getX();
@@ -359,9 +343,13 @@ public class GamePanel extends JPanel implements Runnable{
 		dialogTextBox.draw();
 		toolTipTextBox.draw();
 		shadow.draw();
+		widget.draw();
+		
+		// foreground
 		hud.draw();
 		editor.draw();
 		pathFind.draw();
+		
 		
 	}
 

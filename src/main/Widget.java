@@ -24,7 +24,7 @@ public class Widget implements IEditableComponent{
 
 	public final int ITEM_DEFAULT_W = 50;
 	public final int ITEM_DEFAULT_H = 50;
-	private final String SPRITE_SHEET_URL = "/images/itemA.png";
+	private final String SPRITE_SHEET_URL = "/images/widgetDefault.png";
 	public final int BLANK_ITEM_TYPE = -1;
 	
 	BufferedImage[] bufferedImages;
@@ -34,6 +34,23 @@ public class Widget implements IEditableComponent{
 	CullRegion crg;
 	ArrayList<WidgetRecord> widgetRecords;
 	Rectangle testRectangle;
+	
+	/*
+	 * 
+	 * Widgets are interactive immovable objects
+	 * 0 = Door-Barrier
+	 * 1 = Door-Warp
+	 * 2 = Gate-Barrier
+	 * 3 = Gate-Warp
+	 * 4 = Barrel 1
+	 * 5 = Barrel 2
+	 * 6 = Switch 1
+	 * 7 = Switch 2
+	 * 8 = Chest 1
+	 * 9 = Chest 2
+	 * 
+	 * 
+	 */
 	
 	
 	
@@ -83,14 +100,7 @@ public class Widget implements IEditableComponent{
 		
 	}
 	
-	 class ItemRecord{
-		int gridX,gridY, kind;
-		ItemRecord(int gridX, int gridY, int kind){
-			this.kind=kind;
-			this.gridX=gridX;
-			this.gridY=gridY;
-		}
-	}
+	
 	
 	
 	public void update() {
@@ -159,7 +169,7 @@ public class Widget implements IEditableComponent{
 		int pgY = gp.player.worldY/ GamePanel.TILE_SIZE_PX;
 		int kind = widgetGrid[pgY][pgX];
 		if (kind!=BLANK_ITEM_TYPE) {
-			widgetGrid[pgY][pgX] = BLANK_ITEM_TYPE;
+			//widgetGrid[pgY][pgX] = BLANK_ITEM_TYPE;
 			//System.out.println("Got item "+kind);
 			int UID = getUIDForWidgetGridCoords(  pgY,   pgX);
 			toggleWidget(kind,UID);

@@ -11,7 +11,6 @@ public class TileManager implements IEditableComponent{
 	GamePanel gp;
 	public int[][] tileGrid;
 	BufferedImage[] bufferedImages;
-	TilePlacer tilePlacer;
 	public final String TILE_SPRITESHEET_PATH = "/images/tilesA.png";
 	public final int DEFAULT_TILE_KIND = 0;
 	private final String DATA_FILE_SUFFIX = ".csv";
@@ -22,9 +21,6 @@ public class TileManager implements IEditableComponent{
 		newTileGrid();
 		try { initImages(); }catch(Exception e){e.printStackTrace();}
 		
-		//place tile patterns with tilePlacer
-		//tilePlacer = new TilePlacer(gp, this.tileGrid);
-		//tilePlacer.placeTiles();
 		gp.editor.addComponent(this);
 	}
 	
@@ -182,7 +178,6 @@ public class TileManager implements IEditableComponent{
 
 	@Override
 	public int[][] getGridData() {
-		// TODO Auto-generated method stub
 		return this.tileGrid;
 	}
 
