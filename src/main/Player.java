@@ -290,12 +290,7 @@ public class Player implements IInputListener{
 
 
 	public void initImages() throws IOException {
-//		bufferedImages = new BufferedImage[20];
-//		bufferedImages[0] = ImageIO.read(getClass().getResourceAsStream("/characters/hegray2.png"));
-//		bufferedImages[1] = ImageIO.read(getClass().getResourceAsStream("/characters/hegraDO1.png"));
-//		bufferedImages[2] = ImageIO.read(getClass().getResourceAsStream("/characters/hegraDO2.png"));
 		bufferedImages = new Utils().spriteSheetCutter(SPRITE_SHEET, 4, 4, 50, 50);
-		//bufferedImages = scaleImages(  bufferedImages,   90,   90);
 		
 	}
 	

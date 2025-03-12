@@ -89,6 +89,7 @@ public class GamePanel extends JPanel implements Runnable{
 	PathFind pathFind;
 	TextBox dialogTextBox, toolTipTextBox;
 	Position dialogTextBoxPosition, toolTipTextBoxPosition;
+	RasterString rs1;
 	
 	public enum InputAction{
 		UP,
@@ -178,6 +179,7 @@ public class GamePanel extends JPanel implements Runnable{
 		visibleArea = Utils.getVisibleArea(this);
 		entityManager = new EntityManager(this);
 		item = new Item(this);
+		rs1 = new RasterString(this, "TEST", 45, 45);
 		
 		initDialogTextBox();
 		
@@ -344,6 +346,7 @@ public class GamePanel extends JPanel implements Runnable{
 		toolTipTextBox.draw();
 		shadow.draw();
 		widget.draw();
+		rs1.draw();
 		
 		// foreground
 		hud.draw();
