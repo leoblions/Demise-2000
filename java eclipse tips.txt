@@ -16,3 +16,5 @@ use java version 17 for project
 
 
 Go to Windows >> Preferences » Java » Editor » Content Assist. Then Check the Auto activation triggers for java, Add this in the text box .abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+Uncheck Disable Insertion triggers except enter

@@ -278,8 +278,14 @@ public class Widget implements IEditableComponent{
 
 	@Override
 	public int[][] getGridData() {
-		// TODO Auto-generated method stub
-		return this.widgetGrid;
+		// convert widget records to 2DA of their contents
+		LinkedList<int[]> widgetRecordsAsArray = new LinkedList<>();
+		for(WidgetRecord wr: widgetRecords) {
+			int[] recordAsArray = new int[] {wr.gridX(),wr.gridY(),wr.kind(),wr.UID()};
+			widgetRecordsAsArray.add(recordAsArray);
+		}
+		int[][] outputDataArray = new int[widgetRecordsAsArray.size()][];
+		return outputDataArray;
 	}
 
 	@Override
