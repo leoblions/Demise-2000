@@ -18,7 +18,8 @@ public class Utils {
 	
 	public final static String COL_SEPARATOR = ",";
 	public final static String ROW_SEPARATOR = "\n";
-	public final static boolean MOCK_WRITE_FILE = true;
+	public final static boolean MOCK_WRITE_FILE = false;
+	public final static boolean WRITE_NEW_FILE = false;
 
 	public Utils() {
 		
@@ -136,8 +137,7 @@ public class Utils {
 	
 	
 }
-	
-	public static void writeInt2DAToCSV(int[][] int2DA, String filePath) throws IOException {
+	public static void writeInt2DAToCSV_0(int[][] int2DA, String filePath) throws IOException {
 		File fhandle = null;
 		FileWriter writer = null;
 		if (MOCK_WRITE_FILE) {
@@ -158,6 +158,61 @@ public class Utils {
 		      }
 		      if(!fhandle.canWrite()) {
 		    	  System.err.println("Can't write the file "+filePath);
+		      }
+		      int rows = int2DA.length;
+			int cols = int2DA[0].length;
+			StringBuilder sb = new StringBuilder();
+			String currentPart;
+		      for (int y = 0; y < rows; y++) {
+					for (int x = 0; x < cols; x++) {
+						 
+						currentPart = Integer.toString(int2DA[y][x]);
+						sb.append(currentPart);
+						if(x!=cols-1) {
+							sb.append(COL_SEPARATOR);
+						}else {
+							sb.append(ROW_SEPARATOR);
+						}
+						
+						
+					}
+					//System.out.println("print to file" +sb.toString());
+					writer.write(sb.toString());
+					writer.flush();
+					sb = new StringBuilder();
+				}
+		    } catch (IOException e) {
+		      System.out.println("An error occurred.");
+		      e.printStackTrace();
+		    }finally {
+		    	writer.close();
+		    }
+		 
+	}
+	
+	public static void writeInt2DAToCSV(int[][] int2DA, String filePath) throws IOException {
+		File fhandle = null;
+		FileWriter writer = null;
+		if (MOCK_WRITE_FILE) {
+			filePath = filePath + "_mock.csv";
+		}
+		 try {
+		      fhandle = new File(filePath);
+		      writer = new FileWriter(filePath);
+		      if(WRITE_NEW_FILE) {
+		    	  if (fhandle.createNewFile()) {
+				        System.out.println("File created: " + fhandle.getName());
+				        
+				        
+				      } else {
+				        System.out.println("File already exists. deleting old one");
+				        fhandle.delete();
+				        fhandle.createNewFile();
+				       
+				      }
+				      if(!fhandle.canWrite()) {
+				    	  System.err.println("Can't write the file "+filePath);
+				      }
 		      }
 		      int rows = int2DA.length;
 			int cols = int2DA[0].length;

@@ -225,7 +225,9 @@ public class Widget implements IEditableComponent{
 		}
 	}
 	public void addRecordOrReplace(int tileGridX, int tileGridY, int kind) {
-		
+		if (widgetRecords==null) {
+			widgetRecords = new ArrayList<Widget.WidgetRecord>();
+		}
 		for(int i=0;i< widgetRecords.size() ;i++) {
 			WidgetRecord wr = widgetRecords.get(i);
 			if (tileGridX==wr.gridX()&&tileGridY==wr.gridY()) {
@@ -234,23 +236,29 @@ public class Widget implements IEditableComponent{
 				return;
 			}
 		}
-		
-		widgetRecords.add(new WidgetRecord(tileGridX, tileGridY, kind, getNewUIDFromRecords()));
+		int UID = getNewUIDFromRecords();
+		widgetRecords.add(new WidgetRecord(tileGridX, tileGridY, kind, UID));
 		 
 		
 	}
 	
 public int getNewUIDFromRecords( ) {
 		
-		boolean UIDfound = false;
+		boolean UIDfound = true;
 		int testUID = 0;
 		int maxPasses = 1000;
-		while(!UIDfound && testUID < maxPasses) {
-			A: for(WidgetRecord wr: widgetRecords) {
+		while(  testUID < maxPasses) {
+			for(WidgetRecord wr: widgetRecords) {
 				if (wr.UID()==testUID) {
-					testUID +=1;
-					break A;
+					UIDfound=false;
+					
 				}
+			}
+			if(UIDfound==true) {
+				return testUID;
+			}else {
+				testUID +=1;
+				UIDfound=true;
 			}
 		}
 		if(testUID >= maxPasses) {
@@ -275,7 +283,8 @@ public int getNewUIDFromRecords( ) {
 	}
 	
 	public void initGridDataFromRecordsList() {
-		this.widgetGrid = new int[GamePanel.MAP_TILES_Y][GamePanel.MAP_TILES_X];
+		widgetGrid = Utils.initBlankGrid(GamePanel.MAP_TILES_Y, GamePanel.MAP_TILES_X, BLANK_ITEM_TYPE);
+		//this.widgetGrid = new int[GamePanel.MAP_TILES_Y][GamePanel.MAP_TILES_X];
 		for (WidgetRecord wr : widgetRecords) {
 			widgetGrid[wr.gridY()][wr.gridX()]=wr.kind();
 		}
@@ -315,9 +324,10 @@ public int getNewUIDFromRecords( ) {
 
 	@Override
 	public void paintAsset(int gridX, int gridY, int kind) {
+		modified = true;
 		try {
 			this.widgetGrid[gridY][gridX] = kind;
-			
+			addRecordOrReplace(gridX, gridY, kind);
 			System.err.println(kind);
 		}
 		catch(Exception e){
@@ -351,7 +361,11 @@ public int getNewUIDFromRecords( ) {
 			int[] recordAsArray = new int[] {wr.gridX(),wr.gridY(),wr.kind(),wr.UID()};
 			widgetRecordsAsArray.add(recordAsArray);
 		}
-		int[][] outputDataArray = new int[widgetRecordsAsArray.size()][];
+		int recordAmount = widgetRecordsAsArray.size();
+		int[][] outputDataArray = new int[recordAmount][];
+		for (int i = 0; i< recordAmount; i++) {
+			outputDataArray[i]=widgetRecordsAsArray.get(i);
+		}
 		return outputDataArray;
 	}
 
