@@ -9,12 +9,13 @@ import javax.imageio.ImageIO;
 public class TileManager implements IEditableComponent{
 	
 	GamePanel gp;
-	public int[][] tileGrid;
+	private int[][] tileGrid;
 	BufferedImage[] bufferedImages;
 	public final String TILE_SPRITESHEET_PATH = "/images/tilesA.png";
 	public final int DEFAULT_TILE_KIND = 0;
-	private final String DATA_FILE_SUFFIX = ".csv";
-	private final String DATA_FILE_PREFIX = "map";
+	private static final String DATA_FILE_SUFFIX = ".csv";
+	private static final String DATA_FILE_PREFIX = "map";
+	private boolean modified = false;
 
 	public TileManager(GamePanel gp) {
 		this.gp=gp;
@@ -25,6 +26,7 @@ public class TileManager implements IEditableComponent{
 	}
 	
 	public void newTileGrid() {
+		System.out.println("Creating blank tile grid");
 		this.tileGrid = new int[GamePanel.MAP_TILES_Y][GamePanel.MAP_TILES_X];
 		for (int y = 0; y < GamePanel.MAP_TILES_Y;y++) {
 			for (int x = 0; x < GamePanel.MAP_TILES_X;x++) {
@@ -89,6 +91,13 @@ public class TileManager implements IEditableComponent{
 		return test;
 	}
 	
+	public int getTileYX(int gridY, int gridX) {
+		return tileGrid[gridY][gridX];
+	}
+	public int getTileXY(int gridX, int gridY) {
+		return tileGrid[gridY][gridX];
+	}
+	
 	public void draw() {
 		
 		int[] ranges = getDrawableRange();
@@ -150,6 +159,7 @@ public class TileManager implements IEditableComponent{
 
 	@Override
 	public void paintAsset(int gridX, int gridY, int kind) {
+		modified=true;
 		try {
 			this.tileGrid[gridY][gridX] = kind;
 		}
@@ -168,7 +178,7 @@ public class TileManager implements IEditableComponent{
 	
 	@Override
 	public String getDataFilename() {
-		return Utils.getLevelresourceFilename(this.gp.level, DATA_FILE_PREFIX, DATA_FILE_SUFFIX);
+		return Utils.getLevelresourceFilename(this.gp.level, TileManager.DATA_FILE_PREFIX, TileManager.DATA_FILE_SUFFIX);
 	}
 
 	@Override
@@ -185,6 +195,14 @@ public class TileManager implements IEditableComponent{
 	public void setGridData(int[][] data) {
 		this.tileGrid = data;
 		
+	}
+	@Override
+	public boolean isModified() {
+		if (modified) {
+			modified=false;
+			return true;
+		}
+		return false;
 	}
 
 }

@@ -27,6 +27,7 @@ public class Item implements IEditableComponent{
 	public final int ITEM_DEFAULT_H = 50;
 	private final String SPRITE_SHEET_URL = "/images/itemA.png";
 	public final int BLANK_ITEM_TYPE = -1;
+	private boolean modified = false;
 	
 	BufferedImage[] bufferedImages;
 	GamePanel gp;
@@ -67,10 +68,10 @@ public class Item implements IEditableComponent{
 		// check if tile is colliding or open
 		// use random number to decide place item or not
 		do {
-			for (int y = 1; y< gp.tileGrid.length;y++) {
-				for (int x = 1; x< gp.tileGrid[0].length;x++) {
+			for (int y = 1; y< GamePanel.MAP_TILES_Y;y++) {
+				for (int x = 1; x< GamePanel.MAP_TILES_X;x++) {
 					tmp = random.nextInt(RANDOM_ITEM_DENSITY);
-					if(gp.tileGrid[y][x]==1 || tmp!=10 ||
+					if(gp.tileManager.getTileYX(x, y)==1 || tmp!=10 ||
 							(x <  MINIMUM_RANDOM_GRIDX &&
 							y < MINIMUM_RANDOM_GRIDX)
 							
@@ -233,6 +234,7 @@ public class Item implements IEditableComponent{
 	}
 	
 	public void addItem(int tileGridX, int tileGridY, int kind) {
+		modified = true;
 		try {
 			itemGrid[tileGridY][tileGridX] = kind;
 		}catch(Exception e) {
@@ -307,6 +309,14 @@ public class Item implements IEditableComponent{
 		}
 		
 		
+	}
+	@Override
+	public boolean isModified() {
+		if (modified) {
+			modified=false;
+			return true;
+		}
+		return false;
 	}
 	
 	

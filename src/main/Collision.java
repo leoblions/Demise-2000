@@ -19,7 +19,7 @@ public class Collision {
 	}
 	
 	public int tileAtWorldCoord(int wx, int wy) {
-		return gp.tileManager.tileGrid[wy/GamePanel.TILE_SIZE_PX][wx/GamePanel.TILE_SIZE_PX];
+		return gp.tileManager.getTileYX( wy/GamePanel.TILE_SIZE_PX,wx/GamePanel.TILE_SIZE_PX);
 		
 	}
 	

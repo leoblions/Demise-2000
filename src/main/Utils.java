@@ -18,6 +18,7 @@ public class Utils {
 	
 	public final static String COL_SEPARATOR = ",";
 	public final static String ROW_SEPARATOR = "\n";
+	public final static boolean MOCK_WRITE_FILE = true;
 
 	public Utils() {
 		
@@ -139,6 +140,9 @@ public class Utils {
 	public static void writeInt2DAToCSV(int[][] int2DA, String filePath) throws IOException {
 		File fhandle = null;
 		FileWriter writer = null;
+		if (MOCK_WRITE_FILE) {
+			filePath = filePath + "_mock.csv";
+		}
 		 try {
 		      fhandle = new File(filePath);
 		      writer = new FileWriter(filePath);
@@ -150,6 +154,10 @@ public class Utils {
 		        System.out.println("File already exists. deleting old one");
 		        fhandle.delete();
 		        fhandle.createNewFile();
+		       
+		      }
+		      if(!fhandle.canWrite()) {
+		    	  System.err.println("Can't write the file "+filePath);
 		      }
 		      int rows = int2DA.length;
 			int cols = int2DA[0].length;
@@ -168,7 +176,9 @@ public class Utils {
 						
 						
 					}
+					//System.out.println("print to file" +sb.toString());
 					writer.write(sb.toString());
+					writer.flush();
 					sb = new StringBuilder();
 				}
 		    } catch (IOException e) {

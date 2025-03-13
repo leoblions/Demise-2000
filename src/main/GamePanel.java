@@ -53,7 +53,7 @@ public class GamePanel extends JPanel implements Runnable{
 	public static int wpScreenLocY =0;
 	public static int mouseX =0;
 	public static int mouseY =0;
-	public static int[][] tileGrid;
+	//public static int[][] tileGrid;
 	public int[] visibleArea;
 	
 	/**
@@ -164,7 +164,7 @@ public class GamePanel extends JPanel implements Runnable{
 		});
 		this.editor = new Editor(this);
 		this.tileManager = new TileManager(this);
-		tileGrid= tileManager.tileGrid;
+		//tileGrid= tileManager.tileGrid;
 		this.player = new Player(this);
 		this.input = new Input(this);
 		this.addKeyListener(input);

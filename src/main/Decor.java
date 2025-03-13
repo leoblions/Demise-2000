@@ -32,6 +32,7 @@ public class Decor implements IEditableComponent{
 	int drawableRange;
 	public final int WALL_TILE_TYPE = 1;
 	public final int BLANK_DECOR_TYPE = -1;
+	private boolean modified = false;
 
 	public Decor(GamePanel gp) {
 		this.gp = gp;
@@ -65,8 +66,8 @@ public class Decor implements IEditableComponent{
 		// check if tile is colliding or open
 		// use random number to decide place item or not
 		do {
-			for (int y = 1; y < gp.tileGrid.length; y++) {
-				for (int x = 1; x < gp.tileGrid[0].length; x++) {
+			for (int y = 1; y < GamePanel.MAP_TILES_Y; y++) {
+				for (int x = 1; x < GamePanel.MAP_TILES_X; x++) {
 					tmp = random.nextInt(RANDOM_ITEM_DENSITY);
 //					if(gp.tileGrid[y][x].kind!=tileKind || tmp!=10 ||
 //							(x <  MINIMUM_RANDOM_GRIDX &&
@@ -75,7 +76,7 @@ public class Decor implements IEditableComponent{
 //							) {
 //						continue;
 //					}
-					if (gp.tileGrid[y][x] == tileKind && tmp == 10) {
+					if (gp.tileManager.getTileYX(y, x)  == tileKind && tmp == 10) {
 						try {
 							// get height and width of image
 							height = bufferedImages[kind].getHeight();
@@ -103,12 +104,12 @@ public class Decor implements IEditableComponent{
 
 	public void drawWallShadow() {
 		int kind, aboveKind;
-		for (int y = 0; y < gp.tileGrid.length - 1; y++) {
-			for (int x = 0; x < gp.tileGrid[0].length; x++) {
+		for (int y = 0; y < GamePanel.MAP_TILES_Y - 1; y++) {
+			for (int x = 0; x < GamePanel.MAP_TILES_X; x++) {
 				// place shadows on wall tiles
 				try {
-					kind = gp.tileGrid[y][x];
-					aboveKind = gp.tileGrid[y + 1][x];
+					kind = gp.tileManager.getTileYX(y,x);
+					aboveKind = gp.tileManager.getTileYX(y+1, x);
 					boolean solid = Collision.tileKindIsSolid(kind);
 					boolean solidAbove = Collision.tileKindIsSolid(aboveKind);
 					if (true == solid && !solidAbove) {
@@ -126,11 +127,11 @@ public class Decor implements IEditableComponent{
 
 	public void putDecorOnTileType(int kind, DecorType dtype) {
 		// int kind;
-		for (int y = 0; y < gp.tileGrid.length - 1; y++) {
-			for (int x = 0; x < gp.tileGrid[0].length; x++) {
+		for (int y = 0; y < gp.MAP_TILES_Y - 1; y++) {
+			for (int x = 0; x < gp.MAP_TILES_X; x++) {
 				// place shadows on wall tiles
-				kind = gp.tileGrid[y][x];
-				if (kind == WALL_TILE_TYPE && gp.tileGrid[y + 1][x] != WALL_TILE_TYPE) {
+				kind = gp.tileManager.getTileYX(y, x) ;
+				if (kind == WALL_TILE_TYPE && gp.tileManager.getTileYX(y+1, x)  != WALL_TILE_TYPE) {
 
 					decorGrid[y][x] = kind;
 				}
@@ -324,6 +325,7 @@ public class Decor implements IEditableComponent{
 
 	@Override
 	public void paintAsset(int gridX, int gridY, int kind) {
+		modified=true;
 		try {
 			this.decorGrid[gridY][gridX] = kind;
 			
@@ -365,6 +367,17 @@ public class Decor implements IEditableComponent{
 		}
 		
 		
+	}
+
+
+
+	@Override
+	public boolean isModified() {
+		if (modified) {
+			modified=false;
+			return true;
+		}
+		return false;
 	}
 
 }

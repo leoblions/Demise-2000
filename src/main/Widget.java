@@ -34,6 +34,7 @@ public class Widget implements IEditableComponent{
 	CullRegion crg;
 	ArrayList<WidgetRecord> widgetRecords;
 	Rectangle testRectangle;
+	private boolean modified;
 	
 	/*
 	 * 
@@ -261,6 +262,7 @@ public int getNewUIDFromRecords( ) {
 	}
 	
 	public void addItem(int tileGridX, int tileGridY, int kind) {
+		modified=true;
 		try {
 			widgetGrid[tileGridY][tileGridX] = kind;
 			
@@ -361,6 +363,14 @@ public int getNewUIDFromRecords( ) {
 		}
 		
 		
+	}
+	@Override
+	public boolean isModified() {
+		if (modified) {
+			modified=false;
+			return true;
+		}
+		return false;
 	}
 	
 	

@@ -37,7 +37,7 @@ public class PathFind {
 		int gridY = sgridY + soffsetGridY;
 		int kind;
 		try {
-			kind = gp.tileManager.tileGrid[gridY][gridX];
+			kind = gp.tileManager.getTileYX(gridY,gridX);
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return true;
 		}

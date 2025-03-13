@@ -9,6 +9,8 @@ public interface IEditableComponent {
 	 */
 	public boolean validateAssetID(int testAssetID); 
 	
+	public boolean isModified(); 
+	
 	public int maxAssetID(); 
 	
 	public String getDataFilename();

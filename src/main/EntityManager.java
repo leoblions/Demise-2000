@@ -10,6 +10,7 @@ public class EntityManager implements IEditableComponent{
 	GamePanel gp;
 	ArrayList<EntityRecord>entityRecords; //stores entity init data only
 	ArrayList<Entity>entityList; //stores refs to Entity objects
+	private boolean modified=false;
 	
 	public EntityManager(GamePanel gp) {
 		this.gp=gp;
@@ -97,6 +98,7 @@ public class EntityManager implements IEditableComponent{
 		// create entity object
 		// check if coords in use
 		// replace entity in coords if it does, append if does not
+		modified=true;
 		int UID = getNewUID();
 		Entity entity = new Entity(this.gp,  gridX,   gridY,   kind, UID);
 		EntityRecord eRecord = new EntityRecord(  gridX,   gridY,   kind,   UID);
@@ -183,6 +185,15 @@ public class EntityManager implements IEditableComponent{
 		}
 		this.entityList = outerList;
 		
+	}
+
+	@Override
+	public boolean isModified() {
+		if (modified) {
+			modified=false;
+			return true;
+		}
+		return false;
 	}
 	
 	

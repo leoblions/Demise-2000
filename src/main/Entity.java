@@ -435,13 +435,13 @@ private boolean moveAllowedTiles() {
 
 		int tTileForward = 0;
 		try {
-		tTileForward = GamePanel.tileGrid[tileForward[1]][tileForward[0]];
+		tTileForward =   gp.tileManager.getTileYX(tileForward[1], tileForward[0])  ;
 		}catch(Exception e) {
 			cycleDirectionL();cycleDirectionL();
 			senseTiles();
-			tTileForward = GamePanel.tileGrid[tileForward[1]][tileForward[0]];
+			tTileForward = gp.tileManager.getTileYX(tileForward[1], tileForward[0]);
 		}
-		int tTileRight = GamePanel.tileGrid[tileRight[1]][tileRight[0]];
+		int tTileRight = gp.tileManager.getTileYX(tileRight[1], tileRight[0])  ;
 		
 		
 		if(!Collision.tileKindIsSolid(tTileRight)  && rightTurnDebounceWait <=0 ) {

@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+
+import javax.naming.directory.InvalidAttributeValueException;
 /*
  * 
  * Numpad 0 to swap edit mode
@@ -143,13 +145,23 @@ public class Editor {
 		Utils.createDirectoryIfNotExist(dataFolderName);
 		String currentWorkingDirectory = System.getProperty("user.dir");
 		Path dataPath = Paths.get(currentWorkingDirectory, dataFolderName);
-		System.out.println(dataPath.toString());
+		System.out.println("Save component data "+ dataPath.toString());
+		String componentName;
 		for (IEditableComponent ec: this.components) {
+			componentName = ec.getEditMode().toString();
+			if(!ec.isModified()) {
+				System.out.println("Skip saving "+componentName);
+				continue;
+			}
 			String tilePath = ec.getDataFilename();
 			Path tilePathP = Paths.get(dataFolderName, tilePath);
 			try {
+				int[][] data = ec.getGridData();
+				if (data==null) {
+					throw new InvalidAttributeValueException("Component % componentName returned invalid data while saving.");
+				}
 				Utils.writeInt2DAToCSV(ec.getGridData(), tilePathP.toString());
-			} catch (IOException e) {
+			} catch (Exception e) {
 				
 				e.printStackTrace();
 			}
@@ -165,17 +177,26 @@ public class Editor {
 		String currentWorkingDirectory = System.getProperty("user.dir");
 		Path dataPath = Paths.get(currentWorkingDirectory, dataFolderName);
 		System.out.println(dataPath.toString());
+		String componentName;
 		for (IEditableComponent ec: this.components) {
+			componentName = ec.getEditMode().toString();
 			String tilePath = ec.getDataFilename();
 			Path tilePathP = Paths.get(dataFolderName, tilePath);
 			//Utils.writeInt2DAToCSV(ec.getGridData(), tilePathP.toString());
 			int[][] data;
 			try {
+				System.out.print("Loading component data :"+componentName);
 				data = Utils.openCSVto2DAInt(tilePathP.toString());
-
+				System.out.println("..OK" );
+				
 				ec.setGridData(data);
-			} catch (Exception e) {
+			} catch (NegativeArraySizeException e) {
+				System.err.println("..FAIL" );
+				System.err.println("Error while loading file: "+ tilePathP.toString());
 				e.printStackTrace();
+				continue;
+			} catch (Exception e){
+				
 			}
 		}
 
