@@ -96,7 +96,7 @@ public class Item implements IEditableComponent{
 	
 	public void pickupItem(int item) {
 		System.out.println("Picked up item "+ item);
-		
+		gp.inventory.addItem(item, 1);
 		
 		gp.sound.clipPlayFlags[2]=true;
 	

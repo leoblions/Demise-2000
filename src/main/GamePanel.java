@@ -90,6 +90,8 @@ public class GamePanel extends JPanel implements Runnable{
 	TextBox dialogTextBox, toolTipTextBox;
 	Position dialogTextBoxPosition, toolTipTextBoxPosition;
 	RasterString rs1;
+	Inventory inventory;
+	Zone zone;
 	
 	public enum InputAction{
 		UP,
@@ -162,23 +164,25 @@ public class GamePanel extends JPanel implements Runnable{
              }
             
 		});
-		this.editor = new Editor(this);
-		this.tileManager = new TileManager(this);
-		//tileGrid= tileManager.tileGrid;
-		this.player = new Player(this);
-		this.input = new Input(this);
+		
+		editor = new Editor(this);
+		tileManager = new TileManager(this);
+		player = new Player(this);
+		input = new Input(this);
 		this.addKeyListener(input);
-		this.gameState = GameState.GAME;
-		this.camera = new Camera(this);
-		this.collision = new Collision(this);
-		this.raycast = new Raycast(this);
-		this.shadow = new Shadow(this);
-		this.hud = new HUD(this);
-		this.pathFind = new PathFind(this);
-		this.widget = new Widget(this);
+		gameState = GameState.GAME;
+		camera = new Camera(this);
+		collision = new Collision(this);
+		raycast = new Raycast(this);
+		shadow = new Shadow(this);
+		hud = new HUD(this);
+		pathFind = new PathFind(this);
+		widget = new Widget(this);
 		visibleArea = Utils.getVisibleArea(this);
 		entityManager = new EntityManager(this);
+		inventory = new Inventory(this);
 		item = new Item(this);
+		zone = new Zone(this);
 		rs1 = new RasterString(this, "TEST", 45, 45);
 		
 		initDialogTextBox();
@@ -317,6 +321,7 @@ public class GamePanel extends JPanel implements Runnable{
 		dialogTextBox.update();
 		toolTipTextBox.update();
 		widget.update();
+		zone.update();
 		Point p = this.getMousePosition();
 		if (p != null){
 			this.mouseX = (int) p.getX();
@@ -347,6 +352,7 @@ public class GamePanel extends JPanel implements Runnable{
 		shadow.draw();
 		widget.draw();
 		rs1.draw();
+		zone.draw();
 		
 		// foreground
 		hud.draw();
