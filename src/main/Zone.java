@@ -307,7 +307,6 @@ public int getNewUIDFromRecords( ) {
 					data[i][4],
 					data[i][5]
 							));
-			System.out.println("azdded zone to list");
 		}
 		
 		
@@ -388,7 +387,7 @@ public int getNewUIDFromRecords( ) {
 			try {
 				initRecordsListFrom2DA(data);
 				initGridDataFromRecordsList();
-				printRecordsList();
+				//printRecordsList();
 			}catch(Exception e) {
 				e.printStackTrace();
 			}

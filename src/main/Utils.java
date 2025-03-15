@@ -69,6 +69,38 @@ public class Utils {
 		
 	}
 	
+	public static String[] getStringsFromFile(String filePath){
+		File dataFile = new File(filePath);
+		if(!dataFile.exists()) {
+			System.out.println("file not found "+filePath);
+		}
+		String[] outputArray = null;
+		Scanner scanner;
+		LinkedList<String> allLines = new LinkedList<>();
+		try {
+			scanner = new Scanner(dataFile);
+			while(scanner.hasNextLine()) {
+				String currentLineStrings  ;
+				
+				String data = scanner.nextLine();
+				currentLineStrings = data;
+				allLines.add(currentLineStrings);
+			}
+			int outerArrayLength = allLines.size();
+			outputArray  = new String[outerArrayLength];
+			int rows = outerArrayLength;
+			for (int y = 0; y < rows; y++) {
+				outputArray[y] = allLines.get(y);
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return outputArray;
+		
+	}
+	
 	
 	public static int[][] openCSVto2DAInt(String filePath) throws Exception{
 		
