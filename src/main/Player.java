@@ -13,7 +13,6 @@ import main.GamePanel.InputAction;
 public class Player implements IInputListener{
 
 	GamePanel gp;
-	public Tile[][] tileGrid;
 	BufferedImage[] bufferedImages;
 	
 	//worldX and worldY are the TLC of the hitbox in world
@@ -28,13 +27,19 @@ public class Player implements IInputListener{
 	public int velocity =5;
 	public int defaultVelocity =5;
 	private boolean run = false;
+	private boolean heal = true;
 	public int velX, velY;
 	public int playerScreenX,playerScreenY;
-	public int health=80;
+	public int health ;
+	public int stamina;
 	public PlayerState state;
-	private final int CYCLE_IMAGE_FREQ = 30;
-	private final String SPRITE_SHEET = "/images/playerHera.png";
-	private Pacer animationPacer;
+	private final int CYCLE_IMAGE_FREQ = 9;
+	private final int MAX_HEALTH = 100;
+	private final int HEAL_RATE = 120;
+	private final int STAM_HEAL_RATE = 120;
+	private final int START_HEALTH = 80;
+	private final String SPRITE_SHEET = "/images/playerHeraW.png";
+	private Pacer animationPacer, healPacer;
 	private int currentImageIndex = 0;
 	public char direction = 'd';
 	int frame = 0;
@@ -53,7 +58,9 @@ public class Player implements IInputListener{
 		this.proposedMove.height = wpSolidArea.height ;
 		this.worldX = 200;
 		this.worldY = 200;
-		animationPacer = new Pacer(15);
+		health=START_HEALTH;
+		animationPacer = new Pacer(CYCLE_IMAGE_FREQ);
+		healPacer = new Pacer(HEAL_RATE);
 		this.movesRequested = new boolean[] {false,false,false,false};
 		this.stopRequested = new boolean[] {false,false,false,false};
 		
@@ -71,10 +78,27 @@ public class Player implements IInputListener{
 	}
 	
 	int walkCycleCounter=0;
+	
+	
 	public void cycleSprite() {
 		
 		if(state==PlayerState.STAND) {
-			currentImageIndex=0;
+			int directionIndexpart = 0;
+			switch (direction) {
+			case 'u':
+				directionIndexpart =0;
+				break;
+			case 'd':
+				directionIndexpart =4;
+				break;
+			case 'l':
+				directionIndexpart =8;
+				break;
+			case 'r':
+				directionIndexpart =12;
+				break;
+			}
+			currentImageIndex=directionIndexpart;
 			return;
 		}else if(state==PlayerState.WALK) {
 			
@@ -136,6 +160,7 @@ public class Player implements IInputListener{
 	public void update() {
 		movePlayer();
 		cycleSprite();
+		playerHeal();
 		this.wpSolidArea.x = worldX;
 		this.wpSolidArea.y = worldY;
 		
@@ -144,8 +169,10 @@ public class Player implements IInputListener{
 	public void toggleRun() {
 		if (velocity==defaultVelocity) {
 			velocity*=1.5;
+			run=true;
 		}else {
 			velocity=defaultVelocity;
+			run=false;
 		}
 	}
 	
@@ -232,6 +259,10 @@ public class Player implements IInputListener{
 			}
 			
 		}
+		if (run&& stamina>0) {
+			stamina-=1;
+			gp.hud.stamina=stamina;
+		}
 		return true;
 		
 	}
@@ -307,10 +338,18 @@ public class Player implements IInputListener{
 		}
 		return outputBufferedImage;
 	}
+	
+	private void playerHeal() {
+		if (heal && healPacer.check() && state!=PlayerState.DEAD) {
+			if (health<MAX_HEALTH) {
+				health+=1;
+			}
+		}
+	}
 
 	@Override
 	public void inputListenerAction(InputAction action) {
-		// TODO Auto-generated method stub
+		
 		switch(action) {
 		case UP:
 			this.movesRequested[0] = true;

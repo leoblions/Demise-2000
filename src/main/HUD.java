@@ -22,7 +22,7 @@ public class HUD implements IStatusMessageListener {
 	public boolean showInfotext = false;
 	public int maxHealth = 100;
 	public int health = 100;
-	public int enemyHealth = 100;
+	public int stamina = 100;
 	public String healthText;  
 	private String statusMessageText = "";
 	public int killCount =0;
@@ -102,7 +102,7 @@ public class HUD implements IStatusMessageListener {
 			leftCornerText();
 			centerBottomMessageBox() ;
 			healthBar();
-			healthBarEnemy();
+			staminaBar();
 			killCount();
 			gemCount();
 			drawStatusMessage();
@@ -214,9 +214,9 @@ public class HUD implements IStatusMessageListener {
 		
 	}
 	
-	public void healthBarEnemy() {
+	public void staminaBar() {
 		int boxWidth = gp.WIDTH /5;
-		float percHealth = (float)enemyHealth/(float)maxHealth;
+		float percHealth = (float)stamina/(float)maxHealth;
 		int innerWidth =  (int) (boxWidth*percHealth);
 		int boxHeight = gp.HEIGHT /26;
 		int boxX = gp.WIDTH-(gp.WIDTH /20) -boxWidth ;
@@ -252,7 +252,7 @@ public class HUD implements IStatusMessageListener {
 		// renders status message, not to be called by outside function
 		if(statusMessageTimeout>0) {
 			int boxWidth = gp.WIDTH /5;
-			float percHealth = (float)enemyHealth/(float)maxHealth;
+			float percHealth = (float)stamina/(float)maxHealth;
 			int innerWidth =  (int) (boxWidth*percHealth);
 			int boxHeight = gp.HEIGHT /26;
 			int boxX = gp.WIDTH-(gp.WIDTH /20) -boxWidth ;

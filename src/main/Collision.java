@@ -24,7 +24,7 @@ public class Collision {
 	}
 	
 	public static boolean tileKindIsSolid(int kind) {
-		if (kind>3) {
+		if (kind>3 && kind <16) {
 			return true;
 		}else {
 			return false;
@@ -101,6 +101,35 @@ public class Collision {
 			
 		}
 		return collisions;
+		
+	}
+	
+public boolean collideTileRectDirection(Rectangle r, char direction) {
+		 
+
+		
+		//up coll
+		int tmp =  tileAtWorldCoord(r.x+(r.width/2),r.y-BUFFER_ZONE);
+		if (tileKindIsSolid(tmp)&&direction=='u') {
+			return true;
+		}
+		//down coll
+		tmp =  tileAtWorldCoord(r.x+(r.width/2),r.y+(r.height)+BUFFER_ZONE);
+		if (tileKindIsSolid(tmp)&&direction=='d') {
+			return true;
+		}
+		//left coll
+		tmp =  tileAtWorldCoord(r.x -BUFFER_ZONE ,r.y + r.height/2);
+		if (tileKindIsSolid(tmp)&&direction=='l') {
+			return true;
+		}
+		//right coll
+		tmp =  tileAtWorldCoord(r.x + r.width +BUFFER_ZONE ,r.y + r.height/2);
+		if (tileKindIsSolid(tmp)&&direction=='r') {
+			return true;
+			
+		}
+		return false;
 		
 	}
 	

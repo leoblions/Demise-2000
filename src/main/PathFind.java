@@ -15,6 +15,8 @@ public class PathFind {
 	Pacer pfPacer;
 	public final int PF_GRID_PASSES = 15;
 	public final int GRID_UPDATE_PERIOD = 30;
+	public final int TARGET_OFFSET_X = 30;
+	public final int TARGET_OFFSET_Y = 30;
 	private boolean DRAW_WALL_GRID = false;
 	private boolean DRAW_PF_NUMBERS = false;
 
@@ -131,10 +133,10 @@ public class PathFind {
 	public void updatePFGrid() {
 		this.checkGrid = new boolean[rows][cols];
 		this.pfGrid = new int[rows][cols];
-		int pgX = gp.player.playerScreenX / gp.TILE_SIZE_PX;
-		int pgY = gp.player.playerScreenY / gp.TILE_SIZE_PX;
+		int pgX = (gp.player.playerScreenX +TARGET_OFFSET_X )/ gp.TILE_SIZE_PX;
+		int pgY = (gp.player.playerScreenY +TARGET_OFFSET_Y )/ gp.TILE_SIZE_PX;
 		checkGrid[pgY][pgX]= true; 
-		pfGrid[pgY][pgX]= 1; 
+		pfGrid[pgY][pgX]= 5; 
 		
 		for(int i = 0; i< PF_GRID_PASSES ; i++) {
 			pfPass(i);

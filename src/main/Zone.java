@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Random;
 
-public class Zone implements IEditableComponent{
+import main.GamePanel.InputAction;
+
+public class Zone implements IEditableComponent , IInputListener{
 	private static final String DATA_FILE_PREFIX = "zone";
 	private static final String DATA_FILE_SUFFIX = ".csv";
 	public final int ITEM_SCALE_PX = 25;
@@ -35,6 +37,8 @@ public class Zone implements IEditableComponent{
 	private boolean modified;
 	Color highlightColor = new Color(100, 50, 100, 100);
 	Breaker soundEffectBreaker ;
+	Breaker actionPressBreaker;
+	boolean activateZoneFlag = false;
 	
 	/*
 	 * Zone fields:
@@ -64,6 +68,7 @@ public class Zone implements IEditableComponent{
 		}
 		
 		gp.editor.addComponent(this);
+		actionPressBreaker=new Breaker();
 		soundEffectBreaker=new Breaker();
 	}
 	
@@ -82,16 +87,7 @@ public class Zone implements IEditableComponent{
 	
 	
 	
-	public void touchZoneAction(int item, int UID) {
-		//System.out.println("Player touching zone "+ item);
-		
-		if(soundEffectBreaker.get()) {
-			gp.sound.clipPlayFlags[2]=true;
-		}
-		
-	
-		
-	}
+
 	
 	
 	
@@ -103,6 +99,7 @@ public class Zone implements IEditableComponent{
 		}catch(Exception e) {
 			
 		}
+		activateZoneFlag = false;
 		
 //		for (int item: itemsTouchedByPlayer) {
 //			if(item!=null) {
@@ -170,6 +167,7 @@ public class Zone implements IEditableComponent{
 			gp.hud.showPrompt=true;
 			gp.hud.showDialog=true;
 		}else {
+			actionPressBreaker.reset();
 			soundEffectBreaker.reset();
 		}
 
@@ -179,6 +177,21 @@ public class Zone implements IEditableComponent{
 		
 				
 	}
+	
+	public void touchZoneAction(int item, int UID) {
+		//System.out.println("Player touching zone "+ item);
+		
+		if( soundEffectBreaker.get()) {
+			gp.sound.clipPlayFlags[2]=true;
+			//actionPressBreaker.reset();
+			gp.hud.showPrompt=false;
+		}
+		
+		
+	
+		
+	}
+	
 	/**
 	 * draws the items on screen, also adds onscreen items to a list
 	 */
@@ -416,8 +429,23 @@ public int getNewUIDFromRecords( ) {
 		return false;
 	}
 	
+
+	
 	
 	public record ZoneRecord(int gridX, int gridY, int width, int height, int kind, int UID) {}
+
+
+	@Override
+	public void inputListenerAction(InputAction action) {
+		if (action!=null && action==InputAction.ACTION) {
+			if (true) {
+				activateZoneFlag=true;
+			}
+			
+			
+		}
+		
+	}
 		
 		
 	}

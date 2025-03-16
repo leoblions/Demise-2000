@@ -407,5 +407,23 @@ public class Utils {
 		
 		return images;
 	}
+	
+	public static BufferedImage[] appendArray(BufferedImage[] arr1, BufferedImage[] arr2) {
+		int index = 0;
+		int len1 = arr1.length;
+		int len2 = arr2.length;
+		int len3 = len1 + len2;
+		BufferedImage[] arr3 = new BufferedImage[len3];
+		for(BufferedImage b: arr1) {
+			arr3[index]=b;
+			index++;
+		}
+		for(BufferedImage b: arr2) {
+			arr3[index]=b;
+			index++;
+		}
+		return arr3;
+		
+	}
 
 }

@@ -11,7 +11,8 @@ public class TileManager implements IEditableComponent{
 	GamePanel gp;
 	private int[][] tileGrid;
 	BufferedImage[] bufferedImages;
-	public final String TILE_SPRITESHEET_PATH = "/images/tilesA.png";
+	public final String TILE_SPRITESHEET_PATHA = "/images/tilesA.png";
+	public final String TILE_SPRITESHEET_PATHB = "/images/tilesB.png";
 	public final int DEFAULT_TILE_KIND = 0;
 	private static final String DATA_FILE_SUFFIX = ".csv";
 	private static final String DATA_FILE_PREFIX = "map";
@@ -35,26 +36,15 @@ public class TileManager implements IEditableComponent{
 		}
 	}
 	
-	public void initImages_0() throws IOException {
-		this.bufferedImages = new BufferedImage[20];
-		this.bufferedImages[0] = ImageIO.read(getClass().getResourceAsStream("/tiles/metaltileD.png"));
-		this.bufferedImages[1] = ImageIO.read(getClass().getResourceAsStream("/tiles/metal.png"));
-		this.bufferedImages[2] = ImageIO.read(getClass().getResourceAsStream("/tiles/diamondtile.png"));
-		this.bufferedImages[3] = ImageIO.read(getClass().getResourceAsStream("/tiles/yellowcarpet.png"));
-		this.bufferedImages[4] = ImageIO.read(getClass().getResourceAsStream("/tiles/oldsubwaytile.png"));
-		this.bufferedImages[5] = ImageIO.read(getClass().getResourceAsStream("/tiles/cobblestonem.png"));
-		this.bufferedImages[6] = ImageIO.read(getClass().getResourceAsStream("/tiles/grass50a.png"));
-		this.bufferedImages[7] = ImageIO.read(getClass().getResourceAsStream("/tiles/wood50b.png"));
-		this.bufferedImages[8] = ImageIO.read(getClass().getResourceAsStream("/tiles/diamondtile2.png"));
-		this.bufferedImages[9] = ImageIO.read(getClass().getResourceAsStream("/tiles/wood50a.png"));
-		this.bufferedImages[10] = ImageIO.read(getClass().getResourceAsStream("/tiles/tilesbrown.png"));
-		this.bufferedImages[11] = ImageIO.read(getClass().getResourceAsStream("/tiles/tilesRB.png"));
-	}
+
 	
 	public void initImages() throws IOException {
-		this.bufferedImages = new BufferedImage[20];
+		//this.bufferedImages = new BufferedImage[20];
 		Utils utils = new Utils();
-		this.bufferedImages = utils.spriteSheetCutter(TILE_SPRITESHEET_PATH,4,4,50,50);
+		BufferedImage[] tilesA = utils.spriteSheetCutter(TILE_SPRITESHEET_PATHA,4,4,50,50);
+		BufferedImage[] tilesB = utils.spriteSheetCutter(TILE_SPRITESHEET_PATHB,4,4,50,50);
+
+		this.bufferedImages = Utils.appendArray(tilesA, tilesB);
 	
 	}
 	/**

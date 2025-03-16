@@ -10,6 +10,7 @@ import java.util.HashMap;
 import javax.imageio.ImageIO;
 
 import main.Collision.Direction4W;
+import main.Player.PlayerState;
 
 public class Entity  {
 
@@ -19,7 +20,14 @@ public class Entity  {
 	private final int SS_ROWS = 4;
 	private final int SS_CELL_W = 50;
 	private final int SS_CELL_H = 50;
+	
+	private final char UP = 'u';
+	private final char DOWN = 'd';
+	private final char LEFT = 'l';
+	private final char RIGHT = 'r';
+	private final char NONE = 'n';
 	private BufferedImage[] bufferedImages;
+	private Pacer animationPacer;
 	static HashMap<Integer,BufferedImage[]>entImageStoreW; //memoize image arrays
 	public Rectangle wpSolidArea;
 	public Rectangle wpProposedMove, testRect;
@@ -31,7 +39,9 @@ public class Entity  {
 	int spriteHeight =25;
 	int velX = 0;
 	int velY = 0;
+	int frame = 0;
 	char state = 'w'; //w=walk, s=stand, a=attack, d=dead, h=hit
+	char direction = 'n';//  n u d l r
 	int ENEMY_DAMAGE = 1;
 	int rightTurnDebounceWait =0;  //prevent making too many right turns in quick succession
 	boolean foundWall = false;
@@ -82,7 +92,7 @@ public class Entity  {
 		this.currTileYX =new int[2];
 		int[] dimensions = getEntityWHFromKind(  kind);
 		entImageStoreW = new HashMap<>();
-		
+		animationPacer = new Pacer(10);
 		position = new Position(gp, 0, 0, dimensions[0], dimensions[1]);
 		testPosition = new Position(gp, 0, 0, dimensions[0], dimensions[1]);
 		position.setPositionToGridXY(startGX, startGY);
@@ -93,6 +103,8 @@ public class Entity  {
 		movesRequested = new boolean[4];
 		tileForward = new int[2];
 		tileRight = new int[2];
+		spriteHitboxOffsetX= - 30;
+		spriteHitboxOffsetY = - 30;
 		
 		if (kind < 10) {
 			enemy = true;
@@ -114,7 +126,7 @@ public class Entity  {
 			e.printStackTrace();
 		}
 		this.bufferedImages = entImageStoreW.get(kind);
-		currDirection = Direction4W.DOWN;
+		//currDirection = Direction4W.NONE;
 	}
 	
 	public int[] getEntityWHFromKind(int kind) {
@@ -133,10 +145,10 @@ public class Entity  {
 				wpSolidArea.width, 
 				wpSolidArea.height);
 		gp.g2.drawImage(bufferedImages[currentImageIndex],
-				worldX-gp.wpScreenLocX+spriteHitboxOffsetX,
-				worldY-gp.wpScreenLocY+spriteHitboxOffsetY,
-				25, 
-				35,
+				(worldX-gp.wpScreenLocX)+spriteHitboxOffsetX,
+				(worldY-gp.wpScreenLocY)+spriteHitboxOffsetY,
+				50, 
+				50,
 				null);
 		
 		if(DRAW_SENSE_BLOCKS) {
@@ -176,6 +188,50 @@ public class Entity  {
 		}
 	}
 	
+public void cycleSprite() {
+	int directionIndexpart = 0;
+	switch (currDirection) {
+	case UP:
+		directionIndexpart =0;
+		break;
+	case DOWN:
+		directionIndexpart =4;
+		break;
+	case LEFT:
+		directionIndexpart =8;
+		break;
+	case RIGHT:
+		directionIndexpart =12;
+		break;
+	}
+		if(state=='s') {
+			
+			
+			currentImageIndex=0;
+			
+		}else if(state=='w') {
+			
+			
+			
+			
+			
+			if(animationPacer.check()) {
+				if (frame<3) {
+					frame++;
+				}else {
+					frame=0;
+				}
+				
+			}
+			
+			currentImageIndex = frame + directionIndexpart;
+			
+		}else {
+			//currentImageIndex=0;
+		}
+		
+	}
+	
 	public void moveDirection() {
 		switch(currDirection) {
 		case UP:
@@ -197,181 +253,9 @@ public class Entity  {
 		
 		}
 	}
-/**
- * returns false if next move would collide with tiles	
- * @return
- */
-private boolean moveAllowedTiles() {
-		
-		//this.proposedMove = new Rectangle();
-		
-		int pvelX = velX;
-		int pvelY = velY;
-		
-		if(this.movesRequested[0]) {
-			pvelY = -currentSpeed;
-			//this.movesRequested[0]=false;
-		}
-		if(this.movesRequested[1]) {
-			pvelY= currentSpeed;
-			//this.movesRequested[1]=false;
-		}
-		if(this.movesRequested[2]) {
-			pvelX = -currentSpeed;
-			//this.movesRequested[2]=false;
-		}
-		if(this.movesRequested[3]) {
-			pvelX = currentSpeed;
-			//this.movesRequested[3]=false;
-		}
-		
-		int worldX = position.getWorldX();
-		int worldY = position.getWorldY();
-		
-		this.wpProposedMove.x = worldX+pvelX;
-		this.wpProposedMove.y = worldY+pvelY;
-		
-		boolean[] colls = null;
-		try {
-			 colls = gp.collision.collideTileRect(this.wpProposedMove);
-		}catch(Exception e) {
-			return false;
-		}
-		//bump the player away from wall
-		//bumpPlayer( colls);
-		
-		for(int i=0;i<colls.length;i++) {
-			if (colls[i]==true){
-				//stop player if collision function goes OOB
-				 
-				return false;
-			}
-			
-		}
-		//System.out.println("moveAllowedTiles true");
-		return true;
-		
-	}
+
 	
-	public void setMovesRequested( ) {
-		//System.out.println(currDirection.name());
-		switch(currDirection) {
-		
-		case UP:
-			movesRequested[0]=true;
-			movesRequested[1]=false;
-			movesRequested[2]=false;
-			movesRequested[3]=false;
-			break;
-		case RIGHT:
-			movesRequested[0]=false;
-			movesRequested[1]=false;
-			movesRequested[2]=false;
-			movesRequested[3]=true;
-			break;
-		case DOWN:
-			movesRequested[0]=false;
-			movesRequested[1]=true;
-			movesRequested[2]=false;
-			movesRequested[3]=false;
-			break;
-		case LEFT:
-			movesRequested[0]=false;
-			movesRequested[1]=false;
-			movesRequested[2]=true;
-			movesRequested[3]=false;
-			break;
-		default:
-			break;
-		
-		
-		
-		}
-	}
-	
-	public void changeDirection() {
-		switch(currDirection) {
-		
-		case UP:
-			if(!gp.collision.collideTileRectDirection(wpProposedMove, Direction4W.RIGHT)) {
-				currDirection=Direction4W.RIGHT;
-			}else {
-				currDirection=Direction4W.LEFT;
-			}
-			
-			break;
-		case RIGHT:
-			if(!gp.collision.collideTileRectDirection(wpProposedMove, Direction4W.DOWN)) {
-				currDirection=Direction4W.DOWN;
-			}else {
-				currDirection=Direction4W.UP;
-			}
-			
-			break;
-		case DOWN:
-			
-			if(!gp.collision.collideTileRectDirection(wpProposedMove, Direction4W.LEFT)) {
-				currDirection=Direction4W.LEFT;
-			}else {
-				currDirection=Direction4W.RIGHT;
-			}
-			
-		case LEFT:
-			if(!gp.collision.collideTileRectDirection(wpProposedMove, Direction4W.UP)) {
-				currDirection=Direction4W.UP;
-			}else {
-				currDirection=Direction4W.DOWN;
-			}
-			break;
-		default:
-			break;
-		}
-		//System.out.println("currDirection "+currDirection.toString());
-	}
-	
-	private void changeDirection2(boolean[] colls){
-		
-		
-	}
-	
-	public void cycleDirectionL() {
-		switch(currDirection) {
-		case UP:
-			currDirection=Direction4W.LEFT;
-			break;
-		case RIGHT:
-			currDirection=Direction4W.UP;
-			break;
-		case DOWN:
-			currDirection=Direction4W.RIGHT;
-			break;
-		case LEFT:
-			currDirection=Direction4W.DOWN;
-			break;
-		default:
-			break;
-		}
-	}
-	
-	public void cycleDirectionR() {
-		switch(currDirection) {
-		case UP:
-			currDirection=Direction4W.RIGHT;
-			break;
-		case RIGHT:
-			currDirection=Direction4W.DOWN;
-			break;
-		case DOWN:
-			currDirection=Direction4W.LEFT;
-			break;
-		case LEFT:
-			currDirection=Direction4W.UP;
-			break;
-		default:
-			break;
-		}
-	}
-	
+
 	
 	
 	public boolean inbounds() {
@@ -420,88 +304,17 @@ private boolean moveAllowedTiles() {
 	public boolean tileAhead(Rectangle prop) {
 		return gp.collision.collideTileRectDirection(prop, currDirection);
 	}
-	/**
-	 * based on the entity's direction, obtains the coordinates of forward and 
-	 * right bordering tiles to be used later to decide which way to turn
-	 */
-	private void senseTiles() {
-		switch(currDirection) {
-		case UP:
-			tileForward[0]=this.currTileYX[0];
-			tileForward[1]=this.currTileYX[1]-1;
-			tileRight[0]=this.currTileYX[0]+1;
-			tileRight[1]=this.currTileYX[1];
-			break;
-		case DOWN:
-			tileForward[0]=this.currTileYX[0];
-			tileForward[1]=this.currTileYX[1]+1;
-			tileRight[0]=this.currTileYX[0]-1;
-			tileRight[1]=this.currTileYX[1];
-			break;
-		case LEFT:
-			tileForward[0]=this.currTileYX[0]-1;
-			tileForward[1]=this.currTileYX[1];
-			tileRight[0]=this.currTileYX[0];
-			tileRight[1]=this.currTileYX[1]-1;
-			break;
-		case RIGHT:
-			tileForward[0]=this.currTileYX[0]+1;
-			tileForward[1]=this.currTileYX[1];
-			tileRight[0]=this.currTileYX[0];
-			tileRight[1]=this.currTileYX[1]+1;
-			break;
-		
-		}
-	}
+
 		
 	
-	/**
-	 * check the tile grid, move forward if tile not blocked, then right if it is
-	 */
-	
-	private void moveByTile() {
-		int worldX = position.getWorldX();
-		int worldY = position.getWorldY();
-		this.currTileYX[0] = (worldX+this.spriteWidth/2)/GamePanel.TILE_SIZE_PX;
-		this.currTileYX[1] = (worldY+this.spriteHeight/2)/GamePanel.TILE_SIZE_PX;
 
-		senseTiles();
-
-		int tTileForward = 0;
-		try {
-		tTileForward =   gp.tileManager.getTileYX(tileForward[1], tileForward[0])  ;
-		}catch(Exception e) {
-			cycleDirectionL();cycleDirectionL();
-			senseTiles();
-			tTileForward = gp.tileManager.getTileYX(tileForward[1], tileForward[0]);
-		}
-		int tTileRight = gp.tileManager.getTileYX(tileRight[1], tileRight[0])  ;
-		
-		
-		if(!Collision.tileKindIsSolid(tTileRight)  && rightTurnDebounceWait <=0 ) {
-
-			cycleDirectionR();
-		
-			rightTurnDebounceWait = 190;
-			foundWall=false;
-
-		}else {
-			rightTurnDebounceWait --;
-		}
-
-		if( Collision.tileKindIsSolid(tTileForward) ) {
-			foundWall =true;
-			cycleDirectionL();
-		}
-
-	}
 	
 	private void setDirectionByPathFind() {
 		int worldX = position.getWorldX();
 		int worldY = position.getWorldY();
 		 Point worldPoint = new Point(worldX,worldY);
-		 char currDirectionL = gp.pathFind.getDirectionTowardsPlayer(worldPoint);
-		 currDirection = translateDirectionLetterToEnum(currDirectionL);
+		 this.direction = gp.pathFind.getDirectionTowardsPlayer(worldPoint);
+		 currDirection = translateDirectionLetterToEnum(direction);
 		
 
 	}
@@ -544,13 +357,17 @@ private boolean moveAllowedTiles() {
 		wpSolidArea.x = worldX;
 		wpSolidArea.y = worldY;
 		if (chasePlayer) {
-
+			state='w';
 			setDirectionByPathFind();
+			
 		}
 		if(!moveOverlapsOtherEntity()) {
+			
 			moveDirection();
+		}else {
+			state='s';
 		}
-		
+		cycleSprite();
 		
 		
 		enemyCollidePlayer();
