@@ -15,6 +15,8 @@ public class Brain implements Runnable{
 	public static final int BRAIN_TICK_RATE = 10;
 	public Brain(GamePanel gp) {
 		this.gp=gp;
+		this.bflags=new HashMap<String, Boolean>();
+		brainThread = new Thread(this);
 		brainThread.start();
 		
 	}
@@ -70,5 +72,18 @@ public class Brain implements Runnable{
 		}
 		
 	}
+
+	public void playerActivateNPC(Entity entity, boolean pressecActivate) {
+		if (pressecActivate) {
+
+			System.out.printf("Brain: player touch the NPC: %d  %d \n ",entity.kind,entity.UID);
+		}else {
+			System.out.printf("BrainsdfggggC: %d  %d \n ",entity.kind,entity.UID);
+		}
+		gp.hud.showPrompt=true;
+		
+	}
+	
+	
 
 }

@@ -322,7 +322,7 @@ public class Utils {
 			testLine += words[currWord] + " ";
 			int tlLength = testLine.length();
 			//System.out.println(tlLength);
-			System.out.println(currentLine);
+			//System.out.println(currentLine);
 			if( tlLength > lengthLimit) {
 				// make new line
 				lines.add(currentLine);
@@ -406,6 +406,19 @@ public class Utils {
 		}
 		
 		return images;
+	}
+	
+	public static boolean createFileIfNotExist(String subdir, String filename) {
+		Path filePath = Paths.get(subdir,filename);
+		File file = new File(filePath.toString());
+		try {
+			return file.createNewFile();
+		} catch (IOException e) { 
+			System.err.println("Failed to create file: "+filePath);
+			e.printStackTrace();
+			return false;
+		}
+				
 	}
 	
 	public static BufferedImage[] appendArray(BufferedImage[] arr1, BufferedImage[] arr2) {

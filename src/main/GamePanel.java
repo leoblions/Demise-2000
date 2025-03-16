@@ -61,7 +61,7 @@ public class GamePanel extends JPanel implements Runnable{
 	 */
 	public boolean tilesPlacedComplete = false;
 	public int level = 0;
-	
+	boolean playerPressActivate = false;;
 	
 	/**
 	 * Declare main game objects
@@ -89,8 +89,9 @@ public class GamePanel extends JPanel implements Runnable{
 	PathFind pathFind;
 	//RasterString rs1;
 	Inventory inventory;
+	Conversation conversation;
 	Zone zone;
-	
+	Brain brain;
 	public enum InputAction{
 		UP,
 		DOWN,
@@ -181,6 +182,8 @@ public class GamePanel extends JPanel implements Runnable{
 		inventory = new Inventory(this);
 		item = new Item(this);
 		zone = new Zone(this);
+		conversation = new Conversation(this);
+		brain = new Brain(this);
 		//rs1 = new RasterString(this, "TEST", 45, 45);
 		
 		
@@ -191,6 +194,7 @@ public class GamePanel extends JPanel implements Runnable{
 		if(LOAD_LEVEL_ON_START) {
 			level = LEVEL_TO_LOAD_ON_START;
 			this.editor.loadComponentData();
+			conversation.loadDataFromFileCurrentRoom();
 		}
 		
 		//this must come last, put nothing below it
@@ -299,6 +303,8 @@ public class GamePanel extends JPanel implements Runnable{
 			this.mouseX = (int) p.getX();
 			this.mouseY = (int) p.getY();
 		}
+		playerPressActivate = false;
+		
 	}
 	
 	public void paintComponent(Graphics g) {

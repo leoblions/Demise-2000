@@ -44,6 +44,11 @@ public class Zone implements IEditableComponent , IInputListener{
 	 * Zone fields:
 	 * 
 	 * 
+	 * Kind:
+	 * 0 activate on touch
+	 * 1 activate on player use button
+	 * 
+	 * 
 	 */
 	
 	
@@ -63,11 +68,12 @@ public class Zone implements IEditableComponent , IInputListener{
 		try {
 			initImages() ;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// 
 			e.printStackTrace();
 		}
 		
 		gp.editor.addComponent(this);
+		gp.input.addListener(this);
 		actionPressBreaker=new Breaker();
 		soundEffectBreaker=new Breaker();
 	}
@@ -101,12 +107,7 @@ public class Zone implements IEditableComponent , IInputListener{
 		}
 		activateZoneFlag = false;
 		
-//		for (int item: itemsTouchedByPlayer) {
-//			if(item!=null) {
-//				
-//			}
-//			
-//		}
+
 		
 	}
 	
@@ -158,14 +159,16 @@ public class Zone implements IEditableComponent , IInputListener{
 		int pgX = gp.player.worldX / GamePanel.TILE_SIZE_PX;
 		int pgY = gp.player.worldY/ GamePanel.TILE_SIZE_PX;
 		int kind = zoneGrid[pgY][pgX];
-		gp.hud.showPrompt=false;
+		//gp.hud.showPrompt=false;
 		if (kind!=BLANK_ITEM_TYPE) {
 			//zoneGrid[pgY][pgX] = BLANK_ITEM_TYPE;
 			//System.out.println("Got item "+kind);
 			int UID = getUIDForzoneGridCoords(  pgY,   pgX);
 			touchZoneAction(kind,UID);
-			gp.hud.showPrompt=true;
-			gp.hud.showDialog=true;
+			if (kind==1) {
+				gp.hud.showPrompt=true;
+			}
+			
 		}else {
 			actionPressBreaker.reset();
 			soundEffectBreaker.reset();
@@ -180,11 +183,14 @@ public class Zone implements IEditableComponent , IInputListener{
 	
 	public void touchZoneAction(int item, int UID) {
 		//System.out.println("Player touching zone "+ item);
+		gp.hud.toolTipTextBox.visible=true;
+		gp.hud.showPrompt=true;
 		
-		if( soundEffectBreaker.get()) {
+		;
+		if(activateZoneFlag && actionPressBreaker.get() && soundEffectBreaker.get()) {
 			gp.sound.clipPlayFlags[2]=true;
 			//actionPressBreaker.reset();
-			gp.hud.showPrompt=false;
+			//gp.hud.showPrompt=false;
 		}
 		
 		
@@ -440,6 +446,7 @@ public int getNewUIDFromRecords( ) {
 		if (action!=null && action==InputAction.ACTION) {
 			if (true) {
 				activateZoneFlag=true;
+				System.out.println("activate zone");
 			}
 			
 			

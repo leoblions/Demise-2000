@@ -119,7 +119,8 @@ public class HUD implements IStatusMessageListener {
 			toolTipTextBox.draw();
 		}
 		
-		
+		showPrompt=false;
+		showDialog=false;
 	}
 	
 	public void update() {
@@ -149,6 +150,8 @@ public class HUD implements IStatusMessageListener {
 
 		dialogTextBox.update();
 		toolTipTextBox.update();
+		
+		//showPrompt=false;
 		
 	}
 	

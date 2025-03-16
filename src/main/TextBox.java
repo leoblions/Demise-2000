@@ -17,6 +17,7 @@ public class TextBox {
 	private final int LINE_OFFSET_X = 5;
 	private final int LINE_OFFSET_Y = 5;
 	private final int LINE_HEIGHT = 15;
+	private final boolean DEBUG_PRINT = false;
 	int screenX, screenY, width, height;
 	int lineLength, borderWidth,lineAmount,lineOffsetX,lineOffsetY,lineHeight;
 	ArrayList<RasterString>rasterStrings;
@@ -149,9 +150,12 @@ public class TextBox {
 			
 			ArrayList<String>stringsCollectionL = Utils.splitStringIntoLinesAtWordEnding(textContent, DEF_LINE_LENGTH);
 			this.linesList =  stringsCollectionL ;
-			for(String line: stringsCollectionL) {
-				System.out.println(line);
+			if(DEBUG_PRINT) {
+				for(String line: stringsCollectionL) {
+					System.out.println(line);
+				}
 			}
+			
 
 		}
 		

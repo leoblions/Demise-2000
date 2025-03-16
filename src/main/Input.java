@@ -65,6 +65,7 @@ public class Input implements KeyListener{
 				notifyListeners(InputAction.MESSAGE);
 				break;
 			case KeyEvent.VK_E:
+				gp.playerPressActivate = true;
 				notifyListeners(InputAction.ACTION);
 				break;
 			case KeyEvent.VK_SHIFT:

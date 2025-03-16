@@ -3,7 +3,9 @@ package main;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-public class EntityManager implements IEditableComponent{
+import main.GamePanel.InputAction;
+
+public class EntityManager implements IEditableComponent,IInputListener{
 	public static final int NEW_ENTITY_DEFAULT_UID = 0;
 	private static final String DATA_FILE_PREFIX = "entity";
 	private static final String DATA_FILE_SUFFIX = ".csv";
@@ -194,6 +196,12 @@ public class EntityManager implements IEditableComponent{
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void inputListenerAction(InputAction action) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	

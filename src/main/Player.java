@@ -22,7 +22,7 @@ public class Player implements IInputListener{
 	public Rectangle wpSolidArea;
 	public Rectangle spriteRect;
 	private Rectangle proposedMove;
-	public int spriteHitboxOffsetX=0;
+	public int spriteHitboxOffsetX=-20;
 	public int spriteHitboxOffsetY=0;
 	public int velocity =5;
 	public int defaultVelocity =5;
@@ -52,8 +52,8 @@ public class Player implements IInputListener{
 		this.gp=gp;
 		this.wpSolidArea = new Rectangle();
 		this.proposedMove = new Rectangle();
-		this.wpSolidArea.width = 25;
-		this.wpSolidArea.height = 25;
+		this.wpSolidArea.width = 15;
+		this.wpSolidArea.height = 35;
 		this.proposedMove.width = wpSolidArea.width ;
 		this.proposedMove.height = wpSolidArea.height ;
 		this.worldX = 200;
