@@ -34,6 +34,7 @@ public class Zone implements IEditableComponent{
 	Rectangle testRectangle;
 	private boolean modified;
 	Color highlightColor = new Color(100, 50, 100, 100);
+	Breaker soundEffectBreaker ;
 	
 	/*
 	 * Zone fields:
@@ -63,6 +64,7 @@ public class Zone implements IEditableComponent{
 		}
 		
 		gp.editor.addComponent(this);
+		soundEffectBreaker=new Breaker();
 	}
 	
 	
@@ -81,10 +83,12 @@ public class Zone implements IEditableComponent{
 	
 	
 	public void touchZoneAction(int item, int UID) {
-		System.out.println("Player touching zone "+ item);
+		//System.out.println("Player touching zone "+ item);
 		
+		if(soundEffectBreaker.get()) {
+			gp.sound.clipPlayFlags[2]=true;
+		}
 		
-		gp.sound.clipPlayFlags[2]=true;
 	
 		
 	}
@@ -157,11 +161,16 @@ public class Zone implements IEditableComponent{
 		int pgX = gp.player.worldX / GamePanel.TILE_SIZE_PX;
 		int pgY = gp.player.worldY/ GamePanel.TILE_SIZE_PX;
 		int kind = zoneGrid[pgY][pgX];
+		gp.hud.showPrompt=false;
 		if (kind!=BLANK_ITEM_TYPE) {
 			//zoneGrid[pgY][pgX] = BLANK_ITEM_TYPE;
 			//System.out.println("Got item "+kind);
 			int UID = getUIDForzoneGridCoords(  pgY,   pgX);
 			touchZoneAction(kind,UID);
+			gp.hud.showPrompt=true;
+			gp.hud.showDialog=true;
+		}else {
+			soundEffectBreaker.reset();
 		}
 
 		

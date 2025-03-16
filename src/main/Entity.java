@@ -5,6 +5,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
@@ -13,7 +14,13 @@ import main.Collision.Direction4W;
 public class Entity  {
 
 	private final boolean DRAW_SENSE_BLOCKS = false;
+	private final String IMAGE_URI_TEMPLATE_W = "/images/entity%dW.png";
+	private final int SS_COLS = 4;
+	private final int SS_ROWS = 4;
+	private final int SS_CELL_W = 50;
+	private final int SS_CELL_H = 50;
 	private BufferedImage[] bufferedImages;
+	static HashMap<Integer,BufferedImage[]>entImageStoreW; //memoize image arrays
 	public Rectangle wpSolidArea;
 	public Rectangle wpProposedMove, testRect;
 	int startGX,   startGY,   kind,   UID;
@@ -24,9 +31,12 @@ public class Entity  {
 	int spriteHeight =25;
 	int velX = 0;
 	int velY = 0;
+	char state = 'w'; //w=walk, s=stand, a=attack, d=dead, h=hit
 	int ENEMY_DAMAGE = 1;
 	int rightTurnDebounceWait =0;  //prevent making too many right turns in quick succession
 	boolean foundWall = false;
+	public boolean enemy = false;
+	public boolean chasePlayer = false;
 	int[] tileRight;
 	int[] currTileYX; //x and y position in tile grid
 	GamePanel gp;
@@ -34,7 +44,24 @@ public class Entity  {
 	private boolean[] movesRequested;
 	private int[] tileForward;
 	public Position position, testPosition;
-	
+/*
+ * Types:
+ * 0 Orb
+ * 1 Bat
+ * 2 Centipede
+ * 3 Spider
+ * 4 Maggot
+ * 5 Earwig
+ * 6 Zombie 1
+ * 7 Zombie 2
+ * 8 Mercenary 1
+ * 9 Mercenary 2
+ * 10 Sam
+ * 11 Elissa
+ * 12 Trent
+ * 13 Otto
+ * 	
+ */
 	
 	
 /**
@@ -54,6 +81,7 @@ public class Entity  {
 		this.UID = UID;
 		this.currTileYX =new int[2];
 		int[] dimensions = getEntityWHFromKind(  kind);
+		entImageStoreW = new HashMap<>();
 		
 		position = new Position(gp, 0, 0, dimensions[0], dimensions[1]);
 		testPosition = new Position(gp, 0, 0, dimensions[0], dimensions[1]);
@@ -65,6 +93,11 @@ public class Entity  {
 		movesRequested = new boolean[4];
 		tileForward = new int[2];
 		tileRight = new int[2];
+		
+		if (kind < 10) {
+			enemy = true;
+			chasePlayer = true;
+		}
 		
 		wpProposedMove.height = spriteHeight;
 		wpProposedMove.width = spriteWidth;
@@ -80,6 +113,7 @@ public class Entity  {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		this.bufferedImages = entImageStoreW.get(kind);
 		currDirection = Direction4W.DOWN;
 	}
 	
@@ -509,9 +543,10 @@ private boolean moveAllowedTiles() {
 		int worldY = position.getWorldY();
 		wpSolidArea.x = worldX;
 		wpSolidArea.y = worldY;
-		setDirectionByPathFind();
-		//moveByTile() ;
-		//borderBump();
+		if (chasePlayer) {
+
+			setDirectionByPathFind();
+		}
 		if(!moveOverlapsOtherEntity()) {
 			moveDirection();
 		}
@@ -524,17 +559,31 @@ private boolean moveAllowedTiles() {
 	}
 	
 	public void enemyCollidePlayer() {
-		if(this.wpSolidArea.intersects(gp.player.wpSolidArea)) {
+		if(enemy && this.wpSolidArea.intersects(gp.player.wpSolidArea)) {
 			gp.player.health-=ENEMY_DAMAGE;
 		}
 	}
 
  
 	public void initImages() throws IOException {
-		this.bufferedImages = new BufferedImage[20];
-		bufferedImages[0] = ImageIO.read(getClass().getResourceAsStream("/characters/orb4.png"));
-		
-		
+		if (null==entImageStoreW){
+			entImageStoreW=new HashMap<>();
+		}
+		//this.bufferedImages = new BufferedImage[20];
+		String URLString = String.format(IMAGE_URI_TEMPLATE_W,this.kind);
+		//bufferedImages[0] = ImageIO.read(getClass().getResourceAsStream("/characters/orb4.png"));
+		BufferedImage[] tempBI = null;
+		try {
+			tempBI = new Utils().spriteSheetCutter(URLString, SS_COLS, SS_ROWS, SS_CELL_W, SS_CELL_H);
+			
+		}catch (Exception e) {
+			System.err.println("Entity Failed to open the resource: "+ URLString);
+			e.printStackTrace();
+		}
+		if (null==tempBI) {
+			tempBI = new Utils().spriteSheetCutterBlank( SS_COLS, SS_ROWS, SS_CELL_W, SS_CELL_H);
+		}
+		entImageStoreW.put(kind,tempBI);
 	}
 
 }

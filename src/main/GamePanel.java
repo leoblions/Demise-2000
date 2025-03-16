@@ -87,9 +87,7 @@ public class GamePanel extends JPanel implements Runnable{
 	Widget widget;
 	Editor editor;
 	PathFind pathFind;
-	TextBox dialogTextBox, toolTipTextBox;
-	Position dialogTextBoxPosition, toolTipTextBoxPosition;
-	RasterString rs1;
+	//RasterString rs1;
 	Inventory inventory;
 	Zone zone;
 	
@@ -183,9 +181,9 @@ public class GamePanel extends JPanel implements Runnable{
 		inventory = new Inventory(this);
 		item = new Item(this);
 		zone = new Zone(this);
-		rs1 = new RasterString(this, "TEST", 45, 45);
+		//rs1 = new RasterString(this, "TEST", 45, 45);
 		
-		initDialogTextBox();
+		
 		
 		decor = new Decor(this);
 		
@@ -199,31 +197,7 @@ public class GamePanel extends JPanel implements Runnable{
 		launchGame();
 	}
 	
-	private void initDialogTextBox() {
-		int dialogTextBoxPositionH = HEIGHT / 10;
-		int dialogTextBoxPositionW = WIDTH/2;
-		int dialogTextBoxPositionX = (WIDTH/2) - (dialogTextBoxPositionW/2);
-		int dialogTextBoxPositionY = (HEIGHT) - (dialogTextBoxPositionH*2);
-		dialogTextBoxPosition = new Position(this,
-				dialogTextBoxPositionX,
-				dialogTextBoxPositionY,
-				dialogTextBoxPositionW,
-				dialogTextBoxPositionH);
-		this.dialogTextBox = new TextBox(this, dialogTextBoxPosition);
-		this.dialogTextBox.backgroundColor =new Color(200, 200, 200, 100);
-		
-		int toolTipTextBoxPositionH = HEIGHT / 20;
-		int toolTipTextBoxPositionW = WIDTH/6;
-		int toolTipTextBoxPositionX = (WIDTH) - (toolTipTextBoxPositionW) - (toolTipTextBoxPositionH);;
-		int toolTipTextBoxPositionY = (HEIGHT) - (toolTipTextBoxPositionH*2);
-		toolTipTextBoxPosition = new Position(this,
-				toolTipTextBoxPositionX,
-				toolTipTextBoxPositionY,
-				toolTipTextBoxPositionW,
-				toolTipTextBoxPositionH);
-		this.toolTipTextBox = new TextBox(this, toolTipTextBoxPosition);
-		this.toolTipTextBox.backgroundColor =new Color(255, 200, 200, 150);
-	}
+	
 	
 	public void launchGame() {
 		gameThread = new Thread(this);
@@ -318,8 +292,6 @@ public class GamePanel extends JPanel implements Runnable{
 		hud.update();
 		editor.update();
 		pathFind.update();
-		dialogTextBox.update();
-		toolTipTextBox.update();
 		widget.update();
 		zone.update();
 		Point p = this.getMousePosition();
@@ -347,11 +319,9 @@ public class GamePanel extends JPanel implements Runnable{
 		entityManager.draw();
 		
 		item.draw();
-		dialogTextBox.draw();
-		toolTipTextBox.draw();
 		shadow.draw();
 		widget.draw();
-		rs1.draw();
+		//rs1.draw();
 		zone.draw();
 		
 		// foreground

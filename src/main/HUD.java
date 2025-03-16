@@ -17,6 +17,7 @@ public class HUD implements IStatusMessageListener {
 	public String lcText2 = "";
 	public String lcText3 = "";
 	public String lcText4 = "";
+	public String promptText = "PRESS E";
 	public String lcTextLine3, lcText5, lcText6;
 	public boolean showInfotext = false;
 	public int maxHealth = 100;
@@ -28,6 +29,13 @@ public class HUD implements IStatusMessageListener {
 	public String killCountString = ""; 
 	public String gemCountString = "";
 	public int gemCount = 0;
+	
+	// text boxes
+	boolean showDialog = false;
+	boolean showPrompt = false;
+	TextBox dialogTextBox, toolTipTextBox;
+	Position dialogTextBoxPosition, toolTipTextBoxPosition;
+	
 	
 	
 	int alpha = 127;
@@ -50,7 +58,37 @@ public class HUD implements IStatusMessageListener {
 		arial16 = new Font("Arial",Font.PLAIN,16);
 		arial20 = new Font("Arial",Font.BOLD,20);
 		//mboxTextVisible=false;
+		initDialogTextBox();
 		
+	}
+	
+	private void initDialogTextBox() {
+		int HEIGHT  = GamePanel.HEIGHT;
+		int WIDTH = GamePanel.WIDTH;
+		int dialogTextBoxPositionH = HEIGHT / 10;
+		int dialogTextBoxPositionW = WIDTH/2;
+		int dialogTextBoxPositionX = (WIDTH/2) - (dialogTextBoxPositionW/2);
+		int dialogTextBoxPositionY = (HEIGHT) - (dialogTextBoxPositionH*2);
+		dialogTextBoxPosition = new Position(this.gp,
+				dialogTextBoxPositionX,
+				dialogTextBoxPositionY,
+				dialogTextBoxPositionW,
+				dialogTextBoxPositionH);
+		this.dialogTextBox = new TextBox(this.gp, dialogTextBoxPosition);
+		this.dialogTextBox.backgroundColor =new Color(200, 200, 200, 100);
+		
+		int toolTipTextBoxPositionH = HEIGHT / 20;
+		int toolTipTextBoxPositionW = WIDTH/6;
+		int toolTipTextBoxPositionX = (WIDTH) - (toolTipTextBoxPositionW) - (toolTipTextBoxPositionH);;
+		int toolTipTextBoxPositionY = (HEIGHT) - (toolTipTextBoxPositionH*2);
+		toolTipTextBoxPosition = new Position(this.gp,
+				toolTipTextBoxPositionX,
+				toolTipTextBoxPositionY,
+				toolTipTextBoxPositionW,
+				toolTipTextBoxPositionH);
+		this.toolTipTextBox = new TextBox(this.gp, toolTipTextBoxPosition);
+		this.toolTipTextBox.backgroundColor =new Color(255, 200, 200, 150);
+		this.toolTipTextBox.setTextContent(promptText);
 	}
 	
 	
@@ -73,6 +111,14 @@ public class HUD implements IStatusMessageListener {
 			e.printStackTrace();
 			
 		}
+
+		if (showDialog) {
+			dialogTextBox.draw();
+		}
+		if(showPrompt) {
+			toolTipTextBox.draw();
+		}
+		
 		
 	}
 	
@@ -100,6 +146,9 @@ public class HUD implements IStatusMessageListener {
 		//if (gp.enemy!=null)lcText5 = Integer.toString(gp.enemy.screenX);
 		//if (gp.enemy!=null)lcText6 = Integer.toString(gp.enemy.screenY);
 		statusMessageChangeTimeout--;
+
+		dialogTextBox.update();
+		toolTipTextBox.update();
 		
 	}
 	

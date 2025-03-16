@@ -1,5 +1,6 @@
 package main;
 
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -18,6 +20,7 @@ public class Utils {
 	
 	public final static String COL_SEPARATOR = ",";
 	public final static String ROW_SEPARATOR = "\n";
+	public final static String IMAGE_PLACEHOLDER = "/images/ph.png";
 	public final static boolean MOCK_WRITE_FILE = false;
 	public final static boolean WRITE_NEW_FILE = false;
 
@@ -305,6 +308,42 @@ public class Utils {
 		return false;
 	}
 	
+	public static ArrayList<String> splitStringIntoLinesAtWordEnding(  String inputString, int lengthLimit) {
+		String[] words = inputString.split(" ");
+		int currWord=0;
+		int lastWord = words.length-1;
+		String currentLine = "";
+		String testLine = "";
+
+		
+		ArrayList<String>lines = new ArrayList<String>();
+		while(currWord<=lastWord) {
+			
+			testLine += words[currWord] + " ";
+			int tlLength = testLine.length();
+			//System.out.println(tlLength);
+			System.out.println(currentLine);
+			if( tlLength > lengthLimit) {
+				// make new line
+				lines.add(currentLine);
+				currentLine = "";
+				testLine = "";
+			}else {
+				// append to current line
+				currentLine = testLine;
+				
+				currWord++;
+			}
+		}
+		if( !testLine.equals("")) {
+			// make new line
+			lines.add(testLine);
+			currentLine = "";
+			testLine = "";
+		}
+		return lines;
+	}
+	
 	/** 
 	 * return visible screen area in world tiles X,Y,X,Y
 	 * @return
@@ -347,6 +386,25 @@ public class Utils {
 				subscript++;
 			}
 		}
+		return images;
+	}
+	
+	public   BufferedImage[] spriteSheetCutterBlank( int cols , int rows , int width , int height ) throws IOException {
+		String fileURL = IMAGE_PLACEHOLDER;
+		BufferedImage[] images = new BufferedImage[rows*cols];
+		BufferedImage img=null;
+		try {
+			img = ImageIO.read(getClass().getResourceAsStream(fileURL));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		int arrayLength = cols * rows;
+		Graphics2D g2 = img.createGraphics();
+		g2.drawImage(img, 0, 0, width, height, null);
+		for (int i = 0; i < arrayLength;i++ ) {
+			images[i]=img;
+		}
+		
 		return images;
 	}
 

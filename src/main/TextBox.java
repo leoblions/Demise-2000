@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -17,6 +18,7 @@ public class TextBox {
 	private final int LINE_OFFSET_Y = 5;
 	private final int LINE_HEIGHT = 15;
 	int screenX, screenY, width, height;
+	int lineLength, borderWidth,lineAmount,lineOffsetX,lineOffsetY,lineHeight;
 	ArrayList<RasterString>rasterStrings;
 	GamePanel gp;
 	Rectangle backgroundRect;
@@ -82,13 +84,17 @@ public class TextBox {
 		int startY = this.screenY + LINE_OFFSET_Y;
 		int currY = startY;
 		for(String line: paragraph) {
-			RasterString currRS = new RasterString(gp,line,screenX,currY);
+			RasterString currRS = new RasterString(gp,line,startX,currY);
 			this.rasterStrings.add(currRS);
 			currY += LINE_HEIGHT;
 		}
 	}
 	
 	public void updateTextContent(String content) {
+		paragraph.updateText(content);
+		updateRasterStrings();
+	}
+	public void setTextContent(String content) {
 		paragraph.updateText(content);
 		updateRasterStrings();
 	}
@@ -124,7 +130,7 @@ public class TextBox {
 			
 		}
 
-		public void splitContentToList() {
+		public void splitContentToList_0() {
 			int contentLength = textContent.length();
 			int startIndex = 0;
 			String substring;
@@ -135,6 +141,17 @@ public class TextBox {
 				stringsCollection.add(substring);
 			}
 			this.linesList = stringsCollection;
+
+		}
+		
+		public void splitContentToList() {
+			
+			
+			ArrayList<String>stringsCollectionL = Utils.splitStringIntoLinesAtWordEnding(textContent, DEF_LINE_LENGTH);
+			this.linesList =  stringsCollectionL ;
+			for(String line: stringsCollectionL) {
+				System.out.println(line);
+			}
 
 		}
 		
