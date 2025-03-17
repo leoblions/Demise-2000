@@ -27,7 +27,7 @@ public class TextBox {
 	String boxtext;
 	Paragraph paragraph;
 	
-	boolean visible;
+	private boolean visible;
 	Stroke s1;
 
 	public TextBox(GamePanel gp, int screenX, int screenY, int width, int height) {

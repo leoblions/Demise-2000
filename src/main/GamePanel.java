@@ -298,6 +298,7 @@ public class GamePanel extends JPanel implements Runnable{
 		pathFind.update();
 		widget.update();
 		zone.update();
+		conversation.update();
 		Point p = this.getMousePosition();
 		if (p != null){
 			this.mouseX = (int) p.getX();

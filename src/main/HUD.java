@@ -31,9 +31,9 @@ public class HUD implements IStatusMessageListener {
 	public int gemCount = 0;
 	
 	// text boxes
-	boolean showDialog = false;
+	private boolean showDialog = false;
 	boolean showPrompt = false;
-	TextBox dialogTextBox, toolTipTextBox;
+	TextBox dialogTextBox, promptTextBox;
 	Position dialogTextBoxPosition, toolTipTextBoxPosition;
 	
 	
@@ -86,14 +86,18 @@ public class HUD implements IStatusMessageListener {
 				toolTipTextBoxPositionY,
 				toolTipTextBoxPositionW,
 				toolTipTextBoxPositionH);
-		this.toolTipTextBox = new TextBox(this.gp, toolTipTextBoxPosition);
-		this.toolTipTextBox.backgroundColor =new Color(255, 200, 200, 150);
-		this.toolTipTextBox.setTextContent(promptText);
+		this.promptTextBox = new TextBox(this.gp, toolTipTextBoxPosition);
+		this.promptTextBox.backgroundColor =new Color(255, 200, 200, 150);
+		this.promptTextBox.setTextContent(promptText);
 	}
 	
 	
 	public void toggleShowInfoText() {
 		this.showInfotext = !this.showInfotext;
+	}
+	
+	public void setShowDialogBox(boolean showIt) {
+		showDialog = showIt;
 	}
 	
 	public void draw() {
@@ -116,11 +120,14 @@ public class HUD implements IStatusMessageListener {
 			dialogTextBox.draw();
 		}
 		if(showPrompt) {
-			toolTipTextBox.draw();
+			promptTextBox.draw();
 		}
 		
-		showPrompt=false;
-		showDialog=false;
+		// by default hide the text boxes unless another class needs them.
+		
+		//showPrompt=false; //press e
+		//showDialog=false;
+		
 	}
 	
 	public void update() {
@@ -149,7 +156,7 @@ public class HUD implements IStatusMessageListener {
 		statusMessageChangeTimeout--;
 
 		dialogTextBox.update();
-		toolTipTextBox.update();
+		promptTextBox.update();
 		
 		//showPrompt=false;
 		

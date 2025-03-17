@@ -33,6 +33,7 @@ public class Zone implements IEditableComponent , IInputListener{
 	Random random;
 	CullRegion crg;
 	ArrayList<ZoneRecord> zoneRecords;
+	ArrayList<ZoneRecord> zoneIgnoreList; // temporarily deactivated zones
 	Rectangle testRectangle;
 	private boolean modified;
 	Color highlightColor = new Color(100, 50, 100, 100);
@@ -59,6 +60,7 @@ public class Zone implements IEditableComponent , IInputListener{
 		zoneGrid = Utils.initBlankGrid(gp.MAP_TILES_Y, gp.MAP_TILES_X, BLANK_ITEM_TYPE);
 		crg = new CullRegion(gp, 15);
 		zoneRecords = new ArrayList<>();
+		zoneIgnoreList = new ArrayList<>();
 		testRectangle = new Rectangle(
 				0,
 				0,
@@ -183,7 +185,7 @@ public class Zone implements IEditableComponent , IInputListener{
 	
 	public void touchZoneAction(int item, int UID) {
 		//System.out.println("Player touching zone "+ item);
-		gp.hud.toolTipTextBox.visible=true;
+		//gp.hud.showPrompt;
 		gp.hud.showPrompt=true;
 		
 		;

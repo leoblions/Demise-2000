@@ -42,7 +42,7 @@ public class Entity {
 	boolean foundWall = false;
 	public boolean enemy = false;
 	public boolean chasePlayer = false;
-	public boolean playerCanActivate = false;
+	public boolean playerPressToActivate = false;
 	int[] tileRight;
 	int[] currTileYX; // x and y position in tile grid
 	GamePanel gp;
@@ -111,7 +111,7 @@ public class Entity {
 			currDirection = Direction4W.DOWN;
 			state = 's';
 			direction = 'D';
-			playerCanActivate=true;
+			playerPressToActivate=true;
 		}
 
 		wpProposedMove.height = spriteHeight;
@@ -363,8 +363,13 @@ public class Entity {
 			
 			if(enemy) {
 				gp.player.health -= ENEMY_DAMAGE;
-			}else {
+			}else if(gp.entityManager.activateEntityFlag && 
+					 gp.entityManager.entityActivateDalay.delayExpired() &&
+					!gp.entityManager.entityTouchedList.contains(this)){
+				gp.entityManager.entityActivateDalay.setDelay(EntityManager.ENTITY_ACTIVATE_DELAY_TICKS);
 				gp.brain.playerActivateNPC(this,gp.playerPressActivate);
+				gp.entityManager.playerTouchedActorSincelastTick = true;
+				gp.entityManager.entityTouchedList.add(this);
 			}
 		}
 	}

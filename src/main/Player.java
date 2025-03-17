@@ -6,8 +6,6 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import javax.imageio.ImageIO;
-
 import main.GamePanel.InputAction;
 
 public class Player implements IInputListener{
@@ -28,6 +26,8 @@ public class Player implements IInputListener{
 	public int defaultVelocity =5;
 	private boolean run = false;
 	private boolean heal = true;
+	public boolean frozen = false;
+	public boolean attack = false;;
 	public int velX, velY;
 	public int playerScreenX,playerScreenY;
 	public int health ;
@@ -39,10 +39,12 @@ public class Player implements IInputListener{
 	private final int STAM_HEAL_RATE = 120;
 	private final int START_HEALTH = 80;
 	private final String SPRITE_SHEET = "/images/playerHeraW.png";
+	private final String SPRITE_SHEET_ATTACK = "/images/playerHeraA.png";
 	private Pacer animationPacer, healPacer;
 	private int currentImageIndex = 0;
 	public char direction = 'd';
 	int frame = 0;
+	public int[] tileForward=new int[2];
 	
 	//up down left right
 	public boolean[] movesRequested;
@@ -74,7 +76,7 @@ public class Player implements IInputListener{
 		STAND,
 		DEAD,
 		ZOMBIE,
-		POD
+		POD, ATTACK
 	}
 	
 	int walkCycleCounter=0;
@@ -99,6 +101,32 @@ public class Player implements IInputListener{
 				break;
 			}
 			currentImageIndex=directionIndexpart;
+			return;
+		}else if(state==PlayerState.ATTACK) {
+			int directionIndexpart = 16;
+			switch (direction) {
+			case 'u':
+				directionIndexpart =16;
+				break;
+			case 'd':
+				directionIndexpart =20;
+				break;
+			case 'l':
+				directionIndexpart =24;
+				break;
+			case 'r':
+				directionIndexpart =28;
+				break;
+			}
+			if(animationPacer.check()) {
+				if (frame<3) {
+					frame++;
+				}else {
+					frame=0;
+				}
+				
+			}
+			currentImageIndex=frame+directionIndexpart;
 			return;
 		}else if(state==PlayerState.WALK) {
 			
@@ -158,12 +186,42 @@ public class Player implements IInputListener{
 
 
 	public void update() {
-		movePlayer();
+		if (!frozen) {
+			movePlayer();
+			calculateTileForward();
+		}else {
+			state = PlayerState.STAND;
+		}
 		cycleSprite();
 		playerHeal();
 		this.wpSolidArea.x = worldX;
 		this.wpSolidArea.y = worldY;
 		
+	}
+	
+	public void calculateTileForward() {
+		int tx = this.worldX/gp.TILE_SIZE_PX;
+		int ty = this.worldY/gp.TILE_SIZE_PX;
+		int fx = tx;
+		int fy = ty;
+		switch(direction) {
+		case 'u':
+			fy -=1;
+			break;
+		case 'd':
+			fy +=1;
+			break;
+		case 'l':
+			fx -=1;
+			break;
+		case 'r':
+			fx +=1;
+			break;
+		default:
+			break;
+		}
+		tileForward[0]=Utils.clamp(0,gp.MAP_TILES_X-1,fx);
+		tileForward[1]=Utils.clamp(0,gp.MAP_TILES_Y-1,fy);
 	}
 	
 	public void toggleRun() {
@@ -270,12 +328,12 @@ public class Player implements IInputListener{
 	
 	
 	
-	private void movePlayer() {
+	private boolean movePlayer() {
 		
 		if(!moveAllowed()) {
 			gp.sound.clipPlayFlags[1]=true;
 			
-			return;
+			return false;
 		}
 		
 		velX = decay(velX);
@@ -312,18 +370,34 @@ public class Player implements IInputListener{
 			walkingCounter--;
 			this.state=PlayerState.WALK;
 			
+		}else if (attack){
+			walkingCounter = 0;
+			this.state=PlayerState.ATTACK;
+			
 		}else {
 			this.state=PlayerState.STAND;
 		}
 		//System.out.println(state.name());
-		
+		if(this.state==PlayerState.WALK) {
+			attack=false;
+			return true;
+		}else {
+			return false;
+		}
 	}
 
 
 	public void initImages() throws IOException {
-		bufferedImages = new Utils().spriteSheetCutter(SPRITE_SHEET, 4, 4, 50, 50);
+		//bufferedImages = new Utils().spriteSheetCutter(SPRITE_SHEET, 4, 4, 50, 50);
+
+		BufferedImage[] tilesA = new Utils().spriteSheetCutter(SPRITE_SHEET,4,4,50,50);
+		BufferedImage[] tilesB = new Utils().spriteSheetCutter(SPRITE_SHEET_ATTACK,4,4,50,50);
+		bufferedImages = Utils.appendArray(tilesA, tilesB);
+		
 		
 	}
+	
+	
 	
 	public BufferedImage[] scaleImages(BufferedImage[] bufferedImages, int width, int height) {
 		Image tmp_image;
@@ -375,6 +449,10 @@ public class Player implements IInputListener{
 			break;
 		case RIGHTSTOP:
 			this.movesRequested[3] = false;
+			break;
+		case FIRE:
+			attack = true;
+			walkCycleCounter=0;
 			break;
 			
 		case RUN:

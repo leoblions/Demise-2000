@@ -7,19 +7,27 @@ import main.GamePanel.InputAction;
 
 public class EntityManager implements IEditableComponent,IInputListener{
 	public static final int NEW_ENTITY_DEFAULT_UID = 0;
+	public static final int ENTITY_ACTIVATE_DELAY_TICKS = 120;
 	private static final String DATA_FILE_PREFIX = "entity";
 	private static final String DATA_FILE_SUFFIX = ".csv";
 	GamePanel gp;
 	ArrayList<EntityRecord>entityRecords; //stores entity init data only
 	ArrayList<Entity>entityList; //stores refs to Entity objects
+	ArrayList<Entity>entityTouchedList;
 	private boolean modified=false;
+	public boolean playerTouchedActorSincelastTick = false;
+	public boolean activateEntityFlag = false;
+	public Delay entityActivateDalay;
 	
 	public EntityManager(GamePanel gp) {
 		this.gp=gp;
 		entityRecords = new ArrayList<>();
+		entityTouchedList = new ArrayList<>();
 		entityList = new ArrayList<>();
 		//this.addEntity(5, 5, 0, 0);
+		entityActivateDalay = new Delay();
 		gp.editor.addComponent(this);
+		gp.input.addListener(this);
 	}
 	
 	public void addEntity(int startGX, int startGY, int kind, int UID) {
@@ -45,6 +53,8 @@ public class EntityManager implements IEditableComponent,IInputListener{
 	}
 	
 	public void update() {
+		playerTouchedActorSincelastTick = false;
+		entityActivateDalay.reduce();
 		for (int i = 0; i < entityList.size(); i++) {
 			 Entity entity =entityList.get(i) ;
 				if (null!= entity) {
@@ -53,6 +63,10 @@ public class EntityManager implements IEditableComponent,IInputListener{
 				} 
 				
 			}
+		if(playerTouchedActorSincelastTick == false) {
+			entityTouchedList.clear();
+			activateEntityFlag = false;
+		}
 		
 	}
 
@@ -200,7 +214,14 @@ public class EntityManager implements IEditableComponent,IInputListener{
 
 	@Override
 	public void inputListenerAction(InputAction action) {
-		// TODO Auto-generated method stub
+		if (action!=null && action==InputAction.ACTION) {
+			if (true) {
+				activateEntityFlag=true;
+				System.out.println("activate entity");
+			}
+			
+			
+		}
 		
 	}
 	

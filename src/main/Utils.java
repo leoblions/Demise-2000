@@ -32,6 +32,11 @@ public class Utils {
 		
 	}
 	
+	public static int clamp(int min, int max, int test) {
+		return (test>max)?max:(test<min)?min:test;
+		}
+	
+	
 	public static String[][] openCSVto2DA(String filePath){
 		File dataFile = new File(filePath);
 		if(!dataFile.exists()) {

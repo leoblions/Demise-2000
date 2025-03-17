@@ -19,7 +19,8 @@ public class Item implements IEditableComponent{
 	public final int ITEM_SCALE_PX = 25;
 	public final int ITEM_TLC_OFFSET= GamePanel.TILE_SIZE_PX/2;
 	public final float ITEM_DRAWSIZE_FACTOR = 0.5f;
-	
+	public final int BOB_PIXELS_MAX = 10;
+	public final int BOB_RATE = 10;
 	public final int MINIMUM_RANDOM_GRIDX = 10;
 	public final int MINIMUM_RANDOM_GRIDY = 10;
 	public final int RANDOM_ITEM_DENSITY = 50;
@@ -28,6 +29,8 @@ public class Item implements IEditableComponent{
 	private final String SPRITE_SHEET_URL = "/images/itemA.png";
 	public final int BLANK_ITEM_TYPE = -1;
 	private boolean modified = false;
+	private int bobPixels = 0;
+	private int bobDelta = 1;
 	
 	BufferedImage[] bufferedImages;
 	GamePanel gp;
@@ -58,6 +61,14 @@ public class Item implements IEditableComponent{
 		gp.editor.addComponent(this);
 	}
 	
+	public void calculateBob() {
+		if(bobPixels < BOB_PIXELS_MAX && bobPixels >= 0) {
+			bobPixels += bobDelta;
+		}else {
+			bobDelta *=-1;
+			bobPixels += bobDelta;
+		}
+	}
 	
 	
 	public void randomPlaceItem(int amount, int kind) {
@@ -115,6 +126,7 @@ public class Item implements IEditableComponent{
 	
 	public void update() {
 		crg.update();
+		calculateBob();
 		try {
 			itemsTouchedByPlayer();
 		}catch(Exception e) {
@@ -221,8 +233,8 @@ public class Item implements IEditableComponent{
 					
 					gp.g2.drawImage(
 							bufferedImages[kind],
-							screenX,
-							screenY,
+							screenX ,
+							screenY+bobPixels,
 							ITEM_DEFAULT_W,
 							ITEM_DEFAULT_H,
 							null);

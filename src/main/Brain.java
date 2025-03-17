@@ -77,8 +77,9 @@ public class Brain implements Runnable{
 		if (pressecActivate) {
 
 			System.out.printf("Brain: player touch the NPC: %d  %d \n ",entity.kind,entity.UID);
+			gp.conversation.startConversation(0);
 		}else {
-			System.out.printf("BrainsdfggggC: %d  %d \n ",entity.kind,entity.UID);
+			//System.out.printf("BrainsdfggggC: %d  %d \n ",entity.kind,entity.UID);
 		}
 		gp.hud.showPrompt=true;
 		
