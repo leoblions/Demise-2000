@@ -30,17 +30,19 @@ public class Player implements IInputListener {
 	public boolean attack = false;;
 	public int velX, velY;
 	public int playerScreenX, playerScreenY;
-	public int health;
-	public int stamina;
+	public int health=100;
+	private int stamina=100;
 	public PlayerState state;
 	private final int CYCLE_IMAGE_FREQ = 9;
 	private final int MAX_HEALTH = 100;
+	private final int MAX_STAMINA = 100;
 	private final int HEAL_RATE = 120;
-	private final int STAM_HEAL_RATE = 120;
+	private final int STAM_HEAL_RATE = 12;
 	private final int START_HEALTH = 80;
+	private final int STAMINA_DRAIN = 1;
 	private final String SPRITE_SHEET = "/images/playerHeraW.png";
 	private final String SPRITE_SHEET_ATTACK = "/images/playerHeraA.png";
-	private Pacer animationPacer, healPacer;
+	private Pacer animationPacer, healPacer, staminaPacer;
 	private Delay attackTimeout, walkTimeout, enemyPlayerDamageTimeout;
 	private int currentImageIndex = 0;
 	public char direction = 'd';
@@ -65,6 +67,7 @@ public class Player implements IInputListener {
 		health = START_HEALTH;
 		animationPacer = new Pacer(CYCLE_IMAGE_FREQ);
 		healPacer = new Pacer(HEAL_RATE);
+		staminaPacer = new Pacer(STAM_HEAL_RATE);
 		attackTimeout = new Delay();
 		walkTimeout = new Delay();
 		enemyPlayerDamageTimeout = new Delay();
@@ -186,6 +189,8 @@ public class Player implements IInputListener {
 		} else {
 			state = PlayerState.STAND;
 		}
+
+		updateStamina();
 		setPlayerState();
 		cycleSprite();
 		playerHeal();
@@ -313,10 +318,10 @@ public class Player implements IInputListener {
 			}
 
 		}
-		if (run && stamina > 0) {
-			stamina -= 1;
-			gp.hud.stamina = stamina;
-		}
+//		if (run && stamina > 0) {
+//			stamina -= 1;
+//			gp.hud.stamina = stamina;
+//		}
 		return true;
 
 	}
@@ -445,6 +450,41 @@ public class Player implements IInputListener {
 		}else {
 			enemyPlayerDamageTimeout.reduce();
 		}
+		
+	}
+	
+	public void updateStamina() {
+		if(staminaPacer.check()) {
+			int oldStam = stamina;
+			boolean moving = (velX!=0||velY!=0);
+			int regen = (run)? 1 : 2;
+			
+			//drain
+			int newStamina = stamina;
+			if (run && moving) {
+				newStamina -= 1   ;
+			}else if (!moving) {
+				newStamina +=regen   ;
+			}
+			// bounds check
+			if (newStamina < 0 ) {
+				stamina = 0;
+			}else if(newStamina >MAX_STAMINA) {
+				stamina=100;
+			}else {
+				stamina=newStamina;
+			}
+			
+			if(stamina <= 0) { 
+				run = false;
+			}
+			
+			if (oldStam!=stamina) {
+				gp.hud.stamina = stamina;
+			}
+			
+		}
+		
 		
 	}
 

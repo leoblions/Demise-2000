@@ -24,6 +24,7 @@ public class Entity {
 	private BufferedImage[] bufferedImages;
 	private Pacer animationPacer;
 	static HashMap<Integer, BufferedImage[]> entImageStoreW; // memoize image arrays
+	static HashMap<Integer, BufferedImage[]> entImageStoreD; // dead
 	public Rectangle wpSolidArea;
 	public Rectangle wpProposedMove, testRect;
 	int startGX, startGY, kind, UID;
@@ -235,7 +236,9 @@ public class Entity {
 
 			
 
-		} 
+		} else if (state=='d'|| !alive) {
+			frame = 0;
+		}
 		currentImageIndex = frame + directionIndexpart;
 
 	}
@@ -367,6 +370,8 @@ public class Entity {
 			state = 'w';
 			setDirectionByPathFind();
 
+		}else {
+			bufferedImages=entImageStoreD.get(kind);
 		}
 		if (!moveOverlapsOtherEntity()) {
 
@@ -396,8 +401,8 @@ public class Entity {
 	public void enemyCollidePlayer() {
 		if ( this.wpSolidArea.intersects(gp.player.wpSolidArea)) {
 			
-			if(enemy) {
-				gp.player.health -= ENEMY_DAMAGE;
+			if(enemy && alive) {
+				//gp.player.health -= ENEMY_DAMAGE;
 				gp.player.takeDamageFromEnemy(DEF_DAMAGE_FROM_PLAYER);
 			}else if( // player in range of NPC
 					 gp.entityManager.entityActivateDalay.delayExpired() &&
@@ -421,6 +426,9 @@ public class Entity {
 		if (null == entImageStoreW) {
 			entImageStoreW = new HashMap<>();
 		}
+		if (null == entImageStoreD) {
+			entImageStoreD = new HashMap<>();
+		}
 		// this.bufferedImages = new BufferedImage[20];
 		String URLString = String.format(IMAGE_URI_TEMPLATE_W, this.kind);
 		// bufferedImages[0] =
@@ -437,6 +445,14 @@ public class Entity {
 			tempBI = new Utils().spriteSheetCutterBlank(SS_COLS, SS_ROWS, SS_CELL_W, SS_CELL_H);
 		}
 		entImageStoreW.put(kind, tempBI);
+
+		BufferedImage[] tempBI2 = null;
+		tempBI2 = new BufferedImage[tempBI.length];
+		for(int i = 0; i < tempBI.length;i++) {
+			
+			tempBI2[i]= Utils.convertBufferedImageBW(tempBI[i] );
+		}
+		entImageStoreD.put(kind, tempBI2);
 	}
 
 }

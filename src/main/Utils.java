@@ -2,6 +2,7 @@ package main;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -383,7 +384,7 @@ public class Utils {
 		int subscript = 0;
 		BufferedImage tempImage=null;
 		for(int r = 0;r< rows; r++) {
-			for(int c = 0;  c< rows; c++) {
+			for(int c = 0;  c< cols; c++) {
 				int x = c * width;
 				int y = r * height;
 				tempImage = spriteSheet.getSubimage(x, y, width, height);
@@ -392,6 +393,59 @@ public class Utils {
 			}
 		}
 		return images;
+	}
+	
+	public   BufferedImage[] spriteSheetCutterBW(String fileURL , int cols , int rows , int width , int height ) throws IOException {
+		BufferedImage[] images = new BufferedImage[rows*cols];
+		BufferedImage spriteSheet=null;
+		try {
+			spriteSheet = ImageIO.read(getClass().getResourceAsStream(fileURL));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		int subscript = 0;
+		BufferedImage tempImage=null;
+		for(int r = 0;r< rows; r++) {
+			for(int c = 0;  c< cols; c++) {
+				int x = c * width;
+				int y = r * height;
+				tempImage = convertBufferedImageBW(spriteSheet.getSubimage(x, y, width, height));
+				images[subscript] = tempImage;
+				subscript++;
+			}
+		}
+		return images;
+	}
+	
+	public  static  BufferedImage convertBufferedImageBW(BufferedImage input ) throws IOException {
+		int rows = input.getHeight();
+		int cols = input.getWidth();
+		//System.out.println("dims cols"+cols+"rows"+rows);
+		BufferedImage output = new BufferedImage(cols, rows,   input.getType());
+		Graphics2D outputG = output.createGraphics();
+		int r1, g1, b1, a1, r2, g2, b2, a2;
+		int subscript = 0;
+		for(int y = 0;y < rows; y++) {
+			for(int x = 0;  x < cols; x++) {
+				int clr = input.getRGB(x, y);
+				int alpha = (clr & 0xff000000) >> 24;
+		        int red =   (clr & 0x00ff0000) >> 16;
+		        int green = (clr & 0x0000ff00) >> 8;
+		        int blue =   clr & 0x000000ff;
+		        //System.out.println("color red"+red+"green"+green);
+		        int average = (red + green + blue ) /3 ;
+		        
+		        int newAlpha = alpha << 24;
+		        int redNew = average << 16;
+		        int greenNew = average << 8;
+		        int blueNew = average ;
+		        int clrNew = redNew + greenNew + blueNew + newAlpha;
+		        
+		        
+		        output.setRGB(x, y, clrNew);
+			}
+		}
+		return output;
 	}
 	
 	public   BufferedImage[] spriteSheetCutterBlank( int cols , int rows , int width , int height ) throws IOException {

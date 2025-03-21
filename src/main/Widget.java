@@ -89,7 +89,7 @@ public class Widget implements IEditableComponent {
 	}
 
 	public void toggleWidget(int item, int UID) {
-		System.out.println("Widget touched " + item);
+		//System.out.println("Widget touched " + item);
 		gp.hud.showActionPromptDelay.setDelay(60);
 
 		gp.sound.clipPlayFlags[2] = true;
