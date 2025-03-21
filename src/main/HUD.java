@@ -32,10 +32,12 @@ public class HUD implements IStatusMessageListener {
 	
 	// text boxes
 	private boolean showDialog = false;
-	boolean showPrompt = false;
+	private boolean showPrompt = false;
+	public Delay showActionPromptDelay = new Delay();
+	
 	TextBox dialogTextBox, promptTextBox;
 	Position dialogTextBoxPosition, toolTipTextBoxPosition;
-	
+	RasterString runString;
 	
 	
 	int alpha = 127;
@@ -54,7 +56,10 @@ public class HUD implements IStatusMessageListener {
 		if(g2==null) System.out.println("HUD ctor received null reference 2") ;
 		this.gp = gp;
 		
-		
+		int runStringX = gp.WIDTH - 60;
+		int runStringY = 50;
+		runString = new RasterString(gp, "RUN", runStringX, runStringY);
+		runString.visible=true;
 		arial16 = new Font("Arial",Font.PLAIN,16);
 		arial20 = new Font("Arial",Font.BOLD,20);
 		//mboxTextVisible=false;
@@ -110,6 +115,7 @@ public class HUD implements IStatusMessageListener {
 			killCount();
 			gemCount();
 			drawStatusMessage();
+			if(gp.player.getRun())runString.draw();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -158,7 +164,8 @@ public class HUD implements IStatusMessageListener {
 		dialogTextBox.update();
 		promptTextBox.update();
 		
-		//showPrompt=false;
+		showPrompt = !showActionPromptDelay.delayExpired();
+		showActionPromptDelay.reduce();
 		
 	}
 	

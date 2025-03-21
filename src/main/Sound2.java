@@ -12,7 +12,7 @@ import javax.sound.sampled.Clip;
 
 import main.GamePanel.InputAction;
 
-public class Sound implements IInputListener{
+public class Sound2 implements IInputListener, Runnable{
 	
 	
 	ArrayList<Integer> soundPlayList; //store subscript of sound file to play
@@ -29,19 +29,18 @@ public class Sound implements IInputListener{
 	boolean blockAddQueue = false;
 	public long INITIAL_DEBOUNCE_COUNTER=3000000;
 	public long DEF_DEBOUNCE_COUNTER=3000000;
-	private final int DELAY_TICKS = 100;
 	boolean clipPlayFlags[];
 	boolean inputListenerAdded = false;
-	Delay soundDelay = new Delay();
 	
-	public Sound(GamePanel gp) {
+	public Sound2(GamePanel gp) {
 		this.gp=gp;
 		initFiles();
 		initClips();
 		clipPlayFlags=new boolean[TOTAL_CLIPS];
 		soundPlayList = new ArrayList<Integer>();
 		splIterator = soundPlayList.iterator();
-		//soundThread.start();
+		soundThread = new Thread(this);
+		soundThread.start();
 		
 		if(inputListenerAdded==false) {
 			gp.input.addListener(this);
@@ -104,19 +103,13 @@ public class Sound implements IInputListener{
 	}
 	
 	public void playSE(int i) {
-		if (soundDelay.delayExpired()) {
-			if(soundEnabled) {
-				//System.out.println("playse");
-				setFile(i);
-				play();
-				soundDelay.setDelay(DELAY_TICKS);
-			}
+		if(soundEnabled) {
+			//System.out.println("playse");
+			setFile(i);
+			play();
 		}
 		
-		
 	}
-	
-	
 	
 	public void playClipSE(int i) {
 		if(soundEnabled) {
@@ -128,7 +121,6 @@ public class Sound implements IInputListener{
 	}
 	
 	public void update() {
-		soundDelay.reduce();
 		if(inputListenerAdded==false) {
 			gp.input.addListener(this);
 			inputListenerAdded=true;
@@ -188,7 +180,38 @@ public class Sound implements IInputListener{
 
 
 
-	
+	@Override
+	public void run() {
+		long debounceCounter = 0;
+		long initialCountdown = DEF_DEBOUNCE_COUNTER*2;
+		
+		while(soundThread!=null) {
+			//if(clip!=null)clip.stop();
+			//System.out.println("running");
+			
+			for (int i = 0;i < clipPlayFlags.length;i++) {
+				if(clipPlayFlags[i]==true&& (debounceCounter>=DEF_DEBOUNCE_COUNTER||initialCountdown<=0)){
+					if(soundEnabled)playSE(i);
+					//System.out.println("run playing");
+					clipPlayFlags[i]=false;
+					initialCountdown =DEF_DEBOUNCE_COUNTER*2;
+					debounceCounter=0;
+				}else if(clipPlayFlags[i]==true&& debounceCounter<DEF_DEBOUNCE_COUNTER) {
+					debounceCounter++;
+					//don't play
+					initialCountdown--;
+					if(initialCountdown<0)initialCountdown=0;
+					
+				}
+				if(debounceCounter>DEF_DEBOUNCE_COUNTER)debounceCounter=DEF_DEBOUNCE_COUNTER;
+			} 
+			//soundPlayList.clear();
+			
+			
+		}
+		
+		
+ 	}
 		
 		
 		

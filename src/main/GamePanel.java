@@ -91,6 +91,7 @@ public class GamePanel extends JPanel implements Runnable{
 	Inventory inventory;
 	Conversation conversation;
 	Zone zone;
+	Particle particle;
 	Brain brain;
 	public enum InputAction{
 		UP,
@@ -184,6 +185,7 @@ public class GamePanel extends JPanel implements Runnable{
 		zone = new Zone(this);
 		conversation = new Conversation(this);
 		brain = new Brain(this);
+		particle = new Particle(this);
 		//rs1 = new RasterString(this, "TEST", 45, 45);
 		
 		
@@ -299,6 +301,8 @@ public class GamePanel extends JPanel implements Runnable{
 		widget.update();
 		zone.update();
 		conversation.update();
+		particle.update();
+		sound.update();
 		Point p = this.getMousePosition();
 		if (p != null){
 			this.mouseX = (int) p.getX();
@@ -330,6 +334,7 @@ public class GamePanel extends JPanel implements Runnable{
 		widget.draw();
 		//rs1.draw();
 		zone.draw();
+		particle.draw();
 		
 		// foreground
 		hud.draw();

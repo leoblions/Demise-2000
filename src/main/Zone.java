@@ -168,7 +168,7 @@ public class Zone implements IEditableComponent , IInputListener{
 			int UID = getUIDForzoneGridCoords(  pgY,   pgX);
 			touchZoneAction(kind,UID);
 			if (kind==1) {
-				gp.hud.showPrompt=true;
+				gp.hud.showActionPromptDelay.setDelay(60);
 			}
 			
 		}else {
@@ -186,7 +186,7 @@ public class Zone implements IEditableComponent , IInputListener{
 	public void touchZoneAction(int item, int UID) {
 		//System.out.println("Player touching zone "+ item);
 		//gp.hud.showPrompt;
-		gp.hud.showPrompt=true;
+		gp.hud.showActionPromptDelay.setDelay(60);
 		
 		;
 		if(activateZoneFlag && actionPressBreaker.get() && soundEffectBreaker.get()) {

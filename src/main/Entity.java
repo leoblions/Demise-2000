@@ -34,10 +34,13 @@ public class Entity {
 	int spriteHeight = 25;
 	int velX = 0;
 	int velY = 0;
+	int health = 100;
+	boolean alive = true;
 	int frame = 0;
 	char state = 'w'; // w=walk, s=stand, a=attack, d=dead, h=hit
 	char direction = 'n';// n u d l r
 	int ENEMY_DAMAGE = 1;
+	final int DEF_DAMAGE_FROM_PLAYER = 10;
 	int rightTurnDebounceWait = 0; // prevent making too many right turns in quick succession
 	boolean foundWall = false;
 	public boolean enemy = false;
@@ -50,6 +53,8 @@ public class Entity {
 	private boolean[] movesRequested;
 	private int[] tileForward;
 	public Position position, testPosition;
+	public Rectangle collider;
+	
 	/*
 	 * Types: 
 	 * 0 Orb 
@@ -88,10 +93,12 @@ public class Entity {
 		int[] dimensions = getEntityWHFromKind(kind);
 		entImageStoreW = new HashMap<>();
 		animationPacer = new Pacer(10);
+		int worldX = startGX * GamePanel.TILE_SIZE_PX;
+		int worldY = startGY * GamePanel.TILE_SIZE_PX;
 		position = new Position(gp, 0, 0, dimensions[0], dimensions[1]);
 		testPosition = new Position(gp, 0, 0, dimensions[0], dimensions[1]);
+		this.collider = new Rectangle(0, 0, dimensions[0], dimensions[1]);
 		position.setPositionToGridXY(startGX, startGY);
-
 		wpSolidArea = new Rectangle();
 		wpProposedMove = new Rectangle();
 		testRect = new Rectangle();
@@ -134,6 +141,8 @@ public class Entity {
 	public int[] getEntityWHFromKind(int kind) {
 		return new int[] { 50, 50 };
 	}
+	
+
 
 	public void draw() {
 		gp.g2.setColor(Color.orange);
@@ -153,6 +162,19 @@ public class Entity {
 			gp.tileManager.highlightTile(tileRight[0], tileRight[1], Color.pink);
 		}
 
+	}
+	
+	public void takeDamageFromPlayer(int damage) {
+		int newHealth = health - damage;
+		if (newHealth>0 ) {
+			health = newHealth;
+		}else {
+			health = 0;
+		}
+		if(health <= 0) {
+			alive = false;
+			state = 'd';
+		}
 	}
 
 	public Direction4W translateDirectionLetterToEnum(char letter) {
@@ -341,7 +363,7 @@ public class Entity {
 		int worldY = position.getWorldY();
 		wpSolidArea.x = worldX;
 		wpSolidArea.y = worldY;
-		if (chasePlayer) {
+		if (alive && chasePlayer) {
 			state = 'w';
 			setDirectionByPathFind();
 
@@ -353,9 +375,22 @@ public class Entity {
 			state = 's';
 		}
 		cycleSprite();
-
+		playerMeleeEnemy();
 		enemyCollidePlayer();
 
+	}
+
+	private void playerMeleeEnemy() {
+		wpSolidArea.x = position.getWorldX();
+		wpSolidArea.y = position.getWorldY();
+		if(gp.entityManager.playerMelee) {
+			if(gp.entityManager.playerHitbox.intersects(this.wpSolidArea)) {
+				takeDamageFromPlayer(DEF_DAMAGE_FROM_PLAYER);
+				System.out.println("player hit enemy");
+				gp.particle.addParticle(wpSolidArea.x, wpSolidArea.y, 1);
+			}
+		}
+		
 	}
 
 	public void enemyCollidePlayer() {
@@ -363,13 +398,21 @@ public class Entity {
 			
 			if(enemy) {
 				gp.player.health -= ENEMY_DAMAGE;
-			}else if(gp.entityManager.activateEntityFlag && 
+				gp.player.takeDamageFromEnemy(DEF_DAMAGE_FROM_PLAYER);
+			}else if( // player in range of NPC
 					 gp.entityManager.entityActivateDalay.delayExpired() &&
 					!gp.entityManager.entityTouchedList.contains(this)){
-				gp.entityManager.entityActivateDalay.setDelay(EntityManager.ENTITY_ACTIVATE_DELAY_TICKS);
-				gp.brain.playerActivateNPC(this,gp.playerPressActivate);
-				gp.entityManager.playerTouchedActorSincelastTick = true;
-				gp.entityManager.entityTouchedList.add(this);
+
+				gp.hud.showActionPromptDelay.setDelay(60);
+				if(gp.entityManager.activateEntityFlag) {
+					//player pressed activate
+					gp.entityManager.entityActivateDalay.setDelay(EntityManager.ENTITY_ACTIVATE_DELAY_TICKS);
+					gp.brain.playerActivateNPC(this,gp.playerPressActivate);
+					gp.entityManager.playerTouchedActorSincelastTick = true;
+					gp.entityManager.entityTouchedList.add(this);
+				}
+				System.out.println("player touch ent");
+				
 			}
 		}
 	}

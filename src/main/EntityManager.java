@@ -1,5 +1,6 @@
 package main;
 
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -18,6 +19,10 @@ public class EntityManager implements IEditableComponent,IInputListener{
 	public boolean playerTouchedActorSincelastTick = false;
 	public boolean activateEntityFlag = false;
 	public Delay entityActivateDalay;
+	public Rectangle playerHitbox;
+	public final int HITBOX_SIZE = 70;
+	public final int HITBOX_OFFSET = -20;
+	public boolean playerMelee = false;
 	
 	public EntityManager(GamePanel gp) {
 		this.gp=gp;
@@ -28,6 +33,27 @@ public class EntityManager implements IEditableComponent,IInputListener{
 		entityActivateDalay = new Delay();
 		gp.editor.addComponent(this);
 		gp.input.addListener(this);
+
+		playerHitbox=new Rectangle();
+	}
+	
+	public void playerAttackEntityMelee() {
+		// set area where player struck
+		int pgX = gp.player.tileForward[0]  ;
+		int pgY = gp.player.tileForward[1]  ;
+		
+		int fwX = gp.player.tileForward[0]  * GamePanel.TILE_SIZE_PX;
+		int fwY = gp.player.tileForward[1] * GamePanel.TILE_SIZE_PX ;
+		int kind ;
+		playerHitbox.x = fwX + HITBOX_OFFSET;
+		playerHitbox.y = fwY + HITBOX_OFFSET;
+		playerHitbox.width = HITBOX_SIZE;
+		playerHitbox.height= HITBOX_SIZE;
+		//System.out.println("playerAttackEntityMelee "+fwX+" "+fwY);
+		playerMelee=true;
+		
+		
+		
 	}
 	
 	public void addEntity(int startGX, int startGY, int kind, int UID) {
@@ -67,7 +93,7 @@ public class EntityManager implements IEditableComponent,IInputListener{
 			entityTouchedList.clear();
 			activateEntityFlag = false;
 		}
-		
+		playerMelee = false;
 	}
 
 	@Override

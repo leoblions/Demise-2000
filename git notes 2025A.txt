@@ -1,0 +1,213 @@
+GIT CHEAT SHEET 2025
+
+Key Terms:
+Repository - a folder of project files tracked by git
+Staged - files tracked by git, that are ready for being committed
+Commit - a save point in your project that you can go back to
+Checkout - move from one branch to another
+
+
+directory of files --> staged --> commit
+
+git --version
+//display git's version
+
+
+git config --global user.name "my name"
+git config --global user.email "my email"
+// used to register on github and track who made a commit
+
+git init
+//initialize the current directory as a project /repository
+
+git status
+// git will tell us which files in the project folder are part of the repo, and which are not
+(tracked and untracked files)
+Staged files will appear below Changes to be committed
+
+git status --short
+//show status of staged files
+
+Git will track your files when you add or stage them.
+
+After editing your project files, add them to the Staging Environment, so they may be committed.
+
+git add myfile.html
+// stage a file
+
+git add --all
+git add -A
+// add all the files in the current directory to Staged
+
+Add a descriptive message to your commits, to tell them apart
+
+git commit -m "Message describing changes made "
+// commit staged files with a message
+
+
+git commit -a -m "message for my commit"
+// commit changes without staging
+
+git log
+//show record of commits made
+
+Help:
+
+git command help
+//replace command with the command you want help with, eg: git log help
+
+git help --all
+// show listing of possible commands, press shigt + g then q to exit
+
+git command -help
+//get help with the options flags for a command eg: git commit -help
+
+
+Branches:
+
+Git branches allow working on parts of a project without affecting the main branch.
+
+git branch my-new-branch
+//create a new branch
+
+git branch
+// display list of branches, with a star next to the active one
+
+git checkout my-new-branch
+// switch from one branch to another, marking another branch as active
+
+git checkout -b my-branch
+// create a new branch and switch to it
+
+git status 
+// will display which branch is active, and other info
+
+files in a new branch are not automatically tracked in Staging Environment.
+add them with git add --all
+
+
+git merge emergency-fix
+// merge changes made in emergency-fix to master branch.  It does not delete emergency-fix branch
+
+git branch -d emergency-fix
+//delete branch emergency-fix
+
+Github:
+
+create github account
+create new repository
+// add a remote repository as an origin:
+git push --set-upstream origin master
+git remote add origin https://github.com/w3schools-test/hello-world.git
+// git should upload your project files.
+
+Pull changes made to your files on github:
+git fetch origin
+//copy files from github to your project
+
+
+
+git diff origin/master
+//show differences between local master and github's origin
+
+git merge origin/master
+//merge changes made in origin into master
+
+git pull
+// fetch and merge changed files from github
+
+Pushing files to github:
+commit changes to your master branch
+git commit -a -m "files were changed"
+
+git status
+//should say ahead of origin/master by x commit
+
+git push origin
+// send committed files to github
+
+
+git reset --hard
+remove changes to project since last commit
+
+git stash
+git stash pop
+put changes made since last commit onto a  "stack"
+
+
+========================
+========================
+
+git push from second computer
+
+From 2021-08-13, GitHub is no longer accepting account passwords when authenticating Git operations. You need to add a PAT (Personal Access Token) instead, and you can follow the below method to add a PAT on your system.
+
+    Create Personal Access Token on GitHub
+
+    From your GitHub account, go to Settings → Developer Settings → Personal Access Token → Tokens (classic) → Generate New Token (Give your password) → Fillup the form → click Generate token → Copy the generated Token, it will be something like ghp_sFhFsSHhTzMDreGRLjmks4Tzuzgthdvfsrta
+
+Now follow the below method based on your machine:
+
+    For Windows OS ⤴
+
+    Go to Credential Manager from Control Panel → Windows Credentials → find git:https://github.com → Edit → On Password replace with with your GitHub Personal Access Token → You are Done
+
+    If you don’t find git:https://github.com → Click on Add a generic credential → Internet address will be git:https://github.com and you need to type in your username and password will be your GitHub Personal Access Token → Click Ok and you are done
+
+    For macOS ⤴
+
+    Click on the Spotlight icon (magnifying glass) on the right side of the menu bar. Type Keychain access then press the Enter key to launch the app → In Keychain Access, search for github.com → Find the internet password entry for github.com → Edit or delete the entry accordingly → You are done
+
+    For a Linux-based OS ⤴
+
+    For Linux, you need to configure the local GIT client with a username and email address,
+
+    $ git config --global user.name "your_github_username"
+    $ git config --global user.email "your_github_email"
+    $ git config -l
+
+    Once GIT is configured, we can begin using it to access GitHub. Example:
+
+    $ git clone https://github.com/YOUR-USERNAME/YOUR-REPOSITORY
+    > Cloning into `YOUR-REPOSITORY`...
+    Username: <type your username>
+    Password: <type your password or personal access token (GitHub)
+
+    Now cache the given record in your computer to remembers the token:
+
+    $ git config --global credential.helper cache
+
+    If needed, anytime you can delete the cache record by:
+
+    $ git config --global --unset credential.helper
+    $ git config --system --unset credential.helper
+
+    Now try to pull with -v to verify
+
+    $ git pull -v
+
+    Linux/Debian (Clone as follows):
+
+    git clone https://<tokenhere>@github.com/<user>/<repo>.git
+
+=================
+=================
+
+
+Change Git Repo's displayed name:
+edit and save the .git/description file
+
+Editing the Github repository URL:
+Go to Github > your project > settings > rename
+grab the new .git url
+direct terminal to your project folder
+git remote set-url origin (url you got in previous step)
+
+
+
+
+
+
+
+
+

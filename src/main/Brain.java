@@ -81,7 +81,7 @@ public class Brain implements Runnable{
 		}else {
 			//System.out.printf("BrainsdfggggC: %d  %d \n ",entity.kind,entity.UID);
 		}
-		gp.hud.showPrompt=true;
+		gp.hud.showActionPromptDelay.setDelay(60);
 		
 	}
 	

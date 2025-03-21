@@ -10,6 +10,9 @@ public class Delay {
 			ticksRemaining -=1;
 		}
 	}
+	public void reset() {
+		ticksRemaining =0;;
+	}
 	public void setDelay(int delayTicks) {
 		if(delayTicks>0) {
 			ticksRemaining=delayTicks;
