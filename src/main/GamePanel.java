@@ -93,6 +93,7 @@ public class GamePanel extends JPanel implements Runnable{
 	Zone zone;
 	Particle particle;
 	Brain brain;
+	Barrier barrier;
 	public enum InputAction{
 		UP,
 		DOWN,
@@ -186,6 +187,7 @@ public class GamePanel extends JPanel implements Runnable{
 		conversation = new Conversation(this);
 		brain = new Brain(this);
 		particle = new Particle(this);
+		barrier = new Barrier(this);
 		//rs1 = new RasterString(this, "TEST", 45, 45);
 		
 		
@@ -302,6 +304,7 @@ public class GamePanel extends JPanel implements Runnable{
 		zone.update();
 		conversation.update();
 		particle.update();
+		barrier.update();
 		sound.update();
 		Point p = this.getMousePosition();
 		if (p != null){
@@ -335,6 +338,7 @@ public class GamePanel extends JPanel implements Runnable{
 		//rs1.draw();
 		zone.draw();
 		particle.draw();
+		barrier.draw();
 		
 		// foreground
 		hud.draw();

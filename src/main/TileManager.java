@@ -3,8 +3,11 @@ package main;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
+
+import main.Barrier.BarrierRecord;
 
 public class TileManager implements IEditableComponent{
 	
@@ -14,15 +17,17 @@ public class TileManager implements IEditableComponent{
 	public final String TILE_SPRITESHEET_PATHA = "/images/tilesA.png";
 	public final String TILE_SPRITESHEET_PATHB = "/images/tilesB.png";
 	public final int DEFAULT_TILE_KIND = 0;
+	public final int BARRIER_TILE_KIND = -1; // barrier is not a wall
 	private static final String DATA_FILE_SUFFIX = ".csv";
 	private static final String DATA_FILE_PREFIX = "map";
 	private boolean modified = false;
+	private ArrayList<TileUnit>tilesSwappedWithBarrier;
 
 	public TileManager(GamePanel gp) {
 		this.gp=gp;
 		newTileGrid();
 		try { initImages(); }catch(Exception e){e.printStackTrace();}
-		
+		tilesSwappedWithBarrier = new ArrayList<>();
 		gp.editor.addComponent(this);
 	}
 	
@@ -36,7 +41,36 @@ public class TileManager implements IEditableComponent{
 		}
 	}
 	
+	public void swapTileForBarrier(int gridX, int gridY, boolean isBarrier) {
+		if (isBarrier) {
+			try {
+				int kind = tileGrid[gridY][gridX];
+				tilesSwappedWithBarrier.add(new TileUnit(gridX, gridY, kind));
+			}catch (ArrayIndexOutOfBoundsException e) {
+				System.err.printf("Can't swap tile for barrier gx:%d gy:%d \n",gridX,gridY);
+			}
+		}else {
+			int kind = 0;
+			for (TileUnit br : this.tilesSwappedWithBarrier) {
+				if (br.gridX==gridX&&br.gridY==gridY) {
+					kind=br.kind;
+					break;
+				}
+			}
+		}
+		
+	}
+	
+	public void unswapAllBarrierTiles( ) {
+		for (TileUnit br : this.tilesSwappedWithBarrier) {
+			try {
 
+				tileGrid[br.gridY][br.gridX]=br.kind;
+			}catch(ArrayIndexOutOfBoundsException e) {}
+		}
+		tilesSwappedWithBarrier.clear();
+		
+	}
 	
 	public void initImages() throws IOException {
 		//this.bufferedImages = new BufferedImage[20];
@@ -178,6 +212,7 @@ public class TileManager implements IEditableComponent{
 
 	@Override
 	public int[][] getGridData() {
+		unswapAllBarrierTiles();
 		return this.tileGrid;
 	}
 
@@ -194,5 +229,8 @@ public class TileManager implements IEditableComponent{
 		}
 		return false;
 	}
+	
+	record TileUnit(int gridX, int gridY, int kind) {};
+	
 
-}
+} 

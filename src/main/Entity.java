@@ -21,6 +21,7 @@ public class Entity {
 	private final int SS_CELL_W = 50;
 	private final int SS_CELL_H = 50;
 	private final int DEFAULT_SPEED = 5;
+	private final int FULL_HEALTH = 100;
 	private BufferedImage[] bufferedImages;
 	private Pacer animationPacer;
 	static HashMap<Integer, BufferedImage[]> entImageStoreW; // memoize image arrays
@@ -108,7 +109,8 @@ public class Entity {
 		tileRight = new int[2];
 		spriteHitboxOffsetX = -30;
 		spriteHitboxOffsetY = -30;
-
+		alive = true;
+		health = FULL_HEALTH;
 		if (kind < 10) {
 			//enemies
 			enemy = true;
@@ -370,7 +372,7 @@ public class Entity {
 			state = 'w';
 			setDirectionByPathFind();
 
-		}else {
+		}else if(!alive){
 			bufferedImages=entImageStoreD.get(kind);
 		}
 		if (!moveOverlapsOtherEntity()) {

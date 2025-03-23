@@ -71,6 +71,7 @@ public class Utils {
 			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
+			System.out.printf("File %s does not exist. \n",filePath);
 			e.printStackTrace();
 		}
 		
