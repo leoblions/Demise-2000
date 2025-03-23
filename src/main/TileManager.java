@@ -14,17 +14,21 @@ public class TileManager implements IEditableComponent{
 	GamePanel gp;
 	private int[][] tileGrid;
 	BufferedImage[] bufferedImages;
+	BufferedImage placeHolderImage;
 	public final String TILE_SPRITESHEET_PATHA = "/images/tilesA.png";
 	public final String TILE_SPRITESHEET_PATHB = "/images/tilesB.png";
+	public final String PLACEHOLDER_IMG = "/images/barrierPH.png";
 	public final int DEFAULT_TILE_KIND = 0;
 	public final int BARRIER_TILE_KIND = -1; // barrier is not a wall
 	private static final String DATA_FILE_SUFFIX = ".csv";
 	private static final String DATA_FILE_PREFIX = "map";
 	private boolean modified = false;
 	private ArrayList<TileUnit>tilesSwappedWithBarrier;
+	private int tileSize;
 
 	public TileManager(GamePanel gp) {
 		this.gp=gp;
+		tileSize = gp.TILE_SIZE_PX;
 		newTileGrid();
 		try { initImages(); }catch(Exception e){e.printStackTrace();}
 		tilesSwappedWithBarrier = new ArrayList<>();
@@ -41,23 +45,46 @@ public class TileManager implements IEditableComponent{
 		}
 	}
 	
+	public int neg(int value) {
+		return(value>1)?-1*value:value;
+	}
+	
 	public void swapTileForBarrier(int gridX, int gridY, boolean isBarrier) {
 		if (isBarrier) {
 			try {
 				int kind = tileGrid[gridY][gridX];
 				tilesSwappedWithBarrier.add(new TileUnit(gridX, gridY, kind));
+				tileGrid[gridY][gridX] = neg(kind);
 			}catch (ArrayIndexOutOfBoundsException e) {
 				System.err.printf("Can't swap tile for barrier gx:%d gy:%d \n",gridX,gridY);
 			}
 		}else {
-			int kind = 0;
-			for (TileUnit br : this.tilesSwappedWithBarrier) {
-				if (br.gridX==gridX&&br.gridY==gridY) {
-					kind=br.kind;
-					break;
+			try {
+				int kind = 0;
+				for (TileUnit br : this.tilesSwappedWithBarrier) {
+					if (br.gridX==gridX&&br.gridY==gridY) {
+						kind=br.kind;
+						tileGrid[gridY][gridX] = kind;
+						break;
+						
+					}
 				}
+			}catch (ArrayIndexOutOfBoundsException e) {
+				System.err.printf("Can't swap tile for barrier gx:%d gy:%d \n",gridX,gridY);
+			}
+			
+		}
+		
+	}
+	
+	public boolean queryTileForBarrier(int gridX, int gridY) {
+		boolean response = false;
+		for (TileUnit br : this.tilesSwappedWithBarrier) {
+			if (br.gridX==gridX&&br.gridY==gridY) {
+				return true;
 			}
 		}
+		return false;
 		
 	}
 	
@@ -75,6 +102,7 @@ public class TileManager implements IEditableComponent{
 	public void initImages() throws IOException {
 		//this.bufferedImages = new BufferedImage[20];
 		Utils utils = new Utils();
+		placeHolderImage  = ImageIO.read(getClass().getResourceAsStream(PLACEHOLDER_IMG));
 		BufferedImage[] tilesA = utils.spriteSheetCutter(TILE_SPRITESHEET_PATHA,4,4,50,50);
 		BufferedImage[] tilesB = utils.spriteSheetCutter(TILE_SPRITESHEET_PATHB,4,4,50,50);
 
@@ -104,8 +132,11 @@ public class TileManager implements IEditableComponent{
 	}
 	
 	private void renderTile(int screenX, int screenY, int kind) {
-
-		gp.g2.drawImage(bufferedImages[kind], screenX, screenY, GamePanel.TILE_SIZE_PX, GamePanel.TILE_SIZE_PX,null);
+		BufferedImage bi = placeHolderImage;
+		try {
+			bi = bufferedImages[kind] ;
+		}catch (ArrayIndexOutOfBoundsException e){};
+		gp.g2.drawImage(bi , screenX, screenY, GamePanel.TILE_SIZE_PX, GamePanel.TILE_SIZE_PX,null);
 		
 	}
 	
@@ -136,6 +167,11 @@ public class TileManager implements IEditableComponent{
 				int screenX =  worldX - GamePanel.wpScreenLocX;
 				int screenY =  worldY - GamePanel.wpScreenLocY;
 				int kind = tileGrid[y][x];
+				if (kind<0 ) {
+					kind*=-1;
+
+				}
+
 				renderTile(screenX,screenY,kind);
 			}
 		}

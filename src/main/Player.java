@@ -496,6 +496,7 @@ public class Player implements IInputListener {
 		int ay = tileForward[1] * gp.TILE_SIZE_PX;
 		gp.particle.addParticleUnit(gp.particle.Swosh(worldX, worldY, direction));
 		gp.widget.playerAttackWidgetMelee();
+		gp.barrier.playerAttackBarrierMelee();
 		gp.entityManager.playerAttackEntityMelee();
 
 	}

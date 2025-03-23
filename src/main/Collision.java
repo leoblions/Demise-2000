@@ -24,7 +24,7 @@ public class Collision {
 	}
 	
 	public static boolean tileKindIsSolid(int kind) {
-		if (kind>3 && kind <16) {
+		if (kind<0 ||(kind>3 && kind <16)) {
 			return true;
 		}else {
 			return false;

@@ -19,19 +19,18 @@ public class Barrier implements IEditableComponent {
 	public final int ITEM_SCALE_PX = 25;
 	public final int ITEM_TLC_OFFSET = GamePanel.TILE_SIZE_PX / 2;
 	public final float ITEM_DRAWSIZE_FACTOR = 0.5f;
-
+	public boolean drawbarrier = true;
 	public final int ITEM_DEFAULT_W = 50;
 	public final int ITEM_DEFAULT_H = 50;
 	private final String SPRITE_SHEET_URL = "/images/barrierDefault.png";
 	public final int BLANK_ITEM_TYPE = -1;
-	public final int LEAF_PARTICLE = 0;
-	public final int PLANT_WIDGET = 10;
+	public final int RUBBLE = 3;
 	int gridW = 1;
 	int gridH = 1;
 
 	BufferedImage[] bufferedImages;
 	GamePanel gp;
-	int[][] widgetGrid;
+	int[][] barrierGrid;
 	Random random;
 	CullRegion crg;
 	ArrayList<BarrierRecord> barrierRecords;
@@ -40,7 +39,7 @@ public class Barrier implements IEditableComponent {
 	// @formatter:off
 	/*
 	 * 
-	 * Widgets are interactive immovable objects
+	 * Barriers are interactive immovable objects
 	 * 0 = Door-Barrier
 	 * 1 = Door-Warp
 	 * 2 = Gate-Barrier
@@ -74,9 +73,9 @@ public class Barrier implements IEditableComponent {
 
 	Barrier(GamePanel gp) {
 		this.gp = gp;
-		;
-		// this.widgetGrid = new int[gp.MAP_TILES_Y][gp.MAP_TILES_X];
-		widgetGrid = Utils.initBlankGrid(gp.MAP_TILES_Y, gp.MAP_TILES_X, BLANK_ITEM_TYPE);
+		//drawbarrier = false;;
+		// this.barrierGrid = new int[gp.MAP_TILES_Y][gp.MAP_TILES_X];
+		barrierGrid = Utils.initBlankGrid(gp.MAP_TILES_Y, gp.MAP_TILES_X, BLANK_ITEM_TYPE);
 		crg = new CullRegion(gp, 15);
 		barrierRecords = new ArrayList<>();
 		testRectangle = new Rectangle(0, 0, ITEM_DEFAULT_W, ITEM_DEFAULT_H);
@@ -90,7 +89,7 @@ public class Barrier implements IEditableComponent {
 		gp.editor.addComponent(this);
 	}
 
-	public int getUIDForWidgetGridCoords(int gridX, int gridY) {
+	public int getUIDForbarrierGridCoords(int gridX, int gridY) {
 		for (BarrierRecord wr : barrierRecords) {
 			if (gridX == wr.gridX() && gridY == wr.gridY()) {
 				return wr.UID();
@@ -100,15 +99,17 @@ public class Barrier implements IEditableComponent {
 
 	}
 
-	public void toggleWidget(int item, int UID) {
-		//System.out.println("Widget touched " + item);
-		gp.hud.showActionPromptDelay.setDelay(60);
+	public void toggleBarrier(int pgX, int pgY) {
+		//System.out.println("Barrier touched " + item);
+		//gp.hud.showActionPromptDelay.setDelay(60);
+		boolean tileState = gp.tileManager.queryTileForBarrier(pgX,pgY);
+		gp.tileManager.swapTileForBarrier(pgX,pgY,!tileState);
 
 		gp.sound.clipPlayFlags[2] = true;
 
 	}
 
-	public void playerAttackWidgetMelee() {
+	public void playerAttackBarrierMelee() {
 		
 		int pgX = gp.player.tileForward[0]  ;
 		int pgY = gp.player.tileForward[1]  ;
@@ -116,25 +117,26 @@ public class Barrier implements IEditableComponent {
 		int fwY = gp.player.tileForward[1] * GamePanel.TILE_SIZE_PX ;
 		int kind ;
 		try {
-			kind = widgetGrid[pgY][pgX];
+			kind = barrierGrid[pgY][pgX];
 			if (kind != BLANK_ITEM_TYPE) {
-				System.out.println("Player melee widget "+kind);
-				int UID = getUIDForWidgetGridCoords(pgY, pgX);
-				//toggleWidget(kind, UID);
-				if(kind==PLANT_WIDGET) {
-					 widgetGrid[pgY][pgX]=-1;
-					 gp.particle.addParticle(fwX, fwY, LEAF_PARTICLE);
+				System.out.println("Player melee barrier "+kind);
+				int UID = getUIDForbarrierGridCoords(pgY, pgX);
+				//toggleBarrier(kind, UID);
+				if(kind>=0) {
+					 barrierGrid[pgY][pgX]=-1;
+					 gp.particle.addParticle(fwX, fwY, RUBBLE);
 				}
 				
 			}
-			kind = widgetGrid[pgY+1][pgX];
+			kind = barrierGrid[pgY+1][pgX];
 			if (kind != BLANK_ITEM_TYPE) {
-				System.out.println("Player melee widget "+kind);
-				int UID = getUIDForWidgetGridCoords(pgY+1, pgX);
-				//toggleWidget(kind, UID);
-				if(kind==PLANT_WIDGET) {
-					 widgetGrid[pgY+1][pgX]=-1;
-					 gp.particle.addParticle(fwX, fwY+GamePanel.TILE_SIZE_PX, LEAF_PARTICLE);
+				System.out.println("Player melee barrier "+kind);
+				int UID = getUIDForbarrierGridCoords(pgY+1, pgX);
+				//toggleBarrier(kind, UID);
+				if(kind>=0) {
+					 barrierGrid[pgY+1][pgX]=-1;
+					 gp.particle.addParticle(fwX, fwY+GamePanel.TILE_SIZE_PX, RUBBLE);
+					 toggleBarrier(kind, UID);
 				}
 				
 			}
@@ -190,10 +192,10 @@ public class Barrier implements IEditableComponent {
 
 		int pgX = gp.player.worldX / GamePanel.TILE_SIZE_PX;
 		int pgY = gp.player.worldY / GamePanel.TILE_SIZE_PX;
-		int kind = widgetGrid[pgY][pgX];
+		int kind = barrierGrid[pgY][pgX];
 		if (kind != BLANK_ITEM_TYPE) {
-			int UID = getUIDForWidgetGridCoords(pgY, pgX);
-			toggleWidget(kind, UID);
+			int UID = getUIDForbarrierGridCoords(pgY, pgX);
+			toggleBarrier(pgX,pgY);
 		}
 
 	}
@@ -202,11 +204,14 @@ public class Barrier implements IEditableComponent {
 	 * draws the items on screen, also adds onscreen items to a list
 	 */
 	public void draw() {
+		if(!drawbarrier) {
+			return;
+		}
 		int[] visible = gp.visibleArea;
 		int TopLeftCornerX = gp.wpScreenLocX;
 		int TopLeftCornerY = gp.wpScreenLocY;
-		int maxy = widgetGrid.length;
-		int maxx = widgetGrid[0].length;
+		int maxy = barrierGrid.length;
+		int maxx = barrierGrid[0].length;
 		int startx = clamp(0, maxx, visible[0] - 50);
 		int starty = clamp(0, maxy, visible[1] - 50);
 		int endx = clamp(0, maxx, visible[2] + 50);
@@ -217,9 +222,9 @@ public class Barrier implements IEditableComponent {
 		for (int y = starty; y < endy; y++) {
 
 			for (int x = startx; x < endx; x++) {
-				if (widgetGrid[y][x] != -1) {
+				if (barrierGrid[y][x] != -1) {
 
-					int kind = widgetGrid[y][x];
+					int kind = barrierGrid[y][x];
 					int worldX = x * GamePanel.TILE_SIZE_PX;
 					int worldY = y * GamePanel.TILE_SIZE_PX;
 					screenX = worldX - TopLeftCornerX;
@@ -247,7 +252,13 @@ public class Barrier implements IEditableComponent {
 		}
 		int UID = getNewUIDFromRecords();
 		barrierRecords.add(new BarrierRecord(tileGridX, tileGridY, gridW,gridH, kind, UID));
+		// mark tile grid as non walkable -1
+		markTileGridCellAsBarrier(tileGridX,   tileGridY,true);
 
+	}
+	
+	public void markTileGridCellAsBarrier(int gridX, int gridY, boolean mark) {
+		gp.tileManager.swapTileForBarrier(gridX,gridY,mark);
 	}
 
 	public int getNewUIDFromRecords() {
@@ -270,7 +281,7 @@ public class Barrier implements IEditableComponent {
 			}
 		}
 		if (testUID >= maxPasses) {
-			System.err.println("Widget::getNewUIDFromRecords failed to generate unique ID");
+			System.err.println("Barrier::getNewUIDFromRecords failed to generate unique ID");
 		}
 		return testUID;
 
@@ -279,7 +290,7 @@ public class Barrier implements IEditableComponent {
 	public void addItem(int tileGridX, int tileGridY, int kind) {
 		modified = true;
 		try {
-			widgetGrid[tileGridY][tileGridX] = kind;
+			barrierGrid[tileGridY][tileGridX] = kind;
 
 		} catch (Exception e) {
 
@@ -288,10 +299,11 @@ public class Barrier implements IEditableComponent {
 	}
 
 	public void initGridDataFromRecordsList() {
-		widgetGrid = Utils.initBlankGrid(GamePanel.MAP_TILES_Y, GamePanel.MAP_TILES_X, BLANK_ITEM_TYPE);
-		// this.widgetGrid = new int[GamePanel.MAP_TILES_Y][GamePanel.MAP_TILES_X];
+		barrierGrid = Utils.initBlankGrid(GamePanel.MAP_TILES_Y, GamePanel.MAP_TILES_X, BLANK_ITEM_TYPE);
+		// this.barrierGrid = new int[GamePanel.MAP_TILES_Y][GamePanel.MAP_TILES_X];
 		for (BarrierRecord wr : barrierRecords) {
-			widgetGrid[wr.gridY()][wr.gridX()] = wr.kind();
+			barrierGrid[wr.gridY()][wr.gridX()] = wr.kind();
+			gp.tileManager.swapTileForBarrier(wr.gridX(), wr.gridY(), true );
 		}
 
 	}
@@ -328,7 +340,7 @@ public class Barrier implements IEditableComponent {
 	public void paintAsset(int gridX, int gridY, int kind) {
 		modified = true;
 		try {
-			this.widgetGrid[gridY][gridX] = kind;
+			this.barrierGrid[gridY][gridX] = kind;
 			addRecordOrReplace(gridX, gridY, kind);
 			System.err.println(kind);
 		} catch (Exception e) {
@@ -355,16 +367,16 @@ public class Barrier implements IEditableComponent {
 
 	@Override
 	public int[][] getGridData() {
-		// convert widget records to 2DA of their contents
-		LinkedList<int[]> widgetRecordsAsArray = new LinkedList<>();
+		// convert barrier records to 2DA of their contents
+		LinkedList<int[]> barrierRecordsAsArray = new LinkedList<>();
 		for (BarrierRecord wr : barrierRecords) {
-			int[] recordAsArray = new int[] { wr.gridX(), wr.gridY(), wr.kind(), wr.UID() };
-			widgetRecordsAsArray.add(recordAsArray);
+			int[] recordAsArray = new int[] { wr.gridX(), wr.gridY(),  wr.gridW(), wr.gridH(), wr.kind(), wr.UID() };
+			barrierRecordsAsArray.add(recordAsArray);
 		}
-		int recordAmount = widgetRecordsAsArray.size();
+		int recordAmount = barrierRecordsAsArray.size();
 		int[][] outputDataArray = new int[recordAmount][];
 		for (int i = 0; i < recordAmount; i++) {
-			outputDataArray[i] = widgetRecordsAsArray.get(i);
+			outputDataArray[i] = barrierRecordsAsArray.get(i);
 		}
 		return outputDataArray;
 	}
