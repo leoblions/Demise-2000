@@ -5,6 +5,9 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+
+import javax.imageio.ImageIO;
 
 public class HUD implements IStatusMessageListener {
 	GamePanel gp;
@@ -29,6 +32,13 @@ public class HUD implements IStatusMessageListener {
 	public String killCountString = ""; 
 	public String gemCountString = "";
 	public int gemCount = 0;
+	//equipped item
+	public static final String SINGLE_INVENTORY = "/images/invHudSingle.png";
+	public static final int ITEM_EQ_OFFSET_X = 10;
+	public static final int ITEM_EQ_OFFSET_Y = 10;
+	public static final int ITEM_EQ_FRAME_SIZE = 70;
+	public static int itemEqBrcOffsetY = 10;
+	public static boolean showEquippedItemFrame = true;
 	
 	// text boxes
 	private boolean showDialog = false;
@@ -38,6 +48,7 @@ public class HUD implements IStatusMessageListener {
 	TextBox dialogTextBox, promptTextBox;
 	Position dialogTextBoxPosition, toolTipTextBoxPosition;
 	RasterString runString;
+	BufferedImage[] images;
 	
 	
 	int alpha = 127;
@@ -63,8 +74,19 @@ public class HUD implements IStatusMessageListener {
 		arial16 = new Font("Arial",Font.PLAIN,16);
 		arial20 = new Font("Arial",Font.BOLD,20);
 		//mboxTextVisible=false;
+		itemEqBrcOffsetY = GamePanel.HEIGHT -ITEM_EQ_OFFSET_Y -ITEM_EQ_FRAME_SIZE; // y position of equipped item frame
 		initDialogTextBox();
-		
+		initImages();
+	}
+	
+	private void initImages() {
+		try {
+
+			this.images = new BufferedImage[5];
+			this.images[0] = ImageIO.read(getClass().getResourceAsStream(SINGLE_INVENTORY));
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void initDialogTextBox() {
@@ -127,6 +149,9 @@ public class HUD implements IStatusMessageListener {
 		}
 		if(showPrompt) {
 			promptTextBox.draw();
+		}
+		if(showEquippedItemFrame) {
+			gp.g2.drawImage(images[0],ITEM_EQ_OFFSET_X,itemEqBrcOffsetY,ITEM_EQ_FRAME_SIZE,ITEM_EQ_FRAME_SIZE,null);
 		}
 		
 		// by default hide the text boxes unless another class needs them.
