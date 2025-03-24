@@ -12,6 +12,7 @@ Enemy pathfinding works by generating a pathfind number grid around the player i
 ### Editor
 * Numpad 0 = change edit mode
 * Numpad decimal = latch paint mode
+* Numpad + = delete decor and other sprites
 * Mouse MC/RC = change asset
 * Mouse LC = paint
 

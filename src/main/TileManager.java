@@ -61,10 +61,13 @@ public class TileManager implements IEditableComponent{
 		}else {
 			try {
 				int kind = 0;
+				tileGrid[gridY][gridX] = Math.abs(tileGrid[gridY][gridX]);
 				for (TileUnit br : this.tilesSwappedWithBarrier) {
 					if (br.gridX==gridX&&br.gridY==gridY) {
 						kind=br.kind;
-						tileGrid[gridY][gridX] = kind;
+						
+
+						//tileGrid[gridY][gridX] = kind;
 						break;
 						
 					}

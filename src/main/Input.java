@@ -81,6 +81,9 @@ public class Input implements KeyListener{
 			case KeyEvent.VK_HOME:
 				gp.editor.toggleEditMode();
 				break;
+			case 107:
+				gp.editor.toggleEditDeleteMode();
+				break;
 			case KeyEvent.VK_DECIMAL:
 				gp.editor.toggleLatch();
 				break;
@@ -91,7 +94,7 @@ public class Input implements KeyListener{
 				gp.editor.loadComponentData();
 				break;
 			default:
-				System.out.println("Input no action " + e.getID());
+				System.out.println("Input no action " + e.getKeyCode());
 				;
 				//notifyListeners("playermove_nokeys");
 			}

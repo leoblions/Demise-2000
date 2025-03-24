@@ -20,8 +20,8 @@ public class EntityManager implements IEditableComponent,IInputListener{
 	public boolean activateEntityFlag = false;
 	public Delay entityActivateDalay;
 	public Rectangle playerHitbox;
-	public final int HITBOX_SIZE = 70;
-	public final int HITBOX_OFFSET = -20;
+	public final int HITBOX_SIZE = 90;
+	public final int HITBOX_OFFSET = -25;
 	public boolean playerMelee = false;
 	
 	public EntityManager(GamePanel gp) {

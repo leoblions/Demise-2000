@@ -24,6 +24,8 @@ public class Player implements IInputListener {
 	public int spriteHitboxOffsetY = 0;
 	public int velocity = 5;
 	public int defaultVelocity = 5;
+
+	public final float DIAGONAL_FACTOR = 0.71f;
 	private boolean run = false;
 	private boolean heal = true;
 	public boolean frozen = false;
@@ -360,6 +362,11 @@ public class Player implements IInputListener {
 			this.velX = velocity;
 			// this.movesRequested[3]=false;
 		}
+		
+//		if(velX!=0&&velY!=0) {
+//			velX *= DIAGONAL_FACTOR;
+//			velY *= DIAGONAL_FACTOR;
+//		}
 
 		this.worldX += velX;
 		this.worldY += velY;

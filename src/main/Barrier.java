@@ -30,7 +30,9 @@ public class Barrier implements IEditableComponent {
 
 	BufferedImage[] bufferedImages;
 	GamePanel gp;
-	int[][] barrierGrid;
+	int[][] barrierGrid; // store type of barrier, not type of tile
+	// can be -1 for no barrier
+	//or 0+ for a barrier
 	Random random;
 	CullRegion crg;
 	ArrayList<BarrierRecord> barrierRecords;
@@ -38,27 +40,7 @@ public class Barrier implements IEditableComponent {
 	private boolean modified;
 	// @formatter:off
 	/*
-	 * 
-	 * Barriers are interactive immovable objects
-	 * 0 = Door-Barrier
-	 * 1 = Door-Warp
-	 * 2 = Gate-Barrier
-	 * 3 = Gate-Warp
-	 * 4 = Barrel 1
-	 * 5 = Barrel 2
-	 * 6 = Switch 1
-	 * 7 = Switch 2
-	 * 8 = Chest 1
-	 * 9 = Chest 2
-	 * 10 = plant
-	 * 11 = 
-	 * 12
-	 * 13
-	 * 14
-	 * 15
-	 * 
-	 * 
-	 */
+	
 	/*
 	 * grid x,   grid y,   grid width,  grid height,  kind, id
 	 * 
@@ -102,8 +84,11 @@ public class Barrier implements IEditableComponent {
 	public void toggleBarrier(int pgX, int pgY) {
 		//System.out.println("Barrier touched " + item);
 		//gp.hud.showActionPromptDelay.setDelay(60);
-		boolean tileState = gp.tileManager.queryTileForBarrier(pgX,pgY);
-		gp.tileManager.swapTileForBarrier(pgX,pgY,!tileState);
+		int pgXC = clamp(0,GamePanel.MAP_TILES_X,pgX);
+		int pgYC = clamp(0,GamePanel.MAP_TILES_Y,pgY);
+		//boolean tileState = gp.tileManager.queryTileForBarrier(pgXC,pgYC);
+		boolean tileState = (barrierGrid[pgYC][pgXC]>-1)?true:false;
+		gp.tileManager.swapTileForBarrier(pgXC,pgYC,!tileState);
 
 		gp.sound.clipPlayFlags[2] = true;
 
@@ -123,8 +108,10 @@ public class Barrier implements IEditableComponent {
 				int UID = getUIDForbarrierGridCoords(pgY, pgX);
 				//toggleBarrier(kind, UID);
 				if(kind>=0) {
-					 barrierGrid[pgY][pgX]=-1;
-					 gp.particle.addParticle(fwX, fwY, RUBBLE);
+					 barrierGrid[pgY][pgX]=BLANK_ITEM_TYPE; // for displaying barrier sprite
+					 gp.tileManager.swapTileForBarrier(pgX, pgY, false);
+					 gp.particle.addParticle(pgX, fwY, RUBBLE);
+					 return;
 				}
 				
 			}
@@ -134,9 +121,11 @@ public class Barrier implements IEditableComponent {
 				int UID = getUIDForbarrierGridCoords(pgY+1, pgX);
 				//toggleBarrier(kind, UID);
 				if(kind>=0) {
-					 barrierGrid[pgY+1][pgX]=-1;
+					 barrierGrid[pgY+1][pgX]=BLANK_ITEM_TYPE;
 					 gp.particle.addParticle(fwX, fwY+GamePanel.TILE_SIZE_PX, RUBBLE);
+					 gp.tileManager.swapTileForBarrier(pgX, pgY, false);
 					 toggleBarrier(kind, UID);
+					 return;
 				}
 				
 			}

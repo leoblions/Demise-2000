@@ -3,11 +3,8 @@ package main;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Random;
-
-import javax.imageio.ImageIO;
 
 
 //import main.Tile.TileType;
@@ -15,13 +12,19 @@ import javax.imageio.ImageIO;
 public class Decor implements IEditableComponent{
 	private static final String DATA_FILE_PREFIX = "decor";
 	private static final String DATA_FILE_SUFFIX = ".csv";
-	private static final String SPRITE_SHEET_URL = "/images/decorA.png";
+	private static final String SPRITE_SHEET_URL = "/images/decorCommon.png";
+	private static final String SPRITE_TREE_URL = "/images/decorTree100.png";
+	private static final String SPRITE_COMMON2_URL = "/images/decorCommercial.png";
+	private static int[] sizeArray;
 	GamePanel gp;
 	BufferedImage[] bufferedImages;
 	Random random;
 	public int[][] decorGrid;
 	public final int maxDecorOnScreen = 200;
-	public final int defaultDecorSizePx = 25;
+
+	public final int TREE_DECOR_SIZE = 100;
+	public final int COMMON_DECOR_SIZE = 50;
+	public final int defaultDecorSizePx = 50;
 	public final int defaultDecorSizePxX = 25;
 	public final int defaultDecorSizePxY = 25;
 	public final int minTilesDrawX = 16;
@@ -33,13 +36,14 @@ public class Decor implements IEditableComponent{
 	public final int WALL_TILE_TYPE = 1;
 	public final int BLANK_DECOR_TYPE = -1;
 	private boolean modified = false;
+	private int xstart, xend, ystart, yend;
 
 	public Decor(GamePanel gp) {
 		this.gp = gp;
 
 		//decorGrid = new int[gp.MAP_TILES_Y][gp.MAP_TILES_X];
 		decorGrid = Utils.initBlankGrid(gp.MAP_TILES_Y, gp.MAP_TILES_X, BLANK_DECOR_TYPE);
-		BufferedImage[] decorImages = new BufferedImage[10];
+		//BufferedImage[] decorImages = new BufferedImage[10];
 		try {
 			initDecorImages();
 		} catch (IOException e) {
@@ -51,6 +55,20 @@ public class Decor implements IEditableComponent{
 		
 		drawWallShadow();
 		gp.editor.addComponent(this);
+		sizeArray = new int[bufferedImages.length];
+		for (int i = 0; i< sizeArray.length;i++) {
+			sizeArray[i] = defaultDecorSizePx;
+		}
+		//sizes to render sprites by kind
+		for(int i = 0;i< 16;i++) {
+			sizeArray[i]=COMMON_DECOR_SIZE;
+			
+		}
+		for(int i = 16;i< 20;i++) {
+			sizeArray[i]= TREE_DECOR_SIZE;
+			
+		}
+		
 
 	}
 	
@@ -162,20 +180,15 @@ public class Decor implements IEditableComponent{
 		range[3] = (gp.HEIGHT + gp.wpScreenLocY) / gp.TILE_SIZE_PX;
 		return range;
 	}
-
-	public void draw() {
-
-		// subtract worldCoord of top left screen corner from worldCord of image
-		int TopLeftCornerX = gp.wpScreenLocX;
-		int TopLeftCornerY = gp.wpScreenLocY;
-		int screenX, screenY;
+	
+	private void updateDrawRange() {
 		int[] drawableRange = gridRange();
 
 		// sprite culling distances
-		int xstart = drawableRange[0] - 4;
-		int ystart = drawableRange[1] - 4;
-		int xend = drawableRange[2] + 4;
-		int yend = drawableRange[3] + 4;
+		xstart = drawableRange[0] - 4;
+		ystart = drawableRange[1] - 4;
+		xend = drawableRange[2] + 4;
+		yend = drawableRange[3] + 4;
 
 		if (ystart < 0)
 			ystart = 0;
@@ -185,8 +198,15 @@ public class Decor implements IEditableComponent{
 			xend = gp.MAP_TILES_X;
 		if (yend > gp.MAP_TILES_Y)
 			yend = gp.MAP_TILES_Y;
+		
+	}
 
-		// prevent array out of bounds/null pointer errors
+	public void draw() {
+
+		int TopLeftCornerX = gp.wpScreenLocX;
+		int TopLeftCornerY = gp.wpScreenLocY;
+
+		int screenX, screenY;
 		clamp(0, gp.MAP_TILES_X, xend);
 		clamp(0, gp.MAP_TILES_Y, yend);
 		
@@ -201,17 +221,20 @@ public class Decor implements IEditableComponent{
 					int worldY = y * GamePanel.TILE_SIZE_PX;
 					screenX = worldX - TopLeftCornerX;
 					screenY = worldY - TopLeftCornerY;
-					gp.g2.drawImage(bufferedImages[kind], screenX, screenY, 50,
-							50, null);
+					int size = sizeArray[kind];
+					gp.g2.drawImage(bufferedImages[kind], screenX, screenY, size,
+							size, null);
 
 				}
 
 			}
 		}
+		
+		
 		// draw cross
-		gp.g2.setColor(Color.red);
-		gp.g2.fillRect(22, 22, 7, 20); // up
-		gp.g2.fillRect(16, 28, 20, 7); // right
+		//gp.g2.setColor(Color.red);
+		//gp.g2.fillRect(22, 22, 7, 20); // up
+		//gp.g2.fillRect(16, 28, 20, 7); // right
 
 	}
 
@@ -261,7 +284,7 @@ public class Decor implements IEditableComponent{
 	}
 
 	public void update() {
-
+		 updateDrawRange();
 	}
 
 	public enum DecorType {
@@ -296,7 +319,11 @@ public class Decor implements IEditableComponent{
 	}
 
 	private void initDecorImages() throws IOException {
-		this.bufferedImages = new Utils().spriteSheetCutter(SPRITE_SHEET_URL, 4, 4, 50, 50);
+		BufferedImage[] commonDecor = new Utils().spriteSheetCutter(SPRITE_SHEET_URL, 4, 4, 50, 50);
+		BufferedImage[] treeDecor = new Utils().spriteSheetCutter(SPRITE_TREE_URL, 2, 2, 100, 100);
+		BufferedImage[] common2Decor = new Utils().spriteSheetCutter(SPRITE_COMMON2_URL, 4, 4, 50, 50);
+		this.bufferedImages = Utils.appendArray(commonDecor, treeDecor);
+		this.bufferedImages = Utils.appendArray(bufferedImages, common2Decor);
 
 	
 
@@ -326,6 +353,9 @@ public class Decor implements IEditableComponent{
 	@Override
 	public void paintAsset(int gridX, int gridY, int kind) {
 		modified=true;
+		if(gp.editor.delete) {
+			kind = -1;
+		}
 		try {
 			this.decorGrid[gridY][gridX] = kind;
 			

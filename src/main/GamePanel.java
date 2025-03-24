@@ -290,13 +290,14 @@ public class GamePanel extends JPanel implements Runnable{
 		visibleArea = Utils.getVisibleArea(this);
 		this.collision.collideTilePlayer();
 		this.tileManager.update();
+
+		decor.update();
 		this.player.update();
 		this.camera.update();
 		raycast.update();
 		shadow.update();
 		entityManager.update();
 		item.update();
-		decor.update();
 		hud.update();
 		editor.update();
 		pathFind.update();
@@ -328,9 +329,11 @@ public class GamePanel extends JPanel implements Runnable{
 		tileManager.draw();
 		decor.draw();
 		player.draw();
+
+		entityManager.draw();
+		
 		raycast.draw();
 		
-		entityManager.draw();
 		
 		item.draw();
 		shadow.draw();

@@ -23,6 +23,7 @@ public class Editor {
 	private static String editModeString, selectedAssetIDstring,latchString;
 	Font arial16;
 	public EditMode editMode;
+	public boolean delete = false;
 	public int selectedAssetID;
 	IEditableComponent activeComponent = null;
 	public ArrayList<IEditableComponent> components = new ArrayList<>();
@@ -210,6 +211,16 @@ public class Editor {
 			this.latchString = "";
 		}
 		System.out.println("Latch: "+this.latchEnable);
+	}
+
+	public void toggleEditDeleteMode() {
+		delete = ! delete;
+		if (delete) {
+			System.out.println("delete mode on");
+		}else {
+			System.out.println("delete mode off");
+		}
+		
 	}
 
 }
