@@ -22,6 +22,7 @@ public class Conversation implements IInputListener {
 	public static final int CONV_FILES_FIELDS = 3;
 	public static final boolean LOAD_FIRST_ROOM = true;
 	public static final boolean FREEZE_PLAYER_ON_CONVERSATION = true;
+	public static String playerActorName = "Terri";
 
 	public int activeMessageID = 0;
 	public int activeMessageIterator = 0;
@@ -214,9 +215,9 @@ public class Conversation implements IInputListener {
 		Path tilePathP = Paths.get(DATA_FOLDER, URI);
 		if (Utils.createFileIfNotExist(DATA_FOLDER, URI))
 			return;
-		int[][] rawChainData = null;
+		ArrayList<int[]> rawChainData = null;
 		try {
-			rawChainData = Utils.openCSVto2DAInt(tilePathP.toString());
+			rawChainData = Utils.openCSVto2DAIntListJagged(tilePathP.toString());
 		} catch (Exception e) {
 			System.err.println("Conversation loadDataFromFileConversationChains unable to read the file " + URI);
 			e.printStackTrace();
@@ -280,6 +281,25 @@ public class Conversation implements IInputListener {
 			advanceConversation();
 		}
 
+	}
+	
+	public String getActorNameFromID(int ID) {
+		switch(ID) {
+		case 10:
+			return "Rick";
+		case 11:
+			return "Lilly";
+		case 12:
+			return "Rodney";
+		case 13:
+			return "Nicole";
+		case 14:
+			return "Chuck";
+		case 15:
+			return "Daniel";
+		default:
+			return "Anna";
+		}
 	}
 
 }

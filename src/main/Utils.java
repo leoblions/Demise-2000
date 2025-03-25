@@ -79,6 +79,8 @@ public class Utils {
 		
 	}
 	
+	
+	
 	public static String[] getStringsFromFile(String filePath){
 		File dataFile = new File(filePath);
 		if(!dataFile.exists()) {
@@ -87,6 +89,7 @@ public class Utils {
 		String[] outputArray = null;
 		Scanner scanner;
 		LinkedList<String> allLines = new LinkedList<>();
+		
 		try {
 			scanner = new Scanner(dataFile);
 			while(scanner.hasNextLine()) {
@@ -95,6 +98,7 @@ public class Utils {
 				String data = scanner.nextLine();
 				currentLineStrings = data;
 				allLines.add(currentLineStrings);
+				
 			}
 			int outerArrayLength = allLines.size();
 			outputArray  = new String[outerArrayLength];
@@ -130,6 +134,36 @@ public class Utils {
 		}
 		
 		return int2DA;
+		
+	}
+	
+	public static ArrayList<int[]> openCSVto2DAIntListJagged(String filePath) throws Exception{
+		
+		String[] stringsArray = getStringsFromFile(filePath);
+		if (null==stringsArray) {
+			throw new Exception("openCSVto2DAInt: no valid data");
+		}
+		int rows = stringsArray.length;
+		
+		ArrayList<int[]>  intListOfArrays = new ArrayList<> ();
+		
+		String [] rowSplitToStrings = null;
+
+		int [] rowSplitToInts = null;
+		
+		for (int y = 0; y < rows; y++) {
+			rowSplitToStrings = stringsArray[y].split(COL_SEPARATOR);
+
+			int cols = rowSplitToStrings.length;
+			rowSplitToInts = new int[cols];
+			
+			for(int i = 0; i < cols; i++) {
+				rowSplitToInts[i] = Integer.parseInt(rowSplitToStrings[i]);
+			}
+			intListOfArrays.add(rowSplitToInts);
+		}
+		
+		return intListOfArrays;
 		
 	}
 	
@@ -508,6 +542,37 @@ public class Utils {
 		}
 		return arr3;
 		
+	}
+
+	public static BufferedImage imageSetAlpha(BufferedImage input, int alpha) {
+		int rows = input.getHeight();
+		int cols = input.getWidth();
+		//System.out.println("dims cols"+cols+"rows"+rows);
+		BufferedImage output = new BufferedImage(cols, rows,   input.getType());
+		Graphics2D outputG = output.createGraphics();
+		int r1, g1, b1, a1, r2, g2, b2, a2;
+		int subscript = 0;
+		for(int y = 0;y < rows; y++) {
+			for(int x = 0;  x < cols; x++) {
+				int clr = input.getRGB(x, y);
+				//int alpha = (clr & 0xff000000) >> 24;
+		        int red =   (clr & 0x00ff0000) >> 16;
+		        int green = (clr & 0x0000ff00) >> 8;
+		        int blue =   clr & 0x000000ff;
+		        //System.out.println("color red"+red+"green"+green);
+		        int average = (red + green + blue ) /3 ;
+		        
+		        int newAlpha = alpha << 24;
+		        int redNew = average << 16;
+		        int greenNew = average << 8;
+		        int blueNew = average ;
+		        int clrNew = redNew + greenNew + blueNew + newAlpha;
+		        
+		        
+		        output.setRGB(x, y, clrNew);
+			}
+		}
+		return output;
 	}
 
 }

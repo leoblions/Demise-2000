@@ -72,12 +72,33 @@ public class Brain implements Runnable{
 		}
 		
 	}
+	
+	public int getConversationChainForEntityType(int entType) {
+		// TODO: temporary function, implement properly later
+		switch(entType) {
+		case 10:
+			return 0;
+		case 11:
+			return 1;
+		case 12:
+			return 0;
+		case 13:
+			return 1;
+		case 14:
+			return 0;
+		case 15:
+			return 1;
+		default:
+			return 0;
+		}
+	}
 
 	public void playerActivateNPC(Entity entity, boolean pressecActivate) {
 		if (pressecActivate) {
 
 			System.out.printf("Brain: player touch the NPC: %d  %d \n ",entity.kind,entity.UID);
-			gp.conversation.startConversation(0);
+			int chainID = getConversationChainForEntityType(entity.kind);
+			gp.conversation.startConversation(chainID);
 		}else {
 			//System.out.printf("BrainsdfggggC: %d  %d \n ",entity.kind,entity.UID);
 		}

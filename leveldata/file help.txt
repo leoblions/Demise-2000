@@ -1,0 +1,5 @@
+convXXX.cfg files: 
+messageID`actorID`MessageString
+
+conversationChains.csv  
+chainID,messageID1,messageID2,messageID3...

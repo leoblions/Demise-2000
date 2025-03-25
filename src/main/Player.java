@@ -42,8 +42,8 @@ public class Player implements IInputListener {
 	private final int STAM_HEAL_RATE = 12;
 	private final int START_HEALTH = 80;
 	private final int STAMINA_DRAIN = 1;
-	private final String SPRITE_SHEET = "/images/playerHeraW.png";
-	private final String SPRITE_SHEET_ATTACK = "/images/playerHeraA.png";
+	private final String SPRITE_SHEET = "/images/entityP.png";
+	private final String SPRITE_SHEET_ATTACK = "/images/entityPA.png";
 	private Pacer animationPacer, healPacer, staminaPacer;
 	private Delay attackTimeout, walkTimeout, enemyPlayerDamageTimeout;
 	private int currentImageIndex = 0;

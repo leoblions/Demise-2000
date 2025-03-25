@@ -6,7 +6,7 @@ import javax.swing.JFrame;
 
 public class Main {
 	
-	public final static String GAME_TITLE = "DEMISE 2000";
+	public final static String GAME_TITLE = "BOMB TOWN";
 	
 	public static void main(String[] args) {
 		JFrame jframe = new JFrame(GAME_TITLE);

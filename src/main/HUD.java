@@ -33,11 +33,19 @@ public class HUD implements IStatusMessageListener {
 	public String gemCountString = "";
 	public int gemCount = 0;
 	//equipped item
-	public static final String SINGLE_INVENTORY = "/images/invHudSingle.png";
+	public static final String INVENTORY_EQ_FRAME = "/images/InvHudSingle.png";
+	public static final String INVENTORY_EQ_ITEMS = "/images/inventoryItem.png";
 	public static final int ITEM_EQ_OFFSET_X = 10;
 	public static final int ITEM_EQ_OFFSET_Y = 10;
 	public static final int ITEM_EQ_FRAME_SIZE = 70;
+	public static final int ITEM_EQ_ITEM_IMAGE_SIZE = 50;
+	public static final int ITEM_EQ_ITEM_IMAGE_OFFSET = 10;
+	public static final int ITEM_EQ_FRAME_ALPHA = 200;
 	public static int itemEqBrcOffsetY = 10;
+	public static int itemEqBrcOffsetX = 0;
+	public static int itemEqScreenY = 10;
+	public static int itemEqScreenX = 10;
+	public static int itemEq = 2;
 	public static boolean showEquippedItemFrame = true;
 	
 	// text boxes
@@ -49,8 +57,24 @@ public class HUD implements IStatusMessageListener {
 	Position dialogTextBoxPosition, toolTipTextBoxPosition;
 	RasterString runString;
 	BufferedImage[] images;
-	
-	
+	BufferedImage[] itemImages;
+	// @formatter:off
+	/*
+	 *Inventory items:
+	 *
+	 *0 health
+	 *1 seeds
+	 *2 machete
+	 *3 hoe
+	 *4 watering can
+	 *5 bear trap
+	 *6 pickaxe
+	 *7 bomb 
+	 
+	 * 
+	 * 
+	 */
+	// @formatter:on
 	int alpha = 127;
 	
 	Color smBackground = new Color(100, 100, 100, alpha);
@@ -75,6 +99,9 @@ public class HUD implements IStatusMessageListener {
 		arial20 = new Font("Arial",Font.BOLD,20);
 		//mboxTextVisible=false;
 		itemEqBrcOffsetY = GamePanel.HEIGHT -ITEM_EQ_OFFSET_Y -ITEM_EQ_FRAME_SIZE; // y position of equipped item frame
+		itemEqBrcOffsetX = ITEM_EQ_OFFSET_X; 
+		itemEqScreenY = itemEqBrcOffsetY + ITEM_EQ_ITEM_IMAGE_OFFSET;
+		itemEqScreenX = itemEqBrcOffsetX + ITEM_EQ_ITEM_IMAGE_OFFSET;
 		initDialogTextBox();
 		initImages();
 	}
@@ -83,7 +110,10 @@ public class HUD implements IStatusMessageListener {
 		try {
 
 			this.images = new BufferedImage[5];
-			this.images[0] = ImageIO.read(getClass().getResourceAsStream(SINGLE_INVENTORY));
+			this.images[0] = ImageIO.read(getClass().getResourceAsStream(INVENTORY_EQ_FRAME));
+			this.images[0] = Utils.imageSetAlpha(this.images[0],ITEM_EQ_FRAME_ALPHA);
+			
+			this.itemImages = new Utils().spriteSheetCutter(INVENTORY_EQ_ITEMS, 4, 4, ITEM_EQ_ITEM_IMAGE_SIZE, ITEM_EQ_ITEM_IMAGE_SIZE);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -151,7 +181,13 @@ public class HUD implements IStatusMessageListener {
 			promptTextBox.draw();
 		}
 		if(showEquippedItemFrame) {
-			gp.g2.drawImage(images[0],ITEM_EQ_OFFSET_X,itemEqBrcOffsetY,ITEM_EQ_FRAME_SIZE,ITEM_EQ_FRAME_SIZE,null);
+			gp.g2.drawImage(images[0],itemEqBrcOffsetX,itemEqBrcOffsetY,
+					ITEM_EQ_FRAME_SIZE,ITEM_EQ_FRAME_SIZE,null);
+			if(itemEq>0) {
+
+				gp.g2.drawImage(itemImages[itemEq],itemEqScreenX,itemEqScreenY,
+						ITEM_EQ_ITEM_IMAGE_SIZE,ITEM_EQ_ITEM_IMAGE_SIZE,null);
+			}
 		}
 		
 		// by default hide the text boxes unless another class needs them.

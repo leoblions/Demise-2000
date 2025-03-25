@@ -69,10 +69,10 @@ public class Entity {
 	 * 7 Zombie2 
 	 * 8 Mercenary 1 
 	 * 9 Mercenary 2 
-	 * 10 Sam 
-	 * 11 Elissa 
-	 * 12 Trent 
-	 * 13 Otto
+	 * 10 Rick 
+	 * 11 Lilly 
+	 * 12 Rodney 
+	 * 13 Nicole
 	 * 
 	 */
 
@@ -383,7 +383,7 @@ public class Entity {
 		}
 		cycleSprite();
 		playerMeleeEnemy();
-		enemyCollidePlayer();
+		entityCollidePlayer();
 
 	}
 
@@ -400,7 +400,7 @@ public class Entity {
 		
 	}
 
-	public void enemyCollidePlayer() {
+	public void entityCollidePlayer() {
 		if ( this.wpSolidArea.intersects(gp.player.wpSolidArea)) {
 			
 			if(enemy && alive) {
@@ -418,7 +418,7 @@ public class Entity {
 					gp.entityManager.playerTouchedActorSincelastTick = true;
 					gp.entityManager.entityTouchedList.add(this);
 				}
-				System.out.println("player touch ent");
+				//System.out.println("player touch ent");
 				
 			}
 		}
