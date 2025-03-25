@@ -35,12 +35,19 @@ public class RasterString {
 	static HashMap<Character, BufferedImage> charImageMap;
 
 	GamePanel gp;
-	String stringContent, fileURL;
+	String stringContent;
 	//ScreenPosition screenPosition;
+	String fileURL;
 	
 	BufferedImage currImage;
 	BufferedImage stringImage;
-	int letterHeight, letterWidth, letterKerning, screenX, screenY, width, height;
+	static int letterHeight;
+	static int letterWidth;
+	int letterKerning;
+	int screenX;
+	int screenY;
+	int width;
+	int height;
 	Color backgroundColor;
 	boolean visible, fixedPosition;
 
@@ -62,22 +69,46 @@ public class RasterString {
 		fixedPosition = false;
 		visible = true;
 		if (null==charImageMap) {
-			charImageMap = initializeLetterSprites();
+			charImageMap = this.initializeLetterSprites();
 		}
 		try {
 			spritesheet = ImageIO.read(getClass().getResourceAsStream(fileURL));
 			letterSprites = new Utils().spriteSheetCutter(fileURL, SPRITESHEET_COLS, SPRITESHEET_ROWS,
 					RAST_SS_CHAR_PIX_W, RAST_SS_CHAR_PIX_H);
 			
-			stringImage = getRasterStringAsSingleImage();
+			stringImage = getRasterStringAsSingleImage(this);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 	}
+	
+	public void updateString(String newString) {
+		this.stringContent=newString;
+		stringImage = getRasterStringAsSingleImage(this);
+		
+	}
+	
+	public static RasterString RasterStringBGC(GamePanel gp, String content, int screenX, int screenY, Color color) {
+		//this.screenPosition = new ScreenPosition(gp, screenX, screenY, RAST_SS_CHAR_PIX_W, RAST_SS_CHAR_PIX_H);
+		RasterString rs = new RasterString(gp, content, screenX, screenY);
 
-	private BufferedImage getRasterStringAsSingleImage() {
-		int width = stringContent.length() * letterWidth;
+		
+		rs.stringContent = content;
+		rs.backgroundColor = new Color(0x0f, 0x0f, 0x0f, RAST_SS_BG_ALPHA);
+		rs.backgroundColor = color;
+
+
+		if (null==RasterString.charImageMap) {
+			RasterString.charImageMap = rs.initializeLetterSprites(  );
+		}
+		rs.stringImage = getRasterStringAsSingleImage(rs);
+		return rs;
+
+	}
+
+	private static BufferedImage getRasterStringAsSingleImage(RasterString instance) {
+		int width = instance.stringContent.length() * letterWidth;
 		WritableRaster wr = null;
 		Graphics2D graphics = null;
 		ColorModel cm = null;
@@ -90,11 +121,11 @@ public class RasterString {
 				int xOffsetTotal = 0;
 				if (RAST_SS_BG_FILL) {
 					graphics = stringImage.createGraphics();
-					graphics.setColor(backgroundColor);
+					graphics.setColor(instance.backgroundColor);
 					graphics.fillRect(0, 0, width, letterHeight);
 				}
-				for (int i = 0; i<stringContent.length();i++ ){
-					char letter = stringContent.charAt(i);
+				for (int i = 0; i<instance.stringContent.length();i++ ){
+					char letter = instance.stringContent.charAt(i);
 					BufferedImage letterImage = charImageMap.get(letter);
 
 					if( letterImage != null) {
@@ -102,9 +133,9 @@ public class RasterString {
 						int w = letterImage.getWidth();
 						int h = letterImage.getHeight();
 						graphics.drawImage(letterImage, xOffsetTotal, 0, w, h , null);
-						xOffsetTotal += letterKerning;
+						xOffsetTotal += instance.letterKerning;
 					} else if (letter == ' ') {
-						xOffsetTotal += letterKerning;
+						xOffsetTotal += instance.letterKerning;
 					}
 
 				}
@@ -112,13 +143,13 @@ public class RasterString {
 				return stringImage;
 	}
 
-	public HashMap<Character, BufferedImage> initializeLetterSprites() {
+	public HashMap<Character, BufferedImage> initializeLetterSprites( ) {
 		LinkedList<CharacterRecord> recordsList = readSpriteLocationTableFile();
 		BufferedImage rawImage = null;
 		//Path imageDir = Paths.get(IMAGES_SUBDIR, IMAGES_SUBDIR);
 		//String imageDirS = "/images/letterSpritesT.png";
 		try {
-			rawImage = ImageIO.read(getClass().getResourceAsStream(fileURL));
+			rawImage = ImageIO.read(getClass().getResourceAsStream(this.fileURL));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -136,7 +167,7 @@ public class RasterString {
 		return charImageMap;
 	}
 
-	private LinkedList<CharacterRecord> readSpriteLocationTableFile() {
+	private static LinkedList<CharacterRecord> readSpriteLocationTableFile() {
 		String charmapDataPath = Paths.get(DATA_FOLDER, LETTERS_CHARMAP_FILE).toString();
 		String[][] stringsArray = Utils.openCSVto2DA( charmapDataPath);
 		LinkedList<CharacterRecord>  recordsList = new LinkedList<>();

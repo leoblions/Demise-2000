@@ -1,13 +1,30 @@
 package main;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.Set;
 
 public class Inventory {
+	private final int BLANK_ITEM_KIND = -1;
 	private HashMap<Integer,Integer>inventoryItems;
 	GamePanel gp;
+	public int activeItem = BLANK_ITEM_KIND;
 	public Inventory(GamePanel gp) {
 		this.gp=gp;
 		inventoryItems = new HashMap<Integer, Integer>();
+		testInv();
+		
+	}
+	
+	private void testInv() {
+		
+		addItem(4, 1);
+		selectItem(4);
+		addItem(2, 1);
+		selectItem(4);
+		addItem(7, 1);
+		selectItem(4);
+		
 	}
 	
 	public void addItem(int itemID, int amountToAdd) {
@@ -24,9 +41,38 @@ public class Inventory {
 		}
 	}
 	
+	public int[][]queryKindAndAmount(){
+		// get 2d array of item kinds and amounts
+		int amountOfItemKindsPresent = inventoryItems.size();
+		int[][] kvpOuterArray = new int[amountOfItemKindsPresent][];
+		int iter = 0;
+		Set<Entry<Integer, Integer>> es = inventoryItems.entrySet();
+		for(Entry<Integer, Integer> entry: es) {
+			int k = entry.getKey();
+			int v = entry.getValue();
+			int[] pair = new int[]{k,v};
+
+			System.out.println("Key "+pair[0]);
+
+			kvpOuterArray[iter]= pair;
+			iter+=1;
+		}
+		//return new int[][]{{0,1},{1,1},{3,1}};
+		return kvpOuterArray;
+	}
+	
 	public int queryItemAmount(int itemID ) {
 		
 		return inventoryItems.get(itemID);
+	}
+	
+	public int selectItem(int itemType ) {
+		
+		int amount = inventoryItems.getOrDefault(gp, BLANK_ITEM_KIND);
+		if (amount!=BLANK_ITEM_KIND) {
+			activeItem = itemType;
+		}
+		return amount;
 	}
 	
 	public void spendItem(int itemID) {

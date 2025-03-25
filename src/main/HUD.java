@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.function.ToLongBiFunction;
 
 import javax.imageio.ImageIO;
 
@@ -35,23 +36,49 @@ public class HUD implements IStatusMessageListener {
 	//equipped item
 	public static final String INVENTORY_EQ_FRAME = "/images/InvHudSingle.png";
 	public static final String INVENTORY_EQ_ITEMS = "/images/inventoryItem.png";
-	public static final int ITEM_EQ_OFFSET_X = 10;
-	public static final int ITEM_EQ_OFFSET_Y = 10;
-	public static final int ITEM_EQ_FRAME_SIZE = 70;
-	public static final int ITEM_EQ_ITEM_IMAGE_SIZE = 50;
-	public static final int ITEM_EQ_ITEM_IMAGE_OFFSET = 10;
-	public static final int ITEM_EQ_FRAME_ALPHA = 200;
-	public static int itemEqBrcOffsetY = 10;
-	public static int itemEqBrcOffsetX = 0;
-	public static int itemEqScreenY = 10;
-	public static int itemEqScreenX = 10;
-	public static int itemEq = 2;
+	private static final int ITEM_EQ_OFFSET_X = 10;
+	private static final int ITEM_EQ_OFFSET_Y = 10;
+	private static final int ITEM_EQ_FRAME_SIZE = 70;
+	private static final int ITEM_EQ_ITEM_IMAGE_SIZE = 50;
+	private static final int ITEM_EQ_ITEM_IMAGE_OFFSET = 10;
+	private static final int ITEM_EQ_FRAME_ALPHA = 200;
+	final int TOOLBAR_SLOTS = 10;
+	private static int itemEqBrcOffsetY = 10;
+	private static int itemEqBrcOffsetX = 0;
+	private static int itemEqScreenY = 10;
+	private static int itemEqScreenX = 10;
+	private static int[] toolbarBoxOffsetsX;
+	private static int[][] inventoryKindAmount;
+	public static int itemEq = -1;
+	public static boolean showToolbar = false;
+	public boolean toggleToolbar = false;
 	public static boolean showEquippedItemFrame = true;
 	
 	// text boxes
 	private boolean showDialog = false;
 	private boolean showPrompt = false;
 	public Delay showActionPromptDelay = new Delay();
+	public boolean showNamePlate = true;
+	public RasterString speakerString;
+	private final int RUN_STRNG_TEXT_OFFSET_X = 60;
+	private final int RUN_STRNG_TEXT_OFFSET_Y = 50;
+	
+	
+	// nameplate
+	
+	
+
+	public static final String NAMEPLATE_SPRITE = "/images/nameplate.png";
+	private final int NAMEPLATE_HEIGHT = 25;
+	private final int NAMEPLATE_WIDTH = 100;
+	private final int NAMEPLATE_TEXT_OFFSET = 5;
+	private int nameplateX = 50;
+	private int nameplateY = 50;
+	
+	//dialog boxes
+	int dialogTextBoxPositionH ,dialogTextBoxPositionW , dialogTextBoxPositionX , dialogTextBoxPositionY;
+	int toolTipTextBoxPositionH,toolTipTextBoxPositionW,toolTipTextBoxPositionX,toolTipTextBoxPositionY ;
+	
 	
 	TextBox dialogTextBox, promptTextBox;
 	Position dialogTextBoxPosition, toolTipTextBoxPosition;
@@ -80,6 +107,8 @@ public class HUD implements IStatusMessageListener {
 	Color smBackground = new Color(100, 100, 100, alpha);
 	Color smBorder = new Color(50, 50, 50, alpha);
 	Color healthBarColor = new Color(50, 200, 50);
+
+	Color clear = new Color(50, 200, 50,0);
 	
 	private static boolean mboxTextVisible ;
 	private static int mboxTextVisibleTimeout =60;
@@ -91,8 +120,8 @@ public class HUD implements IStatusMessageListener {
 		if(g2==null) System.out.println("HUD ctor received null reference 2") ;
 		this.gp = gp;
 		
-		int runStringX = gp.WIDTH - 60;
-		int runStringY = 50;
+		int runStringX = gp.WIDTH - RUN_STRNG_TEXT_OFFSET_X;
+		int runStringY = RUN_STRNG_TEXT_OFFSET_Y;
 		runString = new RasterString(gp, "RUN", runStringX, runStringY);
 		runString.visible=true;
 		arial16 = new Font("Arial",Font.PLAIN,16);
@@ -103,48 +132,92 @@ public class HUD implements IStatusMessageListener {
 		itemEqScreenY = itemEqBrcOffsetY + ITEM_EQ_ITEM_IMAGE_OFFSET;
 		itemEqScreenX = itemEqBrcOffsetX + ITEM_EQ_ITEM_IMAGE_OFFSET;
 		initDialogTextBox();
+		initElementPositions();
+		speakerString=RasterString.RasterStringBGC(gp, "player", nameplateX+NAMEPLATE_TEXT_OFFSET, nameplateY+NAMEPLATE_TEXT_OFFSET, clear);
 		initImages();
 	}
 	
+	private void initElementPositions() {
+		nameplateY = dialogTextBoxPositionY - NAMEPLATE_HEIGHT;
+		nameplateX = dialogTextBoxPositionX;
+		
+	}
+
 	private void initImages() {
 		try {
+			if(gp.item!=null && gp.item.itemImages!=null) {
 
+				this.itemImages = gp.item.itemImages;
+			}else {
+				this.itemImages = Item.getImages();
+			}
+			//frames
 			this.images = new BufferedImage[5];
 			this.images[0] = ImageIO.read(getClass().getResourceAsStream(INVENTORY_EQ_FRAME));
 			this.images[0] = Utils.imageSetAlpha(this.images[0],ITEM_EQ_FRAME_ALPHA);
+			this.images[1] = makeInventoryToolbarBackground();
+			this.images[2] = ImageIO.read(getClass().getResourceAsStream(NAMEPLATE_SPRITE));
 			
-			this.itemImages = new Utils().spriteSheetCutter(INVENTORY_EQ_ITEMS, 4, 4, ITEM_EQ_ITEM_IMAGE_SIZE, ITEM_EQ_ITEM_IMAGE_SIZE);
+			//this.itemImages = new Utils().spriteSheetCutter(INVENTORY_EQ_ITEMS, 4, 4, ITEM_EQ_ITEM_IMAGE_SIZE, ITEM_EQ_ITEM_IMAGE_SIZE);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
+	private BufferedImage makeInventoryToolbarBackground() {
+		
+		BufferedImage toolbar = null;
+		toolbarBoxOffsetsX = new int[TOOLBAR_SLOTS];
+		try {
+
+			BufferedImage raw = ImageIO.read(getClass().getResourceAsStream(INVENTORY_EQ_FRAME));
+			toolbar = new BufferedImage(raw.getWidth()*TOOLBAR_SLOTS,raw.getHeight(),raw.getType());
+			int w = raw.getWidth();
+			int h = raw.getHeight();
+			Graphics2D tbGraphics = (Graphics2D) toolbar.getGraphics();
+
+			int xOffset = 0;
+			for(int i = 0; i< TOOLBAR_SLOTS;i++) {
+				tbGraphics.drawImage(raw,xOffset,0,w,h,null);
+				toolbarBoxOffsetsX[i] = xOffset + itemEqBrcOffsetX;
+				xOffset += w;
+			}
+			
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return toolbar;
+	}
+	
+	
+	
 	private void initDialogTextBox() {
 		int HEIGHT  = GamePanel.HEIGHT;
 		int WIDTH = GamePanel.WIDTH;
-		int dialogTextBoxPositionH = HEIGHT / 10;
-		int dialogTextBoxPositionW = WIDTH/2;
-		int dialogTextBoxPositionX = (WIDTH/2) - (dialogTextBoxPositionW/2);
-		int dialogTextBoxPositionY = (HEIGHT) - (dialogTextBoxPositionH*2);
+		dialogTextBoxPositionH = HEIGHT / 10;
+		dialogTextBoxPositionW = WIDTH/2;
+		dialogTextBoxPositionX = (WIDTH/2) - (dialogTextBoxPositionW/2);
+		dialogTextBoxPositionY = (HEIGHT) - (dialogTextBoxPositionH*2);
 		dialogTextBoxPosition = new Position(this.gp,
 				dialogTextBoxPositionX,
 				dialogTextBoxPositionY,
 				dialogTextBoxPositionW,
 				dialogTextBoxPositionH);
 		this.dialogTextBox = new TextBox(this.gp, dialogTextBoxPosition);
-		this.dialogTextBox.backgroundColor =new Color(200, 200, 200, 100);
+		//this.dialogTextBox.backgroundColor =new Color(255, 200, 200, 150);
 		
-		int toolTipTextBoxPositionH = HEIGHT / 20;
-		int toolTipTextBoxPositionW = WIDTH/6;
-		int toolTipTextBoxPositionX = (WIDTH) - (toolTipTextBoxPositionW) - (toolTipTextBoxPositionH);;
-		int toolTipTextBoxPositionY = (HEIGHT) - (toolTipTextBoxPositionH*2);
+		toolTipTextBoxPositionH = HEIGHT / 20;
+		toolTipTextBoxPositionW = WIDTH/6;
+		toolTipTextBoxPositionX = (WIDTH) - (toolTipTextBoxPositionW) - (toolTipTextBoxPositionH);;
+		toolTipTextBoxPositionY = (HEIGHT) - (toolTipTextBoxPositionH*2);
 		toolTipTextBoxPosition = new Position(this.gp,
 				toolTipTextBoxPositionX,
 				toolTipTextBoxPositionY,
 				toolTipTextBoxPositionW,
 				toolTipTextBoxPositionH);
 		this.promptTextBox = new TextBox(this.gp, toolTipTextBoxPosition);
-		this.promptTextBox.backgroundColor =new Color(255, 200, 200, 150);
+		//this.promptTextBox.backgroundColor =new Color(255, 200, 200, 150);
 		this.promptTextBox.setTextContent(promptText);
 	}
 	
@@ -176,25 +249,65 @@ public class HUD implements IStatusMessageListener {
 
 		if (showDialog) {
 			dialogTextBox.draw();
+			if(showNamePlate) {
+				gp.g2.drawImage(images[2],nameplateX,nameplateY,NAMEPLATE_WIDTH,NAMEPLATE_HEIGHT,null);
+				speakerString.draw();
+			}
 		}
 		if(showPrompt) {
 			promptTextBox.draw();
 		}
-		if(showEquippedItemFrame) {
-			gp.g2.drawImage(images[0],itemEqBrcOffsetX,itemEqBrcOffsetY,
-					ITEM_EQ_FRAME_SIZE,ITEM_EQ_FRAME_SIZE,null);
-			if(itemEq>0) {
-
-				gp.g2.drawImage(itemImages[itemEq],itemEqScreenX,itemEqScreenY,
-						ITEM_EQ_ITEM_IMAGE_SIZE,ITEM_EQ_ITEM_IMAGE_SIZE,null);
-			}
-		}
 		
+		drawInventoryToolbar();
 		// by default hide the text boxes unless another class needs them.
 		
 		//showPrompt=false; //press e
 		//showDialog=false;
 		
+	}
+	
+	public void drawInventoryToolbar() {
+		int tbWidth = ITEM_EQ_FRAME_SIZE;
+		int tbHeight = ITEM_EQ_FRAME_SIZE;
+		
+		if(showEquippedItemFrame) {
+			int backgroundImage = 0;
+			if(showToolbar) {
+				backgroundImage = 1;
+				tbWidth = ITEM_EQ_FRAME_SIZE*10;
+				gp.g2.drawImage(images[backgroundImage],itemEqBrcOffsetX,itemEqBrcOffsetY,
+						tbWidth,tbHeight,null);
+				drawInventoryToolbarItemSprites();
+				
+			}else {
+				gp.g2.drawImage(images[backgroundImage],itemEqBrcOffsetX,itemEqBrcOffsetY,
+						tbWidth,tbHeight,null);
+				if(itemEq>0) {
+
+					gp.g2.drawImage(itemImages[itemEq],itemEqScreenX,itemEqScreenY,
+							ITEM_EQ_ITEM_IMAGE_SIZE,ITEM_EQ_ITEM_IMAGE_SIZE,null);
+				}
+				
+			}
+			
+			
+		}
+	}
+	
+	public void drawInventoryToolbarItemSprites() {
+		
+		int spriteAmount = 10;
+		if (inventoryKindAmount.length<10) {
+			spriteAmount=inventoryKindAmount.length;
+		}
+		int currX = itemEqScreenX;
+		int currY = itemEqScreenY;
+		for (int i = 0; i< spriteAmount;i++) {
+			int imageID = inventoryKindAmount[i][0];
+			gp.g2.drawImage(itemImages[imageID],currX,currY,
+					ITEM_EQ_ITEM_IMAGE_SIZE,ITEM_EQ_ITEM_IMAGE_SIZE,null);
+			currX +=ITEM_EQ_FRAME_SIZE;
+		}
 	}
 	
 	public void update() {
@@ -203,15 +316,22 @@ public class HUD implements IStatusMessageListener {
 			this.g2 = gp.g2;
 			
 		}
+		
+		// check if player pressed to show inv toolbar
+		if(toggleToolbar) {
+			toggleToolbar = false;
+			showToolbar =! showToolbar;
+			inventoryKindAmount = gp.inventory.queryKindAndAmount();
+			System.out.println("Show toolbar "+showToolbar);
+		}
+		
 		//lcText = "wX: "+ gp.player.worldX+" wY: "+ gp.player.worldY ;
 		gp.clamp(1, 100, health);
 		float green = (float) ((float)health/maxHealth * 255.0);
 		this.health = gp.player.health;
 		int red = (int) (400-green);
-		//int red=100;
 		red=gp.clamp(0, 254, red);
 		green=gp.clamp(0, 254, (int)green);
-		//System.out.println(green);
 		healthBarColor = new Color(red, (int)green, 100);
 		
 		

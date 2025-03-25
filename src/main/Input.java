@@ -77,6 +77,9 @@ public class Input implements KeyListener{
 			case KeyEvent.VK_M:
 				notifyListeners(InputAction.MUTE);
 				break;
+			case KeyEvent.VK_Q:
+				gp.hud.toggleToolbar=true;
+				break;
 			case KeyEvent.VK_NUMPAD0:
 			case KeyEvent.VK_HOME:
 				gp.editor.toggleEditMode();

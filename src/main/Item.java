@@ -26,13 +26,14 @@ public class Item implements IEditableComponent{
 	public final int RANDOM_ITEM_DENSITY = 50;
 	public final int ITEM_DEFAULT_W = 50;
 	public final int ITEM_DEFAULT_H = 50;
-	private final String SPRITE_SHEET_URL = "/images/itemA.png";
+	private final static String SPRITE_SHEET_ITEMS1 = "/images/itemA.png";
+	private final static String SPRITE_SHEET_ITEMS2 = "/images/itemB.png";
 	public final int BLANK_ITEM_TYPE = -1;
 	private boolean modified = false;
 	private int bobPixels = 0;
 	private int bobDelta = 1;
 	
-	BufferedImage[] bufferedImages;
+	public BufferedImage[] itemImages;
 	GamePanel gp;
 	int[][] itemGrid;
 	Random random;
@@ -52,7 +53,7 @@ public class Item implements IEditableComponent{
 				ITEM_DEFAULT_H);
 		
 		try {
-			initImages() ;
+			this.itemImages = getImages() ;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -142,12 +143,14 @@ public class Item implements IEditableComponent{
 		
 	}
 	
-	private void initImages() throws IOException {
-		this.bufferedImages = new Utils().spriteSheetCutter(SPRITE_SHEET_URL, 4, 4, 50, 50);
+	public static BufferedImage[] getImages() throws IOException {
+		BufferedImage[] items1 = new Utils().spriteSheetCutter(SPRITE_SHEET_ITEMS1, 4, 4, 50, 50);
+
+		BufferedImage[] items2 = new Utils().spriteSheetCutter(SPRITE_SHEET_ITEMS2, 4, 4, 50, 50);
+
+		BufferedImage[] itemImages = Utils.appendArray(items1, items2);
 		
-		
-		
-		//resize scale images
+		return itemImages;
 		
 		
 		
@@ -232,7 +235,7 @@ public class Item implements IEditableComponent{
 					screenY = worldY - TopLeftCornerY;
 					
 					gp.g2.drawImage(
-							bufferedImages[kind],
+							itemImages[kind],
 							screenX ,
 							screenY+bobPixels,
 							ITEM_DEFAULT_W,
@@ -269,7 +272,7 @@ public class Item implements IEditableComponent{
 			actualAssetID = testAssetID;
 		}
 		try {
-			BufferedImage asset = this.bufferedImages[actualAssetID];
+			BufferedImage asset = this.itemImages[actualAssetID];
 		}catch(Exception e) {
 			return false;
 		}
@@ -294,7 +297,7 @@ public class Item implements IEditableComponent{
 	@Override
 	public int maxAssetID() {
 		
-		return this.bufferedImages.length;
+		return this.itemImages.length;
 	}
 
 	

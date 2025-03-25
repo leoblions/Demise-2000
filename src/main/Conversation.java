@@ -22,7 +22,7 @@ public class Conversation implements IInputListener {
 	public static final int CONV_FILES_FIELDS = 3;
 	public static final boolean LOAD_FIRST_ROOM = true;
 	public static final boolean FREEZE_PLAYER_ON_CONVERSATION = true;
-	public static String playerActorName = "Terri";
+	public static String playerActorName = "Tony";
 
 	public int activeMessageID = 0;
 	public int activeMessageIterator = 0;
@@ -105,6 +105,8 @@ public class Conversation implements IInputListener {
 			activeMessageID = activeChainArray[activeMessageIterator];
 			currentDialogText = getConvRecordByID(activeMessageID).message();
 			gp.hud.dialogTextBox.setTextContent(currentDialogText);
+			String actorName = getActorNameFromID(getConvRecordByID(activeMessageID).actor());
+			gp.hud.speakerString.updateString(actorName);
 			if(FREEZE_PLAYER_ON_CONVERSATION) {
 				gp.player.frozen=true;
 			}
@@ -122,6 +124,10 @@ public class Conversation implements IInputListener {
 				activeMessageID = activeChainArray[activeMessageIterator];
 				currentDialogText = getConvRecordByID(activeMessageID).message();
 				gp.hud.dialogTextBox.setTextContent(currentDialogText);
+				int actorID = getConvRecordByID(activeMessageID).actor();
+				String actorName = getActorNameFromID(actorID);
+				//System.out.println(actorID);
+				gp.hud.speakerString.updateString(actorName);
 			} catch (Exception e) {
 
 				conversationOver();
@@ -285,6 +291,8 @@ public class Conversation implements IInputListener {
 	
 	public String getActorNameFromID(int ID) {
 		switch(ID) {
+		case -1:
+			return playerActorName;
 		case 10:
 			return "Rick";
 		case 11:

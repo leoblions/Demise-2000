@@ -17,6 +17,7 @@ public class TextBox {
 	private final int LINE_OFFSET_X = 5;
 	private final int LINE_OFFSET_Y = 5;
 	private final int LINE_HEIGHT = 15;
+	private Color TEXT_BGC = new Color(0x0f, 0x0f, 0x0f, 0x11);
 	private final boolean DEBUG_PRINT = false;
 	int screenX, screenY, width, height;
 	int lineLength, borderWidth,lineAmount,lineOffsetX,lineOffsetY,lineHeight;
@@ -40,8 +41,8 @@ public class TextBox {
 		this.s1 = new BasicStroke(BORDER_WIDTH);
 		this.paragraph = new Paragraph(DEF_LINE_AMOUNT,DEF_LINE_LENGTH,DEFAULT_TEXT);
 		// background
-		backgroundColor = new Color(100, 100, 100, 100);
-		backgroundColorBorder = new Color(100, 70, 70, 100);
+		backgroundColor = new Color(100, 100, 100, 200);
+		backgroundColorBorder = new Color(150, 100, 90, 200);
 		backgroundRect = new Rectangle(screenX, screenY, width, height);
 		updateRasterStrings();
 
@@ -63,7 +64,6 @@ public class TextBox {
 	public void drawBackground() {
 
 		gp.g2.setColor(backgroundColor);
-
 		gp.g2.fillRect(backgroundRect.x, backgroundRect.y, backgroundRect.width, backgroundRect.height);
 		gp.g2.setStroke(s1);
 		gp.g2.setColor(backgroundColorBorder);
@@ -85,7 +85,9 @@ public class TextBox {
 		int startY = this.screenY + LINE_OFFSET_Y;
 		int currY = startY;
 		for(String line: paragraph) {
-			RasterString currRS = new RasterString(gp,line,startX,currY);
+			//RasterString currRS = new RasterString(gp,line,startX,currY);
+
+			RasterString currRS =  RasterString.RasterStringBGC(gp,line,startX,currY,TEXT_BGC);
 			this.rasterStrings.add(currRS);
 			currY += LINE_HEIGHT;
 		}
