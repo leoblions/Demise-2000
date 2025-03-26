@@ -87,7 +87,7 @@ public class Barrier implements IEditableComponent {
 		int pgXC = clamp(0,GamePanel.MAP_TILES_X,pgX);
 		int pgYC = clamp(0,GamePanel.MAP_TILES_Y,pgY);
 		//boolean tileState = gp.tileManager.queryTileForBarrier(pgXC,pgYC);
-		boolean tileState = (barrierGrid[pgYC][pgXC]>-1)?true:false;
+		boolean tileState = (barrierGrid[pgYC][pgXC]>=0)?true:false;
 		gp.tileManager.swapTileForBarrier(pgXC,pgYC,!tileState);
 
 		gp.sound.clipPlayFlags[2] = true;
@@ -109,7 +109,7 @@ public class Barrier implements IEditableComponent {
 				//toggleBarrier(kind, UID);
 				if(kind>=0) {
 					 barrierGrid[pgY][pgX]=BLANK_ITEM_TYPE; // for displaying barrier sprite
-					 gp.tileManager.swapTileForBarrier(pgX, pgY, false);
+					 gp.tileManager.revertTileMarkedAsBarrier(pgX,pgY);
 					 gp.particle.addParticle(pgX, fwY, RUBBLE);
 					 return;
 				}
@@ -123,7 +123,7 @@ public class Barrier implements IEditableComponent {
 				if(kind>=0) {
 					 barrierGrid[pgY+1][pgX]=BLANK_ITEM_TYPE;
 					 gp.particle.addParticle(fwX, fwY+GamePanel.TILE_SIZE_PX, RUBBLE);
-					 gp.tileManager.swapTileForBarrier(pgX, pgY, false);
+					 gp.tileManager.revertTileMarkedAsBarrier(pgX,pgY);
 					 toggleBarrier(kind, UID);
 					 return;
 				}

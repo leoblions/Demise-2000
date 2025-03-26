@@ -46,7 +46,7 @@ public class TileManager implements IEditableComponent{
 	}
 	
 	public int neg(int value) {
-		return(value>1)?-1*value:value;
+		return(value>-1)?-1*value:value;
 	}
 	
 	public void swapTileForBarrier(int gridX, int gridY, boolean isBarrier) {
@@ -76,6 +76,24 @@ public class TileManager implements IEditableComponent{
 				System.err.printf("Can't swap tile for barrier gx:%d gy:%d \n",gridX,gridY);
 			}
 			
+		}
+		
+	}
+	
+	public void revertTileMarkedAsBarrier(int gridX, int gridY) {
+		// make grid value positive
+		// and remove from list of tiles marked as barrier
+		int kind = tileGrid[gridY][gridX] ;
+		tileGrid[gridY][gridX] = Math.abs(kind);
+		
+		for (int i = 0; i <   this.tilesSwappedWithBarrier.size();i++) {
+			TileUnit tu = tilesSwappedWithBarrier.get(i);
+			if (tu.gridX==gridX&&tu.gridY==gridY) {
+				tilesSwappedWithBarrier.remove(i);
+				return;
+				
+				
+			}
 		}
 		
 	}
@@ -170,12 +188,9 @@ public class TileManager implements IEditableComponent{
 				int screenX =  worldX - GamePanel.wpScreenLocX;
 				int screenY =  worldY - GamePanel.wpScreenLocY;
 				int kind = tileGrid[y][x];
-				if (kind<0 ) {
-					kind*=-1;
+				int kindToDraw = Math.abs(kind);
 
-				}
-
-				renderTile(screenX,screenY,kind);
+				renderTile(screenX,screenY,kindToDraw);
 			}
 		}
 		
