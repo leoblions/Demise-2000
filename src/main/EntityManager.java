@@ -1,5 +1,6 @@
 package main;
 
+import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -20,10 +21,11 @@ public class EntityManager implements IEditableComponent,IInputListener{
 	public boolean activateEntityFlag = false;
 	public Delay entityActivateDalay;
 	public Rectangle playerHitbox;
-	public final int HITBOX_SIZE = 90;
+	public final int HITBOX_SIZE_INC = 15;
 	public final int HITBOX_OFFSET = -25;
 	public boolean playerMelee = false;
-	
+
+	public boolean drawHitbox = false;
 	public EntityManager(GamePanel gp) {
 		this.gp=gp;
 		entityRecords = new ArrayList<>();
@@ -38,18 +40,32 @@ public class EntityManager implements IEditableComponent,IInputListener{
 	}
 	
 	public void playerAttackEntityMelee() {
-		// set area where player struck
-		int pgX = gp.player.tileForward[0]  ;
-		int pgY = gp.player.tileForward[1]  ;
+		// set hitbox
 		
-		int fwX = gp.player.tileForward[0]  * GamePanel.TILE_SIZE_PX;
-		int fwY = gp.player.tileForward[1] * GamePanel.TILE_SIZE_PX ;
-		int kind ;
-		playerHitbox.x = fwX + HITBOX_OFFSET;
-		playerHitbox.y = fwY + HITBOX_OFFSET;
-		playerHitbox.width = HITBOX_SIZE;
-		playerHitbox.height= HITBOX_SIZE;
-		//System.out.println("playerAttackEntityMelee "+fwX+" "+fwY);
+		//grid coord
+		int pgfx = gp.player.tileForward[0]  ;
+		int pgfy = gp.player.tileForward[1]  ;
+		int pgx = gp.player.tilePlayer[0]  ;
+		int pgy = gp.player.tilePlayer[1]  ;
+		
+		int pgx2 = pgx + 1 ;
+		int pgy2 = pgy + 1  ;
+		int pgfx2 = pgfx + 1   ;
+		int pgfy2 = pgfy + 1  ;
+		
+		int hbx1,hbx2,hby1,hby2 ;
+		
+		hbx1 = (pgfx<pgx)?pgfx:pgx;
+		hby1 = (pgfy<pgy)?pgfy:pgy;
+		hbx2 = (pgfx2>pgx2)?pgfx2:pgx2;
+		hby2 = (pgfy2>pgy2)?pgfy2:pgy2;
+		
+		playerHitbox.x = hbx1* GamePanel.TILE_SIZE_PX;
+		playerHitbox.y = hby1* GamePanel.TILE_SIZE_PX;
+		playerHitbox.width = (hbx2-hbx1)* GamePanel.TILE_SIZE_PX+HITBOX_SIZE_INC;
+		playerHitbox.height= (hby2-hby1)* GamePanel.TILE_SIZE_PX+HITBOX_SIZE_INC;
+
+
 		playerMelee=true;
 		
 		
@@ -62,6 +78,11 @@ public class EntityManager implements IEditableComponent,IInputListener{
 	}
 	
 	public void draw() {
+		if (drawHitbox) {
+
+			gp.g2.setColor(Color.red);
+			gp.g2.drawRect(playerHitbox.x -gp.wpScreenLocX , playerHitbox.y-gp.wpScreenLocY, playerHitbox.width , playerHitbox.height);
+		}
 		int[] visible = gp.visibleArea;
 		
 

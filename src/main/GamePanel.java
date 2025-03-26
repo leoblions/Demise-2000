@@ -329,8 +329,8 @@ public class GamePanel extends JPanel implements Runnable{
 		tileManager.draw();
 		decor.draw();
 		player.draw();
-
 		entityManager.draw();
+		decor.drawLower();
 		
 		raycast.draw();
 		

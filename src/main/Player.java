@@ -51,7 +51,7 @@ public class Player implements IInputListener {
 	private final int ENEMY_PLAYER_DAMAGE_DELAY = 150;
 	int frame = 0;
 	public int[] tileForward = new int[2];
-
+	public int[] tilePlayer = new int[2];
 	// up down left right
 	public boolean[] movesRequested;
 	public boolean[] stopRequested;
@@ -225,6 +225,8 @@ public class Player implements IInputListener {
 		}
 		tileForward[0] = Utils.clamp(0, gp.MAP_TILES_X - 1, fx);
 		tileForward[1] = Utils.clamp(0, gp.MAP_TILES_Y - 1, fy);
+		tilePlayer[0] = Utils.clamp(0, gp.MAP_TILES_X , tx);
+		tilePlayer[1] = Utils.clamp(0, gp.MAP_TILES_Y , ty);
 	}
 
 	public void toggleRun() {

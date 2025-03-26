@@ -31,12 +31,13 @@ public class Decor implements IEditableComponent{
 	public final int minTilesDrawY = 12;
 	public final int RANDOM_ITEM_DENSITY = 50;
 	public final int MINIMUM_RANDOM_GRIDX = 300;
+	public final int Y_CUTOFF_OFFSET = 40;
 	//public Dictionary<DecorType, Integer> kindMap;
 	int drawableRange;
 	public final int WALL_TILE_TYPE = 1;
 	public final int BLANK_DECOR_TYPE = -1;
 	private boolean modified = false;
-	private int xstart, xend, ystart, yend;
+	private int xstart, xend, ystart, yend, yCutoff;
 
 	public Decor(GamePanel gp) {
 		this.gp = gp;
@@ -202,25 +203,25 @@ public class Decor implements IEditableComponent{
 	}
 
 	public void draw() {
-
-		int TopLeftCornerX = gp.wpScreenLocX;
-		int TopLeftCornerY = gp.wpScreenLocY;
+		// render tiles above yCutoff first, then render Actors, then render lower Decor Sprites on top
 
 		int screenX, screenY;
 		clamp(0, gp.MAP_TILES_X, xend);
 		clamp(0, gp.MAP_TILES_Y, yend);
-		
+		yCutoff = (gp.player.worldY+Y_CUTOFF_OFFSET)/GamePanel.TILE_SIZE_PX;
+
+		clamp(0, gp.MAP_TILES_Y, yCutoff);
 
 		for (int x = xstart; x < xend; x++) {
-			for (int y = ystart; y < yend; y++) {
+			for (int y = ystart; y < yCutoff; y++) {
 				int kind = decorGrid[y][x];
 				//System.err.println(kind);
 				if (kind != BLANK_DECOR_TYPE) {
 					// System.out.println("tree");
 					int worldX = x * GamePanel.TILE_SIZE_PX;
 					int worldY = y * GamePanel.TILE_SIZE_PX;
-					screenX = worldX - TopLeftCornerX;
-					screenY = worldY - TopLeftCornerY;
+					screenX = worldX - GamePanel.wpScreenLocX;
+					screenY = worldY - GamePanel.wpScreenLocY;
 					int size = sizeArray[kind];
 					gp.g2.drawImage(bufferedImages[kind], screenX, screenY, size,
 							size, null);
@@ -229,12 +230,37 @@ public class Decor implements IEditableComponent{
 
 			}
 		}
+
+	}
+	
+	public void drawLower() {
+
+		// render tiles above yCutoff first, then render Actors, then render lower Decor Sprites on top
+
+		int screenX, screenY;
+		clamp(0, gp.MAP_TILES_X, xend);
+		clamp(0, gp.MAP_TILES_Y, yend);
+		//int yCutoff = gp.player.worldY/GamePanel.TILE_SIZE_PX;
 		
-		
-		// draw cross
-		//gp.g2.setColor(Color.red);
-		//gp.g2.fillRect(22, 22, 7, 20); // up
-		//gp.g2.fillRect(16, 28, 20, 7); // right
+
+		for (int x = xstart; x < xend; x++) {
+			for (int y = yCutoff; y < yend; y++) {
+				int kind = decorGrid[y][x];
+				//System.err.println(kind);
+				if (kind != BLANK_DECOR_TYPE) {
+					// System.out.println("tree");
+					int worldX = x * GamePanel.TILE_SIZE_PX;
+					int worldY = y * GamePanel.TILE_SIZE_PX;
+					screenX = worldX - GamePanel.wpScreenLocX;
+					screenY = worldY - GamePanel.wpScreenLocY;
+					int size = sizeArray[kind];
+					gp.g2.drawImage(bufferedImages[kind], screenX, screenY, size,
+							size, null);
+
+				}
+
+			}
+		}
 
 	}
 
