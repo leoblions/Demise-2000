@@ -94,6 +94,7 @@ public class GamePanel extends JPanel implements Runnable{
 	Particle particle;
 	Brain brain;
 	Barrier barrier;
+	Wipe wipe;
 	public enum InputAction{
 		UP,
 		DOWN,
@@ -169,6 +170,7 @@ public class GamePanel extends JPanel implements Runnable{
 		editor = new Editor(this);
 		tileManager = new TileManager(this);
 		player = new Player(this);
+		hud = new HUD(this);
 		input = new Input(this);
 		this.addKeyListener(input);
 		gameState = GameState.GAME;
@@ -176,7 +178,6 @@ public class GamePanel extends JPanel implements Runnable{
 		collision = new Collision(this);
 		raycast = new Raycast(this);
 		shadow = new Shadow(this);
-		hud = new HUD(this);
 		pathFind = new PathFind(this);
 		widget = new Widget(this);
 		visibleArea = Utils.getVisibleArea(this);
@@ -188,6 +189,7 @@ public class GamePanel extends JPanel implements Runnable{
 		brain = new Brain(this);
 		particle = new Particle(this);
 		barrier = new Barrier(this);
+		wipe = new Wipe(this);
 		//rs1 = new RasterString(this, "TEST", 45, 45);
 		
 		
@@ -307,6 +309,7 @@ public class GamePanel extends JPanel implements Runnable{
 		particle.update();
 		barrier.update();
 		sound.update();
+		wipe.update();
 		Point p = this.getMousePosition();
 		if (p != null){
 			this.mouseX = (int) p.getX();
@@ -347,7 +350,7 @@ public class GamePanel extends JPanel implements Runnable{
 		hud.draw();
 		editor.draw();
 		pathFind.draw();
-		
+		wipe.draw();
 		
 	}
 

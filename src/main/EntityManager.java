@@ -25,6 +25,8 @@ public class EntityManager implements IEditableComponent,IInputListener{
 	public final int HITBOX_OFFSET = -25;
 	public boolean playerMelee = false;
 
+	public boolean entityAIEnabled = true;
+
 	public boolean drawHitbox = false;
 	public EntityManager(GamePanel gp) {
 		this.gp=gp;

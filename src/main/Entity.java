@@ -368,6 +368,9 @@ public class Entity {
 		int worldY = position.getWorldY();
 		wpSolidArea.x = worldX;
 		wpSolidArea.y = worldY;
+		if(!gp.entityManager.entityAIEnabled) {
+			return;
+		}
 		if (alive && chasePlayer) {
 			state = 'w';
 			setDirectionByPathFind();

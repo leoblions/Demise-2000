@@ -15,6 +15,8 @@ public class Input implements KeyListener{
 	public Input(GamePanel gp) {
 		this.gp=gp;
 		this.addListener(gp.player);
+
+		this.addListener(gp.hud);
 		System.out.println("input created");
 	}
 	
@@ -78,7 +80,8 @@ public class Input implements KeyListener{
 				notifyListeners(InputAction.MUTE);
 				break;
 			case KeyEvent.VK_Q:
-				gp.hud.toggleToolbar=true;
+				gp.hud.toolbarModeToggle();
+				
 				break;
 			case KeyEvent.VK_NUMPAD0:
 			case KeyEvent.VK_HOME:

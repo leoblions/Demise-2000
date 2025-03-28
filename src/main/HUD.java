@@ -5,12 +5,14 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Stroke;
 import java.awt.image.BufferedImage;
-import java.util.function.ToLongBiFunction;
 
 import javax.imageio.ImageIO;
 
-public class HUD implements IStatusMessageListener {
+import main.GamePanel.InputAction;
+
+public class HUD implements IStatusMessageListener, IInputListener {
 	GamePanel gp;
 	Graphics2D g2;
 	Graphics g;
@@ -33,6 +35,8 @@ public class HUD implements IStatusMessageListener {
 	public String killCountString = ""; 
 	public String gemCountString = "";
 	public int gemCount = 0;
+	
+	
 	//equipped item
 	public static final String INVENTORY_EQ_FRAME = "/images/InvHudSingle.png";
 	public static final String INVENTORY_EQ_ITEMS = "/images/inventoryItem.png";
@@ -43,6 +47,14 @@ public class HUD implements IStatusMessageListener {
 	private static final int ITEM_EQ_ITEM_IMAGE_OFFSET = 10;
 	private static final int ITEM_EQ_FRAME_ALPHA = 200;
 	final int TOOLBAR_SLOTS = 10;
+	int selectedSlot = 0;
+	int selectedBoxX = 0;
+	int selectedBoxY = 0;
+	private boolean[] movesRequested=new boolean[4];
+	Color selectedBoxColor = new Color(222,222,0,222);
+	Color selectedBoxColorBG = new Color(222,222,50,122);
+	Stroke borderStroke = new BasicStroke(2);
+	
 	private static int itemEqBrcOffsetY = 10;
 	private static int itemEqBrcOffsetX = 0;
 	private static int itemEqScreenY = 10;
@@ -257,8 +269,10 @@ public class HUD implements IStatusMessageListener {
 		if(showPrompt) {
 			promptTextBox.draw();
 		}
-		
+
 		drawInventoryToolbar();
+		
+		
 		// by default hide the text boxes unless another class needs them.
 		
 		//showPrompt=false; //press e
@@ -273,10 +287,17 @@ public class HUD implements IStatusMessageListener {
 		if(showEquippedItemFrame) {
 			int backgroundImage = 0;
 			if(showToolbar) {
+				
 				backgroundImage = 1;
 				tbWidth = ITEM_EQ_FRAME_SIZE*10;
 				gp.g2.drawImage(images[backgroundImage],itemEqBrcOffsetX,itemEqBrcOffsetY,
 						tbWidth,tbHeight,null);
+				gp.g2.setStroke(borderStroke);
+				gp.g2.setColor(selectedBoxColorBG);
+				gp.g2.fillRect(selectedBoxX, selectedBoxY, ITEM_EQ_FRAME_SIZE, ITEM_EQ_FRAME_SIZE);
+
+				gp.g2.setColor(selectedBoxColor);
+				gp.g2.drawRect(selectedBoxX, selectedBoxY, ITEM_EQ_FRAME_SIZE, ITEM_EQ_FRAME_SIZE);
 				drawInventoryToolbarItemSprites();
 				
 			}else {
@@ -323,6 +344,12 @@ public class HUD implements IStatusMessageListener {
 			showToolbar =! showToolbar;
 			inventoryKindAmount = gp.inventory.queryKindAndAmount();
 			System.out.println("Show toolbar "+showToolbar);
+			
+		}
+		
+		if (showToolbar) {
+			selectedBoxX = ITEM_EQ_OFFSET_X + (selectedSlot*ITEM_EQ_FRAME_SIZE);
+			selectedBoxY = gp.getHeight() -  ITEM_EQ_OFFSET_Y - ITEM_EQ_FRAME_SIZE;
 		}
 		
 		//lcText = "wX: "+ gp.player.worldX+" wY: "+ gp.player.worldY ;
@@ -347,7 +374,27 @@ public class HUD implements IStatusMessageListener {
 		
 		showPrompt = !showActionPromptDelay.delayExpired();
 		showActionPromptDelay.reduce();
+		handleMenuInput() ;
 		
+		
+	}
+	
+	private void handleMenuInput() {
+		if (showToolbar) {
+			if (this.movesRequested[2]) {
+				this.selectedSlot -=1;
+			}else if(this.movesRequested[3]) {
+				this.selectedSlot +=1;
+			}
+			selectedSlot = Utils.clamp(0,TOOLBAR_SLOTS,selectedSlot);
+			try {
+				itemEq = inventoryKindAmount[selectedSlot][0];
+			}catch(ArrayIndexOutOfBoundsException e) {}
+		}
+		this.movesRequested[0]=false;
+		this.movesRequested[1]=false;
+		this.movesRequested[2]=false;
+		this.movesRequested[3]=false;
 	}
 	
 	//info text
@@ -524,6 +571,54 @@ public class HUD implements IStatusMessageListener {
 	public void newStatusMessage(String message) {
 		this.statusMessageText = message;
 		startDisplayStatusMessage(60);
+	}
+
+	public void toolbarModeToggle() {
+		toggleToolbar=true;
+		gp.player.frozen =! gp.player.frozen;
+		
+	}
+
+	@Override
+	public void inputListenerAction(InputAction action) {
+
+		switch (action) {
+		case UP:
+			this.movesRequested[0] = true;
+			break;
+		case DOWN:
+			this.movesRequested[1] = true;
+			break;
+		case LEFT:
+			this.movesRequested[2] = true;
+			break;
+		case RIGHT:
+			this.movesRequested[3] = true;
+			break;
+		case UPSTOP:
+			// System.out.println("up");
+			this.movesRequested[0] = false;
+			break;
+		case DOWNSTOP:
+			this.movesRequested[1] = false;
+			break;
+		case LEFTSTOP:
+			this.movesRequested[2] = false;
+			break;
+		case RIGHTSTOP:
+			this.movesRequested[3] = false;
+			break;
+		case FIRE:
+			break;
+		case ACTION:
+			gp.inventory.selectItem(itemEq);
+			System.out.println("select item "+itemEq);
+			break;
+
+		default:
+			break;
+		}
+
 	}
 
 }
