@@ -39,6 +39,7 @@ public class Input implements KeyListener{
 	@Override
 	public void keyPressed(KeyEvent e) {
 		int key = e.getKeyCode();
+		gp.console.sendKeyEvent(e);
 		if (gp.gameState==GameState.GAME) {
 			
 			switch(key) {
@@ -81,6 +82,10 @@ public class Input implements KeyListener{
 				break;
 			case KeyEvent.VK_Q:
 				gp.hud.toolbarModeToggle();
+				
+				break;
+			case KeyEvent.VK_BACK_QUOTE:
+				gp.console.requestActivate();
 				
 				break;
 			case KeyEvent.VK_NUMPAD0:

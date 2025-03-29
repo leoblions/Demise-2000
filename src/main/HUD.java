@@ -40,6 +40,8 @@ public class HUD implements IStatusMessageListener, IInputListener {
 	//equipped item
 	public static final String INVENTORY_EQ_FRAME = "/images/InvHudSingle.png";
 	public static final String INVENTORY_EQ_ITEMS = "/images/inventoryItem.png";
+	public static final String BAR_BORDER = "/images/barBorder.png";
+	
 	private static final int ITEM_EQ_OFFSET_X = 10;
 	private static final int ITEM_EQ_OFFSET_Y = 10;
 	private static final int ITEM_EQ_FRAME_SIZE = 70;
@@ -169,6 +171,7 @@ public class HUD implements IStatusMessageListener, IInputListener {
 			this.images[0] = Utils.imageSetAlpha(this.images[0],ITEM_EQ_FRAME_ALPHA);
 			this.images[1] = makeInventoryToolbarBackground();
 			this.images[2] = ImageIO.read(getClass().getResourceAsStream(NAMEPLATE_SPRITE));
+			this.images[3] = ImageIO.read(getClass().getResourceAsStream(BAR_BORDER));
 			
 			//this.itemImages = new Utils().spriteSheetCutter(INVENTORY_EQ_ITEMS, 4, 4, ITEM_EQ_ITEM_IMAGE_SIZE, ITEM_EQ_ITEM_IMAGE_SIZE);
 		}catch(Exception e) {
@@ -456,6 +459,7 @@ public class HUD implements IStatusMessageListener, IInputListener {
 		gp.g2.fillRect(boxX, boxY, boxWidth, boxHeight);
 		gp.g2.setColor(healthBarColor);
 		gp.g2.fillRect(boxX, boxY, innerWidth, boxHeight);
+		gp.g2.drawImage(this.images[3],boxX, boxY, boxWidth, boxHeight,null);
 		
 	}
 	
@@ -470,7 +474,8 @@ public class HUD implements IStatusMessageListener, IInputListener {
 		gp.g2.fillRect(boxX, boxY, boxWidth, boxHeight);
 		gp.g2.setColor(Color.yellow);
 		gp.g2.fillRect(boxX, boxY, innerWidth, boxHeight);
-		
+		gp.g2.drawImage(this.images[3],boxX, boxY, boxWidth, boxHeight,null);
+
 	}
 	
 	

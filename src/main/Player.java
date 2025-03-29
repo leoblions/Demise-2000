@@ -90,6 +90,14 @@ public class Player implements IInputListener {
 	public boolean getRun() {
 		return run;
 	}
+	
+	public void fullHeal() {
+		this.health = MAX_HEALTH;
+		this.stamina = MAX_STAMINA;
+		this.state = PlayerState.STAND;
+
+		
+	}
 
 	int walkCycleCounter = 0;
 

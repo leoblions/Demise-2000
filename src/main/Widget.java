@@ -22,10 +22,18 @@ public class Widget implements IEditableComponent {
 
 	public final int ITEM_DEFAULT_W = 50;
 	public final int ITEM_DEFAULT_H = 50;
-	private final String SPRITE_SHEET_URL = "/images/widgetDefault.png";
+	private final String WIDGET_IMG_A = "/images/widgetA.png";
+	private final String WIDGET_IMG_B = "/images/widgetB.png";
 	public final int BLANK_ITEM_TYPE = -1;
 	public final int LEAF_PARTICLE = 0;
-	public final int PLANT_WIDGET = 10;
+	public final int ROCK_PARTICLE = 3;
+	public final int PARTICLE_OFFSET_Y = 55;
+	public final int PLANT1 = 18;
+	public final int PLANT2 = 19;
+	public final int ROCK1 = 22;
+	public final int ROCK2 = 23;
+	public final int BARREL1 = 4;
+	public final int BARREL2 = 5;
 
 	BufferedImage[] bufferedImages;
 	GamePanel gp;
@@ -47,14 +55,30 @@ public class Widget implements IEditableComponent {
 	 * 5 = Barrel 2
 	 * 6 = Switch 1
 	 * 7 = Switch 2
-	 * 8 = Chest 1
-	 * 9 = Chest 2
-	 * 10 = plant
-	 * 11 = 
-	 * 12
-	 * 13
-	 * 14
-	 * 15
+	 * 8 = Chest 1 closed
+	 * 9 = Chest 1 open
+	 * 10 = Chest 2 closed
+	 * 11 = Chest 2 open
+	 * 12 = desk with phone
+	 * 13 = keg
+	 * 14 = sign
+	 * 15 = hand pump
+	 * 16 = log 1
+	 * 17 = log 2
+	 * 18 = plant 1
+	 * 19 = plant 2
+	 * 20 = stump 1
+	 * 21 = stump 2
+	 * 22 = rock 1
+	 * 23 = rock 2
+	 * 24 = bed
+	 * 25 = work bench
+	 * 26 = plant 3
+	 * 27 = box
+	 * 28 = box 2
+	 * 29 = boiler
+	 * 30 = sign 2
+	 * 31 = grille
 	 * 
 	 * 
 	 */
@@ -89,7 +113,7 @@ public class Widget implements IEditableComponent {
 	}
 
 	public void toggleWidget(int item, int UID) {
-		//System.out.println("Widget touched " + item);
+		// System.out.println("Widget touched " + item);
 		gp.hud.showActionPromptDelay.setDelay(60);
 
 		gp.sound.clipPlayFlags[2] = true;
@@ -97,37 +121,93 @@ public class Widget implements IEditableComponent {
 	}
 
 	public void playerAttackWidgetMelee() {
-		
-		int pgX = gp.player.tileForward[0]  ;
-		int pgY = gp.player.tileForward[1]  ;
-		int fwX = gp.player.tileForward[0]  * GamePanel.TILE_SIZE_PX;
-		int fwY = gp.player.tileForward[1] * GamePanel.TILE_SIZE_PX ;
-		int kind ;
+
+		int pgX = gp.player.tileForward[0];
+		int pgY = gp.player.tileForward[1];
+		int fwX = gp.player.tileForward[0] * GamePanel.TILE_SIZE_PX;
+		int fwY = gp.player.tileForward[1] * GamePanel.TILE_SIZE_PX;
+		int kindB, kindT;
 		try {
-			kind = widgetGrid[pgY][pgX];
-			if (kind != BLANK_ITEM_TYPE) {
-				System.out.println("Player melee widget "+kind);
-				int UID = getUIDForWidgetGridCoords(pgY, pgX);
-				//toggleWidget(kind, UID);
-				if(kind==PLANT_WIDGET) {
-					 widgetGrid[pgY][pgX]=-1;
-					 gp.particle.addParticle(fwX, fwY, LEAF_PARTICLE);
-				}
-				
-			}
-			kind = widgetGrid[pgY+1][pgX];
-			if (kind != BLANK_ITEM_TYPE) {
-				System.out.println("Player melee widget "+kind);
-				int UID = getUIDForWidgetGridCoords(pgY+1, pgX);
-				//toggleWidget(kind, UID);
-				if(kind==PLANT_WIDGET) {
-					 widgetGrid[pgY+1][pgX]=-1;
-					 gp.particle.addParticle(fwX, fwY+GamePanel.TILE_SIZE_PX, LEAF_PARTICLE);
-				}
-				
-			}
-		}catch(ArrayIndexOutOfBoundsException e) {
+			kindB = widgetGrid[pgY][pgX];
+			kindT = widgetGrid[pgY + 1][pgX];
+			meleeWidgetAddParticle(pgX, pgY);
+			meleeWidgetAddParticle(pgX, pgY + 1);
+		} catch (ArrayIndexOutOfBoundsException e) {
 		}
+	}
+
+	public void playerAttackWidgetMelee_0() {
+
+		int pgX = gp.player.tileForward[0];
+		int pgY = gp.player.tileForward[1];
+		int fwX = gp.player.tileForward[0] * GamePanel.TILE_SIZE_PX;
+		int fwY = gp.player.tileForward[1] * GamePanel.TILE_SIZE_PX;
+		int kindB, kindT;
+		try {
+			kindB = widgetGrid[pgY][pgX];
+			kindT = widgetGrid[pgY + 1][pgX];
+			if (kindB != BLANK_ITEM_TYPE) {
+				System.out.println("Player melee widget " + kindB);
+				int UID = getUIDForWidgetGridCoords(pgY, pgX);
+				// toggleWidget(kind, UID);
+				if (kindB == PLANT1 || kindB == PLANT2) {
+					widgetGrid[pgY][pgX] = -1;
+					gp.particle.addParticle(fwX, fwY, LEAF_PARTICLE);
+				}
+
+			}
+			if (kindT != BLANK_ITEM_TYPE) {
+				System.out.println("Player melee widget " + kindT);
+				int UID = getUIDForWidgetGridCoords(pgY + 1, pgX);
+				// toggleWidget(kind, UID);
+				if (kindT == PLANT1 || kindT == PLANT2) {
+					widgetGrid[pgY + 1][pgX] = -1;
+					gp.particle.addParticle(fwX, fwY + GamePanel.TILE_SIZE_PX, LEAF_PARTICLE);
+				}
+
+			}
+		} catch (ArrayIndexOutOfBoundsException e) {
+		}
+	}
+
+	public void meleeWidgetAddParticle(int gridX, int gridY) {
+
+		int fwX = gp.player.tileForward[0] * GamePanel.TILE_SIZE_PX;
+		int fwY = gp.player.tileForward[1] * GamePanel.TILE_SIZE_PX;
+		int wX = gridX * GamePanel.TILE_SIZE_PX;
+		int wY = gridY * GamePanel.TILE_SIZE_PX;
+		try {
+			int kind = widgetGrid[gridY][gridX];
+			if (kind != BLANK_ITEM_TYPE) {
+				System.out.println("Player melee widget " + kind);
+				int UID = getUIDForWidgetGridCoords(gridY , gridX);
+				// toggleWidget(kind, UID);
+
+				switch (kind) {
+				case PLANT1, PLANT2:
+					gp.particle.addParticle(wX, wY, LEAF_PARTICLE);
+
+					widgetGrid[gridY][gridX] = -1;
+					break;
+				case ROCK1, ROCK2:
+					gp.particle.addParticle(wX, wY, ROCK_PARTICLE);
+
+					widgetGrid[gridY][gridX] = -1;
+					break;
+				case BARREL1:
+					gp.particle.addParticle(wX, wY, ROCK_PARTICLE);
+
+					widgetGrid[gridY][gridX] = BARREL2;
+					break;
+				default:
+					break;
+
+				}
+
+			}
+		} catch (ArrayIndexOutOfBoundsException e) {
+		}
+
 	}
 
 	public void update() {
@@ -138,13 +218,12 @@ public class Widget implements IEditableComponent {
 
 		}
 
-
 	}
 
 	private void initImages() throws IOException {
-		this.bufferedImages = new Utils().spriteSheetCutter(SPRITE_SHEET_URL, 4, 4, 50, 50);
-
-		// resize scale images
+		BufferedImage[] widgetA = new Utils().spriteSheetCutter(WIDGET_IMG_A, 4, 4, 50, 50);
+		BufferedImage[] widgetB = new Utils().spriteSheetCutter(WIDGET_IMG_B, 4, 4, 50, 50);
+		this.bufferedImages = Utils.appendArray(widgetA, widgetB);
 
 	}
 

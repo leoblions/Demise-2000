@@ -102,11 +102,15 @@ public class EntityManager implements IEditableComponent,IInputListener{
 	}
 	
 	public void update() {
+		if(!entityAIEnabled) {
+			return;
+		}
 		playerTouchedActorSincelastTick = false;
 		entityActivateDalay.reduce();
 		for (int i = 0; i < entityList.size(); i++) {
 			 Entity entity =entityList.get(i) ;
 				if (null!= entity) {
+					
 					entity.update();
 					
 				} 
