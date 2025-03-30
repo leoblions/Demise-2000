@@ -153,19 +153,22 @@ public class Editor {
 			if(!ec.isModified()) {
 				System.out.println("Skip saving "+componentName);
 				continue;
-			}
-			String tilePath = ec.getDataFilename();
-			Path tilePathP = Paths.get(dataFolderName, tilePath);
-			try {
-				int[][] data = ec.getGridData();
-				if (data==null) {
-					throw new InvalidAttributeValueException("Component % componentName returned invalid data while saving.");
+			}else {
+				String tilePath = ec.getDataFilename();
+				Path tilePathP = Paths.get(dataFolderName, tilePath);
+				try {
+					int[][] data = ec.getGridData();
+					if (data==null) {
+						throw new InvalidAttributeValueException("Component % componentName returned invalid data while saving.");
+					}
+					Utils.writeInt2DAToCSV(ec.getGridData(), tilePathP.toString());
+				} catch (Exception e) {
+					
+					e.printStackTrace();
 				}
-				Utils.writeInt2DAToCSV(ec.getGridData(), tilePathP.toString());
-			} catch (Exception e) {
-				
-				e.printStackTrace();
+				System.out.println("Saved changes: "+componentName);
 			}
+			
 		}
 		
 

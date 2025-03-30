@@ -240,15 +240,18 @@ public class Decor implements IEditableComponent{
 		int screenX, screenY;
 		clamp(0, gp.MAP_TILES_X, xend);
 		clamp(0, gp.MAP_TILES_Y, yend);
-		//int yCutoff = gp.player.worldY/GamePanel.TILE_SIZE_PX;
+		int kind;
 		
 
 		for (int x = xstart; x < xend; x++) {
 			for (int y = yCutoff; y < yend; y++) {
-				int kind = decorGrid[y][x];
-				//System.err.println(kind);
+				try {
+					kind = decorGrid[y][x];
+				}catch(ArrayIndexOutOfBoundsException e) {
+					kind = BLANK_DECOR_TYPE;
+				}
+				
 				if (kind != BLANK_DECOR_TYPE) {
-					// System.out.println("tree");
 					int worldX = x * GamePanel.TILE_SIZE_PX;
 					int worldY = y * GamePanel.TILE_SIZE_PX;
 					screenX = worldX - GamePanel.wpScreenLocX;

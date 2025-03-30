@@ -9,6 +9,8 @@ public class Inventory {
 	private HashMap<Integer,Integer>inventoryItems;
 	GamePanel gp;
 	public int activeItem = BLANK_ITEM_KIND;
+	public final int BLANK_PRIJECTILE_TYPE = -1;
+	public int projectileType = -1;
 	public Inventory(GamePanel gp) {
 		this.gp=gp;
 		inventoryItems = new HashMap<Integer, Integer>();
@@ -68,11 +70,32 @@ public class Inventory {
 	
 	public int selectItem(int itemType ) {
 		
-		int amount = inventoryItems.getOrDefault(gp, BLANK_ITEM_KIND);
+		int amount = inventoryItems.getOrDefault(itemType, BLANK_ITEM_KIND);
 		if (amount!=BLANK_ITEM_KIND) {
 			activeItem = itemType;
 		}
+		selectProjectileType();
 		return amount;
+	}
+	
+	public int selectProjectileType( ) {
+		System.out.println("projectileType activeItem "+activeItem);
+		switch(activeItem) {
+		case 14:
+			projectileType = 0;
+			break;
+		case 17:
+			projectileType = 4;
+			break;
+		case 23:
+			projectileType = 3;
+			break;
+		default:
+			projectileType = BLANK_ITEM_KIND;
+			break;
+		
+		}
+		return projectileType;
 	}
 	
 	public void spendItem(int itemID) {

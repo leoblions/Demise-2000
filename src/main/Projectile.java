@@ -3,123 +3,152 @@ package main;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Projectile {
+	/*
+	 * Projectile class is moving damaging sprites. They are not loaded/saved with
+	 * the level Player and enemies can fire them.
+	 */
 
-	private final String SPRITE_SHEET = "/images/particle.png";
+	private final String SPRITE_SHEET = "/images/projectile.png";
 	private final int FRAME_MAX = 3;
 	private final int FRAME_PACE = 3;
 	private final int SWOSH_KIND = 2;
+	private final int DEFAULT_PROJECTILE_SPEED = 10;
+	private final int BOMB_SPEED = 5;
+	private final int MAX_IMAGE_TYPES = 6;
+	private final int MAX_FRAMES = 4;
+	private final int DEFAULT_TTL = 400;
+	private final int SPRITE_SIZE = 50;
 	private Pacer framePacer = new Pacer(5);
 	GamePanel gp;
-	ArrayList<ProjectileUnit> ProjectileUnits;
-	BufferedImage[] bufferedImages;
+	ArrayList<ProjectileUnit> projectileUnits;
+	BufferedImage[][] imageArray= new BufferedImage[MAX_IMAGE_TYPES][MAX_FRAMES];
+	BufferedImage[] currentImages;
 	int frame;
 
 	public Projectile(GamePanel gp) {
 		this.gp = gp;
-		ProjectileUnits = new ArrayList<>();
+		projectileUnits = new ArrayList<>();
 		initImages();
-		ProjectileUnits.add(new ProjectileUnit(10, 10, 1));
+		projectileUnits.add(new ProjectileUnit(10, 10, 1));
 
 	}
-	
-	public ProjectileUnit Swosh (int startX, int startY, char direction) {
-		
-		
-		 ProjectileUnit pu = new ProjectileUnit(startX, startY, SWOSH_KIND);
 
-		pu.timeToLive = 10;
-		int swoshSpeed =3;
-		switch (direction) {
+	
+	
+	public void setProjectileUnitMotion(ProjectileUnit pu) {
+		
+
+		int projectileSpeed = DEFAULT_PROJECTILE_SPEED;
+		switch (gp.player.direction) {
 		case 'u':
-			pu.velY = -swoshSpeed;
-			pu.frame = 8;
-			pu.fmin = 8;
+			pu.velY = -projectileSpeed;
+	
 			pu.worldY -= 35;
 			pu.worldX -= 20;
 			break;
 		case 'd':
-			pu.velY = swoshSpeed;
-			pu.frame = 9;
-			pu.fmin = 8;
+			pu.velY = projectileSpeed;
+	
 			pu.worldY += 35;
 			pu.worldX -= 20;
 			break;
 		case 'l':
-			pu.velX = -swoshSpeed;
-			pu.frame = 10;
-			pu.fmin = 8;
+			pu.velX = -projectileSpeed;
+
 			pu.worldX -= 60;
-			
+
 			break;
 		case 'r':
-			pu.velX = swoshSpeed;
-			pu.frame = 11;
-			pu.fmin = 8;
+			pu.velX = projectileSpeed;
+	
 			pu.worldX += 25;
-			
+
 			break;
+		}
+	}
+
+	public ProjectileUnit addProjectile(int worldX, int worldY, int kind) {
+		ProjectileUnit pu = new ProjectileUnit(worldX, worldY, kind);
+		if (kind == 0) {
+			pu.worldY -= 10;
+			pu.velY = 1;
+		}
+		if (kind == 1) {
+			pu.worldY -= 20;
+			pu.worldX -= 20;
+		}
+		pu.timeToLive = 30;
+		boolean insertedPU = false;
+		for (int i = 0; i < projectileUnits.size(); i++) {
+			if (pu == null) {
+				projectileUnits.set(i, pu);
+				insertedPU = true;
+			}
+		}
+		if (!insertedPU) {
+			projectileUnits.add(pu);
 		}
 		return pu;
 	}
 
-	public ProjectileUnit addParticle(int worldX, int worldY, int kind) {
-		ProjectileUnit pu = new ProjectileUnit(worldX, worldY, kind);
-		if (kind==0) {
-			pu.worldY-=10;
-			pu.velY=1;
-		}
-		if (kind==1) {
-			pu.worldY-=20;
-			pu.worldX -=20;
-		}
-		pu.timeToLive = 30;
+	public ProjectileUnit replaceProjectileUnit(ProjectileUnit pu) {
+		pu.timeToLive = DEFAULT_TTL;
 		boolean insertedPU = false;
-		for (int i = 0; i < ProjectileUnits.size(); i++) {
-			if (pu==null) {
-				ProjectileUnits.set(i,pu);
-				insertedPU=true;
+		for (int i = 0; i < projectileUnits.size(); i++) {
+			if (pu == null) {
+				projectileUnits.set(i, pu);
+				insertedPU = true;
 			}
 		}
 		if (!insertedPU) {
-			ProjectileUnits.add(pu);
+			projectileUnits.add(pu);
 		}
 		return pu;
 	}
-	
-	public void  addProjectileUnit(ProjectileUnit pu) {
-		pu.timeToLive = 30;
-		boolean insertedPU = false;
-		for (int i = 0; i < ProjectileUnits.size(); i++) {
-			if (pu==null) {
-				ProjectileUnits.set(i,pu);
-				insertedPU=true;
-			}
+
+	public boolean playerFireProjectile() {
+		int kind = gp.inventory.projectileType;
+		if (kind<0) {
+			return false;
 		}
-		if (!insertedPU) {
-			ProjectileUnits.add(pu);
-		}
+		ProjectileUnit pu = addProjectile(gp.player.worldX, gp.player.worldY, kind);
+		setProjectileUnitMotion(pu);
+		return true;
 	}
 
 	private void initImages() {
+		
 		try {
-			bufferedImages = new Utils().spriteSheetCutter(SPRITE_SHEET, 4, 4, 50, 50);
+
+			BufferedImage[] bufferedImages = new Utils().spriteSheetCutter(SPRITE_SHEET, MAX_FRAMES, MAX_IMAGE_TYPES , SPRITE_SIZE, 50);
+			BufferedImage[] tempRow ;
+			for (int kind = 0; kind< MAX_IMAGE_TYPES;kind++) {
+				tempRow = new BufferedImage[MAX_FRAMES];
+				for (int frame = 0; frame< MAX_FRAMES;frame++) {
+					int offset = (kind*MAX_FRAMES) + frame;
+					tempRow[frame] = bufferedImages[offset];
+				}
+				imageArray[kind] = tempRow;
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 
 	}
 
 	public void draw() {
 
-		for (ProjectileUnit pu : ProjectileUnits) {
-			if (null == pu|| pu.timeToLive<=0) {
+		for (ProjectileUnit pu : projectileUnits) {
+			if (null == pu || pu.timeToLive <= 0) {
 				continue;
 			}
-			//pu.frame = pu.selector.getNextImageID();
-			
-			gp.g2.drawImage(bufferedImages[pu.frame], pu.worldX - gp.wpScreenLocX, pu.worldY - gp.wpScreenLocY, 50, 50,
+			// pu.frame = pu.selector.getNextImageID();
+			BufferedImage image = imageArray[pu.kind][pu.frame];
+			gp.g2.drawImage(image, pu.worldX - gp.wpScreenLocX, pu.worldY - gp.wpScreenLocY, 50, 50,
 					null);
 		}
 
@@ -127,28 +156,32 @@ public class Projectile {
 
 	public void update() {
 		boolean pacerValue = framePacer.check();
-		for (int i = 0; i < ProjectileUnits.size(); i++) {
-			ProjectileUnit pu = ProjectileUnits.get(i);
-			if (pu!=null) {
-				if(pu.timeToLive>0) {
-					pu.timeToLive-=1;
+		for (int i = 0; i < projectileUnits.size(); i++) {
+			ProjectileUnit pu = projectileUnits.get(i);
+			if (pu != null) {
+				if (pu.timeToLive > 0) {
+					pu.timeToLive -= 1;
 				}
-				
-				//pu.frame = pu.baseFrame;
-				if (pu.timeToLive<=0) {
-					ProjectileUnits.set(i,null);
+
+				// pu.frame = pu.baseFrame;
+				if (pu.timeToLive <= 0) {
+					projectileUnits.set(i, null);
+
+					System.out.println("nul PROJ");
 				}
-				if(pacerValue  ) {
+				if (pacerValue) {
 					pu.tick();
-					pu.worldX += pu.velX;
-					pu.worldY += pu.velY;
+					
+				}else if(Collision.pointCollideWithSolidTile(gp,pu.worldX,pu.worldY)){
+					pu.timeToLive=0;
 				}
+				pu.worldX += pu.velX;
+				pu.worldY += pu.velY;
 			}
-			
+
 		}
 
 	}
-	
 
 	class ProjectileUnit {
 		int worldX, worldY, timeToLive, kind;
@@ -158,106 +191,23 @@ public class Projectile {
 		public ProjectileUnit(int startX, int startY, int kind) {
 			this.worldX = startX;
 			this.worldY = startY;
+			this.timeToLive = DEFAULT_TTL;
 			this.kind = kind;
-			switch (kind) {
-			case 0:
-				fmin = 0;
-				fmax = 3;
-				break;
-			case 1:
-				fmin = 4;
-				fmax = 7;
-				break;
-			case 2:
-				fmin = 8;
-				fmax = 11;
-				break;
-			case 3:
-				fmin = 12;
-				fmax = 15;
-				break;
-			default:
-				fmin = 0;
-				fmax = 0;
-			}
-			frame = fmin;
+			
+			frame = 0;
 		}
-		
-		public void tick() {
-			if (kind==SWOSH_KIND) {
-				
-			}else{
-				if(frame < fmax) {
-					frame +=1;
-				}else {
-					frame = fmin;
-				}
-			}
-		}
-		
-		private void initImageSelectorByKind(int kind) {
-			IImageSelector is = new IImageSelector() {
-				int kind ;
-				int min ;
-				int max ;
-				int current = min;
-				int limit ;
-				int changeImageCounter = 0;
-				@Override
-				public int getNextImageID() {
-					this.tick();
-					return current;
-				}
-				
-				public void tick() {
-					if(changeImageCounter < limit) {
-						//delay
-						changeImageCounter +=1;
-					}else {
-						//change image
-						if(current < max) {
-							current +=1;
-						}else {
-							current = min;
-						}
-						
-						changeImageCounter = 0;
-					}
-				}
 
-				@Override
-				public void setParams(int kind, int min, int max, int limit) {
-					this.kind = kind;
-					this.min = min;
-					this.max=max;
-					this.limit=limit;
-					
-					
-				}
-			};
-			
-			switch(kind) {
-			case 0://leaves
-				is.setParams(0, 0, 3, 10);
-				break;
-			case 1://blood
-				is.setParams(1, 4, 7, 10);
-				break;
-			case 2://swoosh
-				is.setParams(2, 8, 11, 10);
-				break;
-			case 3:
-				is.setParams(3, 12, 15, 10);
-				break;
-			default:
-				is.setParams(0, 0, 3, 10);
-				break;
+		public void tick() {
+			if (frame < FRAME_MAX) {
+				frame++;
+			} else {
+				frame=0;
 			}
-			
-			selector = is;
 		}
+
+		
+
+			
 	}
 
 }
-
-

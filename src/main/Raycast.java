@@ -107,7 +107,7 @@ public class Raycast {
 				//square.height = RAY_SIZE;
 				
 				try {
-					int kind = gp.collision.tileAtWorldCoord(currX, currY);
+					int kind = Collision.tileAtWorldCoord(gp, currX, currY);
 					if(!Collision.tileKindIsSolid(kind) && wallHit==false ) {
 						gp.g2.setColor(Color.white);
 						gp.shadow.setTransparentW(currX, currY);

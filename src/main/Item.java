@@ -285,7 +285,7 @@ public class Item implements IEditableComponent{
 	public void paintAsset(int gridX, int gridY, int kind) {
 		try {
 			this.itemGrid[gridY][gridX] = kind;
-			
+			modified=true;
 			System.err.println(kind);
 		}
 		catch(Exception e){

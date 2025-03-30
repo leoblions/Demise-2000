@@ -96,6 +96,7 @@ public class GamePanel extends JPanel implements Runnable{
 	Barrier barrier;
 	Wipe wipe;
 	Console console;
+	Projectile projectile;
 	public enum InputAction{
 		UP,
 		DOWN,
@@ -191,6 +192,7 @@ public class GamePanel extends JPanel implements Runnable{
 		particle = new Particle(this);
 		barrier = new Barrier(this);
 		wipe = new Wipe(this);
+		projectile=new Projectile(this);
 
 		console = new Console(this);
 		//rs1 = new RasterString(this, "TEST", 45, 45);
@@ -314,6 +316,7 @@ public class GamePanel extends JPanel implements Runnable{
 		sound.update();
 		wipe.update();
 		console.update();
+		projectile.update();
 		Point p = this.getMousePosition();
 		if (p != null){
 			this.mouseX = (int) p.getX();
@@ -349,6 +352,7 @@ public class GamePanel extends JPanel implements Runnable{
 		zone.draw();
 		particle.draw();
 		barrier.draw();
+		projectile.draw();
 		
 		// foreground
 		hud.draw();

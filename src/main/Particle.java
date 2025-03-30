@@ -10,6 +10,8 @@ public class Particle {
 	private final int FRAME_MAX = 3;
 	private final int FRAME_PACE = 3;
 	private final int SWOSH_KIND = 2;
+	private final int DEFAULT_SPEED = 3;
+	private final int DEFAULT_TTL = 10;
 	private Pacer framePacer = new Pacer(5);
 	GamePanel gp;
 	ArrayList<ParticleUnit> particleUnits;
@@ -29,8 +31,8 @@ public class Particle {
 		
 		 ParticleUnit pu = new ParticleUnit(startX, startY, SWOSH_KIND);
 
-		pu.timeToLive = 10;
-		int swoshSpeed =3;
+		pu.timeToLive = DEFAULT_TTL;
+		int swoshSpeed =DEFAULT_SPEED;
 		switch (direction) {
 		case 'u':
 			pu.velY = -swoshSpeed;
@@ -89,7 +91,7 @@ public class Particle {
 	}
 	
 	public void  addParticleUnit(ParticleUnit pu) {
-		pu.timeToLive = 30;
+		pu.timeToLive = DEFAULT_TTL;
 		boolean insertedPU = false;
 		for (int i = 0; i < particleUnits.size(); i++) {
 			if (pu==null) {
@@ -140,9 +142,10 @@ public class Particle {
 				}
 				if(pacerValue  ) {
 					pu.tick();
-					pu.worldX += pu.velX;
-					pu.worldY += pu.velY;
 				}
+
+				pu.worldX += pu.velX;
+				pu.worldY += pu.velY;
 			}
 			
 		}

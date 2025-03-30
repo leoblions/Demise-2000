@@ -511,10 +511,14 @@ public class Player implements IInputListener {
 		walkCycleCounter = 0;
 		int ax = tileForward[0] * gp.TILE_SIZE_PX;
 		int ay = tileForward[1] * gp.TILE_SIZE_PX;
-		gp.particle.addParticleUnit(gp.particle.Swosh(worldX, worldY, direction));
 		gp.widget.playerAttackWidgetMelee();
-		gp.barrier.playerAttackBarrierMelee();
-		gp.entityManager.playerAttackEntityMelee();
+		if(!gp.projectile.playerFireProjectile()) {
+
+			gp.particle.addParticleUnit(gp.particle.Swosh(worldX, worldY, direction));
+			gp.barrier.playerAttackBarrierMelee();
+			gp.entityManager.playerAttackEntityMelee();
+		}
+		gp.inventory.selectProjectileType();
 
 	}
 

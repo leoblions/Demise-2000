@@ -48,6 +48,7 @@ public class HUD implements IStatusMessageListener, IInputListener {
 	private static final int ITEM_EQ_ITEM_IMAGE_SIZE = 50;
 	private static final int ITEM_EQ_ITEM_IMAGE_OFFSET = 10;
 	private static final int ITEM_EQ_FRAME_ALPHA = 200;
+	private static final int BLANK_ITEM_ID = -1;
 	final int TOOLBAR_SLOTS = 10;
 	int selectedSlot = 0;
 	int selectedBoxX = 0;
@@ -63,7 +64,7 @@ public class HUD implements IStatusMessageListener, IInputListener {
 	private static int itemEqScreenX = 10;
 	private static int[] toolbarBoxOffsetsX;
 	private static int[][] inventoryKindAmount;
-	public static int itemEq = -1;
+	public static int itemEq = BLANK_ITEM_ID;
 	public static boolean showToolbar = false;
 	public boolean toggleToolbar = false;
 	public static boolean showEquippedItemFrame = true;
@@ -383,16 +384,29 @@ public class HUD implements IStatusMessageListener, IInputListener {
 	}
 	
 	private void handleMenuInput() {
+		boolean moved = (itemEq==BLANK_ITEM_ID);
+		
 		if (showToolbar) {
 			if (this.movesRequested[2]) {
 				this.selectedSlot -=1;
+				moved=true;
 			}else if(this.movesRequested[3]) {
 				this.selectedSlot +=1;
+				moved=true;
 			}
 			selectedSlot = Utils.clamp(0,TOOLBAR_SLOTS,selectedSlot);
-			try {
-				itemEq = inventoryKindAmount[selectedSlot][0];
-			}catch(ArrayIndexOutOfBoundsException e) {}
+			if(moved) {
+				try {
+					itemEq = inventoryKindAmount[selectedSlot][0];
+					gp.inventory.selectItem(itemEq);
+					System.out.println("inv item "+gp.inventory.selectItem(itemEq));
+					gp.inventory.selectProjectileType();
+				}catch(ArrayIndexOutOfBoundsException e) {
+					//itemEq = BLANK_ITEM_ID; 
+					//gp.inventory.selectItem(itemEq);
+				}
+			}
+
 		}
 		this.movesRequested[0]=false;
 		this.movesRequested[1]=false;
