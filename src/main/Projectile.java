@@ -15,24 +15,29 @@ public class Projectile {
 	private final int FRAME_MAX = 3;
 	private final int FRAME_PACE = 3;
 	private final int SWOSH_KIND = 2;
+	private final int MAX_PROJECTILES = 10;
 	private final int DEFAULT_PROJECTILE_SPEED = 10;
 	private final int BOMB_SPEED = 5;
 	private final int MAX_IMAGE_TYPES = 6;
 	private final int MAX_FRAMES = 4;
 	private final int DEFAULT_TTL = 400;
 	private final int SPRITE_SIZE = 50;
+	private final int BLOOD_PARTICLE = 1;
+	private final int PROJECTILE_DAMAGE = 50;
 	private Pacer framePacer = new Pacer(5);
 	GamePanel gp;
-	ArrayList<ProjectileUnit> projectileUnits;
+	//ArrayList<ProjectileUnit> projectileUnits;
+	ProjectileUnit[] projectileUnits;
 	BufferedImage[][] imageArray= new BufferedImage[MAX_IMAGE_TYPES][MAX_FRAMES];
 	BufferedImage[] currentImages;
 	int frame;
 
 	public Projectile(GamePanel gp) {
 		this.gp = gp;
-		projectileUnits = new ArrayList<>();
+		//projectileUnits = new ArrayList<>();
+		projectileUnits = new ProjectileUnit[MAX_PROJECTILES];
 		initImages();
-		projectileUnits.add(new ProjectileUnit(10, 10, 1));
+		//projectileUnits.add(new ProjectileUnit(10, 10, 1));
 
 	}
 
@@ -81,31 +86,26 @@ public class Projectile {
 			pu.worldX -= 20;
 		}
 		pu.timeToLive = 30;
-		boolean insertedPU = false;
-		for (int i = 0; i < projectileUnits.size(); i++) {
-			if (pu == null) {
-				projectileUnits.set(i, pu);
-				insertedPU = true;
+		
+		for (int i = 0; i < MAX_PROJECTILES; i++) {
+			if (projectileUnits[i] == null) {
+				projectileUnits[i]=pu;
+				break;
 			}
 		}
-		if (!insertedPU) {
-			projectileUnits.add(pu);
-		}
+		
 		return pu;
 	}
 
 	public ProjectileUnit replaceProjectileUnit(ProjectileUnit pu) {
 		pu.timeToLive = DEFAULT_TTL;
-		boolean insertedPU = false;
-		for (int i = 0; i < projectileUnits.size(); i++) {
-			if (pu == null) {
-				projectileUnits.set(i, pu);
-				insertedPU = true;
+		for (int i = 0; i < MAX_PROJECTILES; i++) {
+			if (pu == null || pu.timeToLive<=0) {
+				projectileUnits[i]=pu;
+				break;
 			}
 		}
-		if (!insertedPU) {
-			projectileUnits.add(pu);
-		}
+		
 		return pu;
 	}
 
@@ -114,6 +114,7 @@ public class Projectile {
 		if (kind<0) {
 			return false;
 		}
+		//System.out.println("add projectile");
 		ProjectileUnit pu = addProjectile(gp.player.worldX, gp.player.worldY, kind);
 		setProjectileUnitMotion(pu);
 		return true;
@@ -123,7 +124,7 @@ public class Projectile {
 		
 		try {
 
-			BufferedImage[] bufferedImages = new Utils().spriteSheetCutter(SPRITE_SHEET, MAX_FRAMES, MAX_IMAGE_TYPES , SPRITE_SIZE, 50);
+			BufferedImage[] bufferedImages = new Utils().spriteSheetCutter(SPRITE_SHEET, MAX_FRAMES, MAX_IMAGE_TYPES , SPRITE_SIZE, SPRITE_SIZE);
 			BufferedImage[] tempRow ;
 			for (int kind = 0; kind< MAX_IMAGE_TYPES;kind++) {
 				tempRow = new BufferedImage[MAX_FRAMES];
@@ -148,7 +149,7 @@ public class Projectile {
 			}
 			// pu.frame = pu.selector.getNextImageID();
 			BufferedImage image = imageArray[pu.kind][pu.frame];
-			gp.g2.drawImage(image, pu.worldX - gp.wpScreenLocX, pu.worldY - gp.wpScreenLocY, 50, 50,
+			gp.g2.drawImage(image, pu.worldX - GamePanel.wpScreenLocX, pu.worldY - GamePanel.wpScreenLocY, 50, 50,
 					null);
 		}
 
@@ -156,8 +157,8 @@ public class Projectile {
 
 	public void update() {
 		boolean pacerValue = framePacer.check();
-		for (int i = 0; i < projectileUnits.size(); i++) {
-			ProjectileUnit pu = projectileUnits.get(i);
+		for (int i = 0; i < MAX_PROJECTILES; i++) {
+			ProjectileUnit pu = projectileUnits[i];
 			if (pu != null) {
 				if (pu.timeToLive > 0) {
 					pu.timeToLive -= 1;
@@ -165,12 +166,12 @@ public class Projectile {
 
 				// pu.frame = pu.baseFrame;
 				if (pu.timeToLive <= 0) {
-					projectileUnits.set(i, null);
+					projectileUnits[i]=null;
 
-					System.out.println("nul PROJ");
 				}
 				if (pacerValue) {
 					pu.tick();
+					checkProjectileHitEntity(pu);
 					
 				}else if(Collision.pointCollideWithSolidTile(gp,pu.worldX,pu.worldY)){
 					pu.timeToLive=0;
@@ -181,6 +182,18 @@ public class Projectile {
 
 		}
 
+	}
+	private void checkProjectileHitEntity(ProjectileUnit pu) {
+		int gridX = pu.worldX / GamePanel.TILE_SIZE_PX;
+		int gridY = pu.worldY / GamePanel.TILE_SIZE_PX;
+		int[] currTileYX;
+		for(Entity ent : gp.entityManager.entityList) {
+			currTileYX = ent.currTileYX;
+			if(gridX==currTileYX[1]&&gridY==currTileYX[0]) {
+				ent.takeDamageFromPlayer(PROJECTILE_DAMAGE);
+				gp.particle.addParticle(pu.worldX, pu.worldY, BLOOD_PARTICLE);
+			}
+		}
 	}
 
 	class ProjectileUnit {

@@ -48,7 +48,7 @@ public class Entity {
 	public boolean enemy = false;
 	public boolean chasePlayer = false;
 	public boolean playerPressToActivate = false;
-	int[] tileRight;
+	//int[] tileRight;
 	int[] currTileYX; // x and y position in tile grid
 	GamePanel gp;
 	Direction4W currDirection = Direction4W.NONE;
@@ -106,7 +106,6 @@ public class Entity {
 		testRect = new Rectangle();
 		movesRequested = new boolean[4];
 		tileForward = new int[2];
-		tileRight = new int[2];
 		spriteHitboxOffsetX = -30;
 		spriteHitboxOffsetY = -30;
 		alive = true;
@@ -157,13 +156,7 @@ public class Entity {
 		gp.g2.drawImage(bufferedImages[currentImageIndex], (worldX - gp.wpScreenLocX) + spriteHitboxOffsetX,
 				(worldY - gp.wpScreenLocY) + spriteHitboxOffsetY, 50, 50, null);
 
-		if (DRAW_SENSE_BLOCKS) {
-			gp.tileManager.highlightTile(tileForward[0], tileForward[1], Color.yellow);
-
-			gp.tileManager.highlightTile(currTileYX[0], currTileYX[1], Color.white);
-
-			gp.tileManager.highlightTile(tileRight[0], tileRight[1], Color.pink);
-		}
+		
 
 	}
 	
@@ -368,6 +361,8 @@ public class Entity {
 		int worldY = position.getWorldY();
 		wpSolidArea.x = worldX;
 		wpSolidArea.y = worldY;
+		currTileYX[0] = worldY / GamePanel.TILE_SIZE_PX;
+		currTileYX[1] = worldX / GamePanel.TILE_SIZE_PX;
 		if(!gp.entityManager.entityAIEnabled) {
 			return;
 		}
@@ -396,7 +391,6 @@ public class Entity {
 		if(gp.entityManager.playerMelee) {
 			if(gp.entityManager.playerHitbox.intersects(this.wpSolidArea)) {
 				takeDamageFromPlayer(DEF_DAMAGE_FROM_PLAYER);
-				System.out.println("player hit enemy");
 				gp.particle.addParticle(wpSolidArea.x, wpSolidArea.y, 1);
 			}
 		}

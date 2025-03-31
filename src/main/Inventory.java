@@ -11,10 +11,41 @@ public class Inventory {
 	public int activeItem = BLANK_ITEM_KIND;
 	public final int BLANK_PRIJECTILE_TYPE = -1;
 	public int projectileType = -1;
+	public String[] itemNames;
 	public Inventory(GamePanel gp) {
 		this.gp=gp;
 		inventoryItems = new HashMap<Integer, Integer>();
 		testInv();
+		itemNames = new String[]{
+				"briefcase blue",
+				"briefcase brown",
+				"bucket",
+				"gold coin",
+				"diamond",
+				"emerald",
+				"ruby",
+				"sapphire",
+				"fire extinguisher",
+				"iron key",
+				"brass key",
+				"anodized key",
+				"medkit",
+				"healing herb",
+				"semi auto pistol",
+				"snap trap",
+				// sheet 2
+				"health",
+				"seed packet",
+				"machete",
+				"garden hoe",
+				"watering can",
+				"bear trap",
+				"pickaxe",
+				"cherry bomb"
+				
+				
+				
+		};
 		
 	}
 	
@@ -79,7 +110,7 @@ public class Inventory {
 	}
 	
 	public int selectProjectileType( ) {
-		System.out.println("projectileType activeItem "+activeItem);
+		//System.out.println("projectileType activeItem "+activeItem);
 		switch(activeItem) {
 		case 14:
 			projectileType = 0;

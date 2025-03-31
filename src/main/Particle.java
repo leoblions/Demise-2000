@@ -198,67 +198,67 @@ public class Particle {
 			}
 		}
 		
-		private void initImageSelectorByKind(int kind) {
-			IImageSelector is = new IImageSelector() {
-				int kind ;
-				int min ;
-				int max ;
-				int current = min;
-				int limit ;
-				int changeImageCounter = 0;
-				@Override
-				public int getNextImageID() {
-					this.tick();
-					return current;
-				}
-				
-				public void tick() {
-					if(changeImageCounter < limit) {
-						//delay
-						changeImageCounter +=1;
-					}else {
-						//change image
-						if(current < max) {
-							current +=1;
-						}else {
-							current = min;
-						}
-						
-						changeImageCounter = 0;
-					}
-				}
-
-				@Override
-				public void setParams(int kind, int min, int max, int limit) {
-					this.kind = kind;
-					this.min = min;
-					this.max=max;
-					this.limit=limit;
-					
-					
-				}
-			};
-			
-			switch(kind) {
-			case 0://leaves
-				is.setParams(0, 0, 3, 10);
-				break;
-			case 1://blood
-				is.setParams(1, 4, 7, 10);
-				break;
-			case 2://swoosh
-				is.setParams(2, 8, 11, 10);
-				break;
-			case 3:
-				is.setParams(3, 12, 15, 10);
-				break;
-			default:
-				is.setParams(0, 0, 3, 10);
-				break;
-			}
-			
-			selector = is;
-		}
+//		private void initImageSelectorByKind(int kind) {
+//			IImageSelector is = new IImageSelector() {
+//				int kind ;
+//				int min ;
+//				int max ;
+//				int current = min;
+//				int limit ;
+//				int changeImageCounter = 0;
+//				@Override
+//				public int getNextImageID() {
+//					this.tick();
+//					return current;
+//				}
+//				
+//				public void tick() {
+//					if(changeImageCounter < limit) {
+//						//delay
+//						changeImageCounter +=1;
+//					}else {
+//						//change image
+//						if(current < max) {
+//							current +=1;
+//						}else {
+//							current = min;
+//						}
+//						
+//						changeImageCounter = 0;
+//					}
+//				}
+//
+//				@Override
+//				public void setParams(int kind, int min, int max, int limit) {
+//					this.kind = kind;
+//					this.min = min;
+//					this.max=max;
+//					this.limit=limit;
+//					
+//					
+//				}
+//			};
+//			
+//			switch(kind) {
+//			case 0://leaves
+//				is.setParams(0, 0, 3, 10);
+//				break;
+//			case 1://blood
+//				is.setParams(1, 4, 7, 10);
+//				break;
+//			case 2://swoosh
+//				is.setParams(2, 8, 11, 10);
+//				break;
+//			case 3:
+//				is.setParams(3, 12, 15, 10);
+//				break;
+//			default:
+//				is.setParams(0, 0, 3, 10);
+//				break;
+//			}
+//			
+//			selector = is;
+//		}
 	}
 
 }

@@ -36,7 +36,12 @@ public class Collision {
 	}
 
 	public static boolean pointCollideWithSolidTile(GamePanel gp, int worldX, int worldY) {
-		return tileKindIsSolid(tileAtWorldCoord(gp,worldX, worldY));
+		try {
+
+			return tileKindIsSolid(tileAtWorldCoord(gp,worldX, worldY));
+		}catch(ArrayIndexOutOfBoundsException e) {
+			return true;
+		}
 	}
 
 	public boolean[] collideTilePlayer() {

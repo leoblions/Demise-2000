@@ -74,14 +74,17 @@ public class Input implements KeyListener{
 			case KeyEvent.VK_SHIFT:
 				notifyListeners(InputAction.RUN);
 				break;
-			case KeyEvent.VK_I:
-				notifyListeners(InputAction.INFO);
-				break;
+			
 			case KeyEvent.VK_M:
 				notifyListeners(InputAction.MUTE);
 				break;
 			case KeyEvent.VK_Q:
 				gp.hud.toolbarModeToggle();
+				
+				break;
+			case KeyEvent.VK_I:
+				notifyListeners(InputAction.INVENTORY);
+				gp.hud.toggleInventoryScreen();
 				
 				break;
 			case KeyEvent.VK_BACK_QUOTE:

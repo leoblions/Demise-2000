@@ -112,7 +112,7 @@ public class GamePanel extends JPanel implements Runnable{
 		FIRE,
 		MESSAGE,
 		INFO,
-		RUN, MUTE, ACTIONRELEASE
+		RUN, MUTE, ACTIONRELEASE, INVENTORY
 	}
 	
 	public enum GameState{

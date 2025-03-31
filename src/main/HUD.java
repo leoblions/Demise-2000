@@ -23,6 +23,8 @@ public class HUD implements IStatusMessageListener, IInputListener {
 	public String lcText2 = "";
 	public String lcText3 = "";
 	public String lcText4 = "";
+	private int tickCountStringX, tickCountStringY; 
+	public String tickCountString = "";
 	public String promptText = "PRESS E";
 	public String lcTextLine3, lcText5, lcText6;
 	public boolean showInfotext = false;
@@ -35,39 +37,40 @@ public class HUD implements IStatusMessageListener, IInputListener {
 	public String killCountString = ""; 
 	public String gemCountString = "";
 	public int gemCount = 0;
+	public HUDToolbar toolbar;
+	public HUDInventory inventoryScreen;
 	
-	
-	//equipped item
-	public static final String INVENTORY_EQ_FRAME = "/images/InvHudSingle.png";
-	public static final String INVENTORY_EQ_ITEMS = "/images/inventoryItem.png";
-	public static final String BAR_BORDER = "/images/barBorder.png";
-	
-	private static final int ITEM_EQ_OFFSET_X = 10;
-	private static final int ITEM_EQ_OFFSET_Y = 10;
-	private static final int ITEM_EQ_FRAME_SIZE = 70;
-	private static final int ITEM_EQ_ITEM_IMAGE_SIZE = 50;
-	private static final int ITEM_EQ_ITEM_IMAGE_OFFSET = 10;
-	private static final int ITEM_EQ_FRAME_ALPHA = 200;
-	private static final int BLANK_ITEM_ID = -1;
-	final int TOOLBAR_SLOTS = 10;
-	int selectedSlot = 0;
-	int selectedBoxX = 0;
-	int selectedBoxY = 0;
+//	//equipped item
+//	public static final String INVENTORY_EQ_FRAME = "/images/InvHudSingle.png";
+//	public static final String INVENTORY_EQ_ITEMS = "/images/inventoryItem.png";
+//	public static final String BAR_BORDER = "/images/barBorder.png";
+//	
+//	private static final int ITEM_EQ_OFFSET_X = 10;
+//	private static final int ITEM_EQ_OFFSET_Y = 10;
+//	private static final int ITEM_EQ_FRAME_SIZE = 70;
+//	private static final int ITEM_EQ_ITEM_IMAGE_SIZE = 50;
+//	private static final int ITEM_EQ_ITEM_IMAGE_OFFSET = 10;
+//	private static final int ITEM_EQ_FRAME_ALPHA = 200;
+//	private static final int BLANK_ITEM_ID = -1;
+//	final int TOOLBAR_SLOTS = 10;
+//	int selectedSlot = 0;
+//	int selectedBoxX = 0;
+//	int selectedBoxY = 0;
 	private boolean[] movesRequested=new boolean[4];
-	Color selectedBoxColor = new Color(222,222,0,222);
-	Color selectedBoxColorBG = new Color(222,222,50,122);
-	Stroke borderStroke = new BasicStroke(2);
+
 	
-	private static int itemEqBrcOffsetY = 10;
-	private static int itemEqBrcOffsetX = 0;
-	private static int itemEqScreenY = 10;
-	private static int itemEqScreenX = 10;
-	private static int[] toolbarBoxOffsetsX;
-	private static int[][] inventoryKindAmount;
-	public static int itemEq = BLANK_ITEM_ID;
-	public static boolean showToolbar = false;
-	public boolean toggleToolbar = false;
-	public static boolean showEquippedItemFrame = true;
+//	private static int itemEqBrcOffsetY = 10;
+//	private static int itemEqBrcOffsetX = 0;
+//	private static int itemEqScreenY = 10;
+//	private static int itemEqScreenX = 10;
+//	private static int[] toolbarBoxOffsetsX;
+//	private static int[][] inventoryKindAmount;
+//	public static int itemEq = BLANK_ITEM_ID;
+//	public static boolean showToolbar = false;
+//	public boolean toggleToolbar = false;
+//	public static boolean showEquippedItemFrame = true;
+
+	public static final String BAR_BORDER = "/images/barBorder.png";
 	
 	// text boxes
 	private boolean showDialog = false;
@@ -122,7 +125,6 @@ public class HUD implements IStatusMessageListener, IInputListener {
 	Color smBackground = new Color(100, 100, 100, alpha);
 	Color smBorder = new Color(50, 50, 50, alpha);
 	Color healthBarColor = new Color(50, 200, 50);
-
 	Color clear = new Color(50, 200, 50,0);
 	
 	private static boolean mboxTextVisible ;
@@ -134,7 +136,8 @@ public class HUD implements IStatusMessageListener, IInputListener {
 		if(gp==null) System.out.println("HUD ctor received null reference 1") ;
 		if(g2==null) System.out.println("HUD ctor received null reference 2") ;
 		this.gp = gp;
-		
+		inventoryScreen = new HUDInventory(gp);
+		toolbar = new HUDToolbar(gp);
 		int runStringX = gp.WIDTH - RUN_STRNG_TEXT_OFFSET_X;
 		int runStringY = RUN_STRNG_TEXT_OFFSET_Y;
 		runString = new RasterString(gp, "RUN", runStringX, runStringY);
@@ -142,10 +145,10 @@ public class HUD implements IStatusMessageListener, IInputListener {
 		arial16 = new Font("Arial",Font.PLAIN,16);
 		arial20 = new Font("Arial",Font.BOLD,20);
 		//mboxTextVisible=false;
-		itemEqBrcOffsetY = GamePanel.HEIGHT -ITEM_EQ_OFFSET_Y -ITEM_EQ_FRAME_SIZE; // y position of equipped item frame
-		itemEqBrcOffsetX = ITEM_EQ_OFFSET_X; 
-		itemEqScreenY = itemEqBrcOffsetY + ITEM_EQ_ITEM_IMAGE_OFFSET;
-		itemEqScreenX = itemEqBrcOffsetX + ITEM_EQ_ITEM_IMAGE_OFFSET;
+//		itemEqBrcOffsetY = GamePanel.HEIGHT -ITEM_EQ_OFFSET_Y -ITEM_EQ_FRAME_SIZE; // y position of equipped item frame
+//		itemEqBrcOffsetX = ITEM_EQ_OFFSET_X; 
+//		itemEqScreenY = itemEqBrcOffsetY + ITEM_EQ_ITEM_IMAGE_OFFSET;
+//		itemEqScreenX = itemEqBrcOffsetX + ITEM_EQ_ITEM_IMAGE_OFFSET;
 		initDialogTextBox();
 		initElementPositions();
 		speakerString=RasterString.RasterStringBGC(gp, "player", nameplateX+NAMEPLATE_TEXT_OFFSET, nameplateY+NAMEPLATE_TEXT_OFFSET, clear);
@@ -168,9 +171,9 @@ public class HUD implements IStatusMessageListener, IInputListener {
 			}
 			//frames
 			this.images = new BufferedImage[5];
-			this.images[0] = ImageIO.read(getClass().getResourceAsStream(INVENTORY_EQ_FRAME));
-			this.images[0] = Utils.imageSetAlpha(this.images[0],ITEM_EQ_FRAME_ALPHA);
-			this.images[1] = makeInventoryToolbarBackground();
+			//this.images[0] = ImageIO.read(getClass().getResourceAsStream(INVENTORY_EQ_FRAME));
+			//this.images[0] = Utils.imageSetAlpha(this.images[0],ITEM_EQ_FRAME_ALPHA);
+			//this.images[1] = makeInventoryToolbarBackground();
 			this.images[2] = ImageIO.read(getClass().getResourceAsStream(NAMEPLATE_SPRITE));
 			this.images[3] = ImageIO.read(getClass().getResourceAsStream(BAR_BORDER));
 			
@@ -180,31 +183,7 @@ public class HUD implements IStatusMessageListener, IInputListener {
 		}
 	}
 	
-	private BufferedImage makeInventoryToolbarBackground() {
-		
-		BufferedImage toolbar = null;
-		toolbarBoxOffsetsX = new int[TOOLBAR_SLOTS];
-		try {
-
-			BufferedImage raw = ImageIO.read(getClass().getResourceAsStream(INVENTORY_EQ_FRAME));
-			toolbar = new BufferedImage(raw.getWidth()*TOOLBAR_SLOTS,raw.getHeight(),raw.getType());
-			int w = raw.getWidth();
-			int h = raw.getHeight();
-			Graphics2D tbGraphics = (Graphics2D) toolbar.getGraphics();
-
-			int xOffset = 0;
-			for(int i = 0; i< TOOLBAR_SLOTS;i++) {
-				tbGraphics.drawImage(raw,xOffset,0,w,h,null);
-				toolbarBoxOffsetsX[i] = xOffset + itemEqBrcOffsetX;
-				xOffset += w;
-			}
-			
-			
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-		return toolbar;
-	}
+	
 	
 	
 	
@@ -274,7 +253,8 @@ public class HUD implements IStatusMessageListener, IInputListener {
 			promptTextBox.draw();
 		}
 
-		drawInventoryToolbar();
+		toolbar.draw();
+		inventoryScreen.draw();
 		
 		
 		// by default hide the text boxes unless another class needs them.
@@ -284,56 +264,42 @@ public class HUD implements IStatusMessageListener, IInputListener {
 		
 	}
 	
-	public void drawInventoryToolbar() {
-		int tbWidth = ITEM_EQ_FRAME_SIZE;
-		int tbHeight = ITEM_EQ_FRAME_SIZE;
-		
-		if(showEquippedItemFrame) {
-			int backgroundImage = 0;
-			if(showToolbar) {
-				
-				backgroundImage = 1;
-				tbWidth = ITEM_EQ_FRAME_SIZE*10;
-				gp.g2.drawImage(images[backgroundImage],itemEqBrcOffsetX,itemEqBrcOffsetY,
-						tbWidth,tbHeight,null);
-				gp.g2.setStroke(borderStroke);
-				gp.g2.setColor(selectedBoxColorBG);
-				gp.g2.fillRect(selectedBoxX, selectedBoxY, ITEM_EQ_FRAME_SIZE, ITEM_EQ_FRAME_SIZE);
-
-				gp.g2.setColor(selectedBoxColor);
-				gp.g2.drawRect(selectedBoxX, selectedBoxY, ITEM_EQ_FRAME_SIZE, ITEM_EQ_FRAME_SIZE);
-				drawInventoryToolbarItemSprites();
-				
-			}else {
-				gp.g2.drawImage(images[backgroundImage],itemEqBrcOffsetX,itemEqBrcOffsetY,
-						tbWidth,tbHeight,null);
-				if(itemEq>0) {
-
-					gp.g2.drawImage(itemImages[itemEq],itemEqScreenX,itemEqScreenY,
-							ITEM_EQ_ITEM_IMAGE_SIZE,ITEM_EQ_ITEM_IMAGE_SIZE,null);
-				}
-				
-			}
-			
-			
-		}
-	}
+//	public void drawInventoryToolbar() {
+//		int tbWidth = ITEM_EQ_FRAME_SIZE;
+//		int tbHeight = ITEM_EQ_FRAME_SIZE;
+//		
+//		if(showEquippedItemFrame) {
+//			int backgroundImage = 0;
+//			if(showToolbar) {
+//				
+//				backgroundImage = 1;
+//				tbWidth = ITEM_EQ_FRAME_SIZE*10;
+//				gp.g2.drawImage(images[backgroundImage],itemEqBrcOffsetX,itemEqBrcOffsetY,
+//						tbWidth,tbHeight,null);
+//				gp.g2.setStroke(borderStroke);
+//				gp.g2.setColor(selectedBoxColorBG);
+//				gp.g2.fillRect(selectedBoxX, selectedBoxY, ITEM_EQ_FRAME_SIZE, ITEM_EQ_FRAME_SIZE);
+//
+//				gp.g2.setColor(selectedBoxColor);
+//				gp.g2.drawRect(selectedBoxX, selectedBoxY, ITEM_EQ_FRAME_SIZE, ITEM_EQ_FRAME_SIZE);
+//				drawInventoryToolbarItemSprites();
+//				
+//			}else {
+//				gp.g2.drawImage(images[backgroundImage],itemEqBrcOffsetX,itemEqBrcOffsetY,
+//						tbWidth,tbHeight,null);
+//				if(itemEq>0) {
+//
+//					gp.g2.drawImage(itemImages[itemEq],itemEqScreenX,itemEqScreenY,
+//							ITEM_EQ_ITEM_IMAGE_SIZE,ITEM_EQ_ITEM_IMAGE_SIZE,null);
+//				}
+//				
+//			}
+//			
+//			
+//		}
+//	}
 	
-	public void drawInventoryToolbarItemSprites() {
-		
-		int spriteAmount = 10;
-		if (inventoryKindAmount.length<10) {
-			spriteAmount=inventoryKindAmount.length;
-		}
-		int currX = itemEqScreenX;
-		int currY = itemEqScreenY;
-		for (int i = 0; i< spriteAmount;i++) {
-			int imageID = inventoryKindAmount[i][0];
-			gp.g2.drawImage(itemImages[imageID],currX,currY,
-					ITEM_EQ_ITEM_IMAGE_SIZE,ITEM_EQ_ITEM_IMAGE_SIZE,null);
-			currX +=ITEM_EQ_FRAME_SIZE;
-		}
-	}
+	
 	
 	public void update() {
 		
@@ -343,18 +309,8 @@ public class HUD implements IStatusMessageListener, IInputListener {
 		}
 		
 		// check if player pressed to show inv toolbar
-		if(toggleToolbar) {
-			toggleToolbar = false;
-			showToolbar =! showToolbar;
-			inventoryKindAmount = gp.inventory.queryKindAndAmount();
-			System.out.println("Show toolbar "+showToolbar);
-			
-		}
-		
-		if (showToolbar) {
-			selectedBoxX = ITEM_EQ_OFFSET_X + (selectedSlot*ITEM_EQ_FRAME_SIZE);
-			selectedBoxY = gp.getHeight() -  ITEM_EQ_OFFSET_Y - ITEM_EQ_FRAME_SIZE;
-		}
+		toolbar.update();
+		inventoryScreen.update();
 		
 		//lcText = "wX: "+ gp.player.worldX+" wY: "+ gp.player.worldY ;
 		gp.clamp(1, 100, health);
@@ -378,41 +334,12 @@ public class HUD implements IStatusMessageListener, IInputListener {
 		
 		showPrompt = !showActionPromptDelay.delayExpired();
 		showActionPromptDelay.reduce();
-		handleMenuInput() ;
+		toolbar.handleMenuInput(this.movesRequested) ;
 		
 		
 	}
 	
-	private void handleMenuInput() {
-		boolean moved = (itemEq==BLANK_ITEM_ID);
-		
-		if (showToolbar) {
-			if (this.movesRequested[2]) {
-				this.selectedSlot -=1;
-				moved=true;
-			}else if(this.movesRequested[3]) {
-				this.selectedSlot +=1;
-				moved=true;
-			}
-			selectedSlot = Utils.clamp(0,TOOLBAR_SLOTS,selectedSlot);
-			if(moved) {
-				try {
-					itemEq = inventoryKindAmount[selectedSlot][0];
-					gp.inventory.selectItem(itemEq);
-					System.out.println("inv item "+gp.inventory.selectItem(itemEq));
-					gp.inventory.selectProjectileType();
-				}catch(ArrayIndexOutOfBoundsException e) {
-					//itemEq = BLANK_ITEM_ID; 
-					//gp.inventory.selectItem(itemEq);
-				}
-			}
-
-		}
-		this.movesRequested[0]=false;
-		this.movesRequested[1]=false;
-		this.movesRequested[2]=false;
-		this.movesRequested[3]=false;
-	}
+	
 	
 	//info text
 	public void killCount() {
@@ -593,7 +520,12 @@ public class HUD implements IStatusMessageListener, IInputListener {
 	}
 
 	public void toolbarModeToggle() {
-		toggleToolbar=true;
+		toolbar.toggleActivate=true;
+		gp.player.frozen =! gp.player.frozen;
+		
+	}
+	public void toggleInventoryScreen() {
+		inventoryScreen.toggleActivate=true;
 		gp.player.frozen =! gp.player.frozen;
 		
 	}
@@ -630,8 +562,12 @@ public class HUD implements IStatusMessageListener, IInputListener {
 		case FIRE:
 			break;
 		case ACTION:
-			gp.inventory.selectItem(itemEq);
-			System.out.println("select item "+itemEq);
+			gp.inventory.selectItem(toolbar.itemEq);
+			System.out.println("select item "+toolbar.itemEq);
+			break;
+		case INVENTORY:
+			//p.inventory.selectItem(toolbar.itemEq);
+			//System.out.println("select item "+toolbar.itemEq);
 			break;
 
 		default:
@@ -639,5 +575,7 @@ public class HUD implements IStatusMessageListener, IInputListener {
 		}
 
 	}
+
+	
 
 }
