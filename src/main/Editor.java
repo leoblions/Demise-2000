@@ -2,7 +2,7 @@ package main;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class Editor {
 	public boolean delete = false;
 	public int selectedAssetID;
 	IEditableComponent activeComponent = null;
-	public ArrayList<IEditableComponent> components = new ArrayList<>();
+	//public ArrayList<IEditableComponent> components = new ArrayList<>();
 	public boolean latchEnable = false;
 	public boolean latchActive = false;
 
@@ -41,7 +41,7 @@ public class Editor {
 	}
 	
 	public IEditableComponent getActiveComponent() {
-		for (IEditableComponent c: components) {
+		for (IEditableComponent c: gp.components) {
 			if (c.getEditMode() == this.editMode){
 				return c;
 			}
@@ -49,8 +49,8 @@ public class Editor {
 		return null;
 	}
 	
-	public void addComponent(IEditableComponent ec) {
-		this.components.add(ec);
+	public void addComponent_0(IEditableComponent ec) {
+		this.gp.components.add(ec);
 	}
 
 	public String getAssetIDString() {
@@ -140,7 +140,7 @@ public class Editor {
 		System.out.printf("tgl %d", emVals.length);
 	}
 
-	public void saveComponentData() {
+	public void saveComponentData_0() {
 	 
 		String dataFolderName = GamePanel.LEVEL_DATA_SUBDIR;
 		Utils.createDirectoryIfNotExist(dataFolderName);
@@ -148,7 +148,7 @@ public class Editor {
 		Path dataPath = Paths.get(currentWorkingDirectory, dataFolderName);
 		System.out.println("Save component data "+ dataPath.toString());
 		String componentName;
-		for (IEditableComponent ec: this.components) {
+		for (IEditableComponent ec: this.gp.components) {
 			componentName = ec.getEditMode().toString();
 			if(!ec.isModified()) {
 				System.out.println("Skip saving "+componentName);
@@ -174,7 +174,7 @@ public class Editor {
 
 	}
 	
-	public void loadComponentData() {
+	public void loadComponentData_0() {
 		 
 		String dataFolderName = GamePanel.LEVEL_DATA_SUBDIR;
 		Utils.createDirectoryIfNotExist(dataFolderName);
@@ -182,16 +182,23 @@ public class Editor {
 		Path dataPath = Paths.get(currentWorkingDirectory, dataFolderName);
 		System.out.println(dataPath.toString());
 		String componentName;
-		for (IEditableComponent ec: this.components) {
+		for (IEditableComponent ec: this.gp.components) {
 			componentName = ec.getEditMode().toString();
 			String tilePath = ec.getDataFilename();
 			Path tilePathP = Paths.get(dataFolderName, tilePath);
 			//Utils.writeInt2DAToCSV(ec.getGridData(), tilePathP.toString());
-			int[][] data;
+			int[][] data=null;
 			try {
 				System.out.print("Loading component data :"+componentName);
-				data = Utils.openCSVto2DAInt(tilePathP.toString());
-				System.out.println("..OK" );
+				try {
+
+					data = Utils.openCSVto2DAInt(tilePathP.toString());
+
+					System.out.println("..OK" );
+				}catch(FileNotFoundException e) {
+
+					System.out.println("..No FILE" );
+				}
 				
 				ec.setGridData(data);
 			} catch (NegativeArraySizeException e) {

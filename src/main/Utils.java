@@ -38,7 +38,7 @@ public class Utils {
 		}
 	
 	
-	public static String[][] openCSVto2DA(String filePath){
+	public static String[][] openCSVto2DA(String filePath) throws FileNotFoundException{
 		File dataFile = new File(filePath);
 		if(!dataFile.exists()) {
 			System.out.println("file not found "+filePath);
@@ -47,33 +47,31 @@ public class Utils {
 		Scanner scanner;
 		LinkedList<String[]> allLines = new LinkedList<>();
 		int lineLength = -1;
-		try {
-			scanner = new Scanner(dataFile);
-			while(scanner.hasNextLine()) {
-				String[] currentLineStrings  ;
-				
-				String data = scanner.nextLine();
-				currentLineStrings = data.split(COL_SEPARATOR);
-				if(lineLength==-1) {
-					lineLength = currentLineStrings.length;
-				}
-				allLines.add(currentLineStrings);
-				//System.out.println(currentLineStrings);
+		scanner = new Scanner(dataFile);
+		while(scanner.hasNextLine()) {
+			String[] currentLineStrings  ;
+			
+			String data = scanner.nextLine();
+			currentLineStrings = data.split(COL_SEPARATOR);
+			if(lineLength==-1) {
+				lineLength = currentLineStrings.length;
 			}
-			int outerArrayLength = allLines.size();
-			outerArray  = new String[outerArrayLength][lineLength];
-			int rows = outerArrayLength;
-			int cols = lineLength;
-			for (int y = 0; y < rows; y++) {
-				for (int x = 0; x < cols; x++) {
-					outerArray[y][x] = allLines.get(y)[x];
-				}
-			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			System.out.printf("File %s does not exist. \n",filePath);
-			e.printStackTrace();
+			allLines.add(currentLineStrings);
+			//System.out.println(currentLineStrings);
 		}
+		int outerArrayLength = allLines.size();
+		outerArray  = new String[outerArrayLength][lineLength];
+		int rows = outerArrayLength;
+		int cols = lineLength;
+		for (int y = 0; y < rows; y++) {
+			for (int x = 0; x < cols; x++) {
+				outerArray[y][x] = allLines.get(y)[x];
+			}
+		}
+//		catch (FileNotFoundException e) {
+//			System.out.printf("File %s does not exist. \n",filePath);
+//			e.printStackTrace();
+//		}
 		
 		return outerArray;
 		

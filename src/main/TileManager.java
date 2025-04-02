@@ -32,7 +32,7 @@ public class TileManager implements IEditableComponent{
 		newTileGrid();
 		try { initImages(); }catch(Exception e){e.printStackTrace();}
 		tilesSwappedWithBarrier = new ArrayList<>();
-		gp.editor.addComponent(this);
+		gp.addComponent(this);
 	}
 	
 	public void newTileGrid() {
@@ -41,6 +41,16 @@ public class TileManager implements IEditableComponent{
 		for (int y = 0; y < GamePanel.MAP_TILES_Y;y++) {
 			for (int x = 0; x < GamePanel.MAP_TILES_X;x++) {
 				tileGrid[y][x]=DEFAULT_TILE_KIND;
+			}
+		}
+	}
+	
+	public void fillTile(int kind) {
+		System.out.println("Creating blank tile grid");
+		this.tileGrid = new int[GamePanel.MAP_TILES_Y][GamePanel.MAP_TILES_X];
+		for (int y = 0; y < GamePanel.MAP_TILES_Y;y++) {
+			for (int x = 0; x < GamePanel.MAP_TILES_X;x++) {
+				tileGrid[y][x]=kind;
 			}
 		}
 	}
@@ -176,6 +186,9 @@ public class TileManager implements IEditableComponent{
 	
 	public void draw() {
 		
+		if (this.tileGrid==null) {
+			this.initBlank();
+		}
 		int[] ranges = getDrawableRange();
 		int startx = clamp(0,tileGrid[0].length,ranges[0]);
 		int starty = clamp(0,tileGrid.length,ranges[1]);
@@ -276,6 +289,17 @@ public class TileManager implements IEditableComponent{
 		
 	}
 	@Override
+	public void initBlank( ) {
+		//this.barrierRecords = new ArrayList<>();
+
+		newTileGrid();
+
+		//this.entityList = outerList;
+		//this.decorGrid = Utils.initBlankGrid(gp.MAP_TILES_Y, gp.MAP_TILES_X, BLANK_DECOR_TYPE);
+		//barrierGrid = Utils.initBlankGrid(GamePanel.MAP_TILES_Y, GamePanel.MAP_TILES_X, BLANK_ITEM_TYPE);
+
+	}
+	@Override
 	public boolean isModified() {
 		if (modified) {
 			modified=false;
@@ -284,7 +308,11 @@ public class TileManager implements IEditableComponent{
 		return false;
 	}
 	
-	record TileUnit(int gridX, int gridY, int kind) {};
+	record TileUnit(int gridX, int gridY, int kind) {}
+
+	public boolean nullGrid() {
+		return (null==this.tileGrid);
+	};
 	
 
 } 

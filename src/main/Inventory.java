@@ -51,11 +51,23 @@ public class Inventory {
 	
 	private void testInv() {
 		
-		addItem(4, 1);
+		addItem(1, 1);
 		selectItem(4);
 		addItem(2, 1);
 		selectItem(4);
+		addItem(3, 1);
+		selectItem(4);
+		addItem(4, 1);
+		selectItem(4);
+		addItem(5, 1);
+		selectItem(4);
+		addItem(6, 1);
+		selectItem(4);
 		addItem(7, 1);
+		selectItem(4);
+		addItem(8, 1);
+		selectItem(4);
+		addItem(9, 1);
 		selectItem(4);
 		
 	}
@@ -78,6 +90,7 @@ public class Inventory {
 		// get 2d array of item kinds and amounts
 		int amountOfItemKindsPresent = inventoryItems.size();
 		int[][] kvpOuterArray = new int[amountOfItemKindsPresent][];
+		System.out.println("amountOfItemKindsPresent "+amountOfItemKindsPresent);
 		int iter = 0;
 		Set<Entry<Integer, Integer>> es = inventoryItems.entrySet();
 		for(Entry<Integer, Integer> entry: es) {

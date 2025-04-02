@@ -99,7 +99,7 @@ public class Widget implements IEditableComponent {
 			e.printStackTrace();
 		}
 
-		gp.editor.addComponent(this);
+		gp.addComponent(this);
 	}
 
 	public int getUIDForWidgetGridCoords(int gridX, int gridY) {
@@ -442,6 +442,17 @@ public class Widget implements IEditableComponent {
 			initRecordsListFrom2DA(data);
 			initGridDataFromRecordsList();
 		}
+
+	}
+	@Override
+	public void initBlank( ) {
+		//this.barrierRecords = new ArrayList<>();
+
+		widgetGrid = Utils.initBlankGrid(gp.MAP_TILES_Y, gp.MAP_TILES_X, BLANK_ITEM_TYPE);
+
+		//this.entityList = outerList;
+		//this.decorGrid = Utils.initBlankGrid(gp.MAP_TILES_Y, gp.MAP_TILES_X, BLANK_DECOR_TYPE);
+		//barrierGrid = Utils.initBlankGrid(GamePanel.MAP_TILES_Y, GamePanel.MAP_TILES_X, BLANK_ITEM_TYPE);
 
 	}
 

@@ -40,7 +40,7 @@ public class Input implements KeyListener{
 	public void keyPressed(KeyEvent e) {
 		int key = e.getKeyCode();
 		gp.console.sendKeyEvent(e);
-		if (gp.gameState==GameState.GAME) {
+		if (true) {
 			
 			switch(key) {
 			case KeyEvent.VK_UP:
@@ -102,10 +102,10 @@ public class Input implements KeyListener{
 				gp.editor.toggleLatch();
 				break;
 			case KeyEvent.VK_F1:
-				gp.editor.saveComponentData();
+				gp.saveComponentData();
 				break;
 			case KeyEvent.VK_F2:
-				gp.editor.loadComponentData();
+				gp.loadComponentData();
 				break;
 			default:
 				System.out.println("Input no action " + e.getKeyCode());

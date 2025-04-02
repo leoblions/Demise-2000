@@ -363,7 +363,7 @@ public class Entity {
 		wpSolidArea.y = worldY;
 		currTileYX[0] = worldY / GamePanel.TILE_SIZE_PX;
 		currTileYX[1] = worldX / GamePanel.TILE_SIZE_PX;
-		if(!gp.entityManager.entityAIEnabled) {
+		if(gp.entityManager.frozen) {
 			return;
 		}
 		if (alive && chasePlayer) {

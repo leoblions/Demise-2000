@@ -68,7 +68,7 @@ public class Barrier implements IEditableComponent {
 			e.printStackTrace();
 		}
 
-		gp.editor.addComponent(this);
+		gp.addComponent(this);
 	}
 
 	public int getUIDForbarrierGridCoords(int gridX, int gridY) {
@@ -376,6 +376,14 @@ public class Barrier implements IEditableComponent {
 			initRecordsListFrom2DA(data);
 			initGridDataFromRecordsList();
 		}
+
+	}
+	
+	@Override
+	public void initBlank( ) {
+		this.barrierRecords = new ArrayList<>();
+
+		barrierGrid = Utils.initBlankGrid(GamePanel.MAP_TILES_Y, GamePanel.MAP_TILES_X, BLANK_ITEM_TYPE);
 
 	}
 

@@ -6,6 +6,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+import main.GamePanel.GameState;
 import main.GamePanel.InputAction;
 
 public class Player implements IInputListener {
@@ -191,8 +192,20 @@ public class Player implements IInputListener {
 				worldY - gp.wpScreenLocY + spriteHitboxOffsetY, 50, 50, null);
 
 	}
+	
+	private void updateFrozenState() {
+		if (gp.gameState==GameState.GAMEOVER||gp.gameState==GameState.INVENTORYSCREEN||
+				gp.gameState==GameState.PAUSED||gp.gameState==GameState.TOOLBAR) {
+			frozen=true;
+		}else {
+			frozen=false;
+		}
+	}
 
 	public void update() {
+		
+		updateFrozenState();
+		
 		if (!frozen) {
 			movePlayer();
 			calculateTileForward();
@@ -354,32 +367,38 @@ public class Player implements IInputListener {
 		velX = decay(velX);
 		velY = decay(velY);
 
-		
-
 		if (this.movesRequested[0]) {
 			this.velY = -velocity;
-			// this.movesRequested[0]=false;
 		}
 		if (this.movesRequested[1]) {
 			this.velY = velocity;
-			// this.movesRequested[1]=false;
 		}
 		if (this.movesRequested[2]) {
 			this.velX = -velocity;
-			// this.movesRequested[2]=false;
 		}
 		if (this.movesRequested[3]) {
 			this.velX = velocity;
-			// this.movesRequested[3]=false;
 		}
 		
-//		if(velX!=0&&velY!=0) {
-//			velX *= DIAGONAL_FACTOR;
-//			velY *= DIAGONAL_FACTOR;
-//		}
+
 
 		this.worldX += velX;
 		this.worldY += velY;
+
+		
+
+	}
+	public void warpPlayer(int gridX, int gridY) {
+
+
+		velX = 0;
+		velY = 0;
+
+		
+
+
+		this.worldX =gridX * GamePanel.TILE_SIZE_PX;
+		this.worldY =gridY * GamePanel.TILE_SIZE_PX;
 
 		
 

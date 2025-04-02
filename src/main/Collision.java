@@ -45,8 +45,12 @@ public class Collision {
 	}
 
 	public boolean[] collideTilePlayer() {
+		
 
 		boolean[] collisions = new boolean[] { false, false, false, false };
+		if (gp.tileManager.nullGrid()) {
+			return collisions;
+		}
 		Player p = gp.player;
 
 		// up coll

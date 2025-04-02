@@ -8,8 +8,13 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 
+import javax.naming.directory.InvalidAttributeValueException;
 import javax.swing.JPanel;
 
 public class GamePanel extends JPanel implements Runnable{
@@ -33,7 +38,8 @@ public class GamePanel extends JPanel implements Runnable{
 	
 	public static final boolean LOAD_LEVEL_ON_START = true;
 	public static final int LEVEL_TO_LOAD_ON_START = 0;
-	
+	public static final boolean CREATE_BLANK_MAP_IF_FILE_NOT_FOUND = true;
+	public ArrayList<IEditableComponent> components = new ArrayList<>();
 	public final String SETTINGS_FILE="settings.ini";
 	public static final int WIDTH = 720;
 	public static final int HEIGHT = 600;
@@ -53,6 +59,7 @@ public class GamePanel extends JPanel implements Runnable{
 	public static int wpScreenLocY =0;
 	public static int mouseX =0;
 	public static int mouseY =0;
+	public boolean loadInProgress = false;
 	//public static int[][] tileGrid;
 	public int[] visibleArea;
 	
@@ -97,6 +104,7 @@ public class GamePanel extends JPanel implements Runnable{
 	Wipe wipe;
 	Console console;
 	Projectile projectile;
+	Warp warp;
 	public enum InputAction{
 		UP,
 		DOWN,
@@ -116,10 +124,14 @@ public class GamePanel extends JPanel implements Runnable{
 	}
 	
 	public enum GameState{
-		GAME,
+		
 		PAUSED,
 		GAMEOVER,
-		MENU
+		INVENTORYSCREEN,
+		TOOLBAR,
+		CONVERSATION,
+		MENU,
+		PLAY
 	}
 	
 	private static final long serialVersionUID = 6644375181764124582L;
@@ -146,7 +158,6 @@ public class GamePanel extends JPanel implements Runnable{
                  switch(kind) {
                  case 1:
                 	 editor.paintAsset();
-                	 
                 	 break;
                  case 2:
                 	 editor.incrementAssetID(1);
@@ -158,6 +169,8 @@ public class GamePanel extends JPanel implements Runnable{
                 	break;
                 
                  }
+
+            	 hud.inventoryScreen.click(kind,mouseX,mouseY);
              }
 
              @Override
@@ -175,7 +188,7 @@ public class GamePanel extends JPanel implements Runnable{
 		hud = new HUD(this);
 		input = new Input(this);
 		this.addKeyListener(input);
-		gameState = GameState.GAME;
+		gameState = GameState.PLAY;
 		camera = new Camera(this);
 		collision = new Collision(this);
 		raycast = new Raycast(this);
@@ -194,6 +207,7 @@ public class GamePanel extends JPanel implements Runnable{
 		wipe = new Wipe(this);
 		projectile=new Projectile(this);
 
+		warp=new Warp(this);
 		console = new Console(this);
 		//rs1 = new RasterString(this, "TEST", 45, 45);
 		
@@ -204,7 +218,7 @@ public class GamePanel extends JPanel implements Runnable{
 		sound = new Sound(this);
 		if(LOAD_LEVEL_ON_START) {
 			level = LEVEL_TO_LOAD_ON_START;
-			this.editor.loadComponentData();
+			this.loadComponentData();
 			conversation.loadDataFromFileCurrentRoom();
 		}
 		
@@ -294,6 +308,10 @@ public class GamePanel extends JPanel implements Runnable{
 	public int counter=0;
 	
 	public void update() {
+		if(loadInProgress) {
+			
+			return;
+		}
 		visibleArea = Utils.getVisibleArea(this);
 		this.collision.collideTilePlayer();
 		this.tileManager.update();
@@ -336,6 +354,9 @@ public class GamePanel extends JPanel implements Runnable{
 	}
 	
 	public void draw() {
+		if(loadInProgress) {
+			return;
+		}
 		tileManager.draw();
 		decor.draw();
 		player.draw();
@@ -361,6 +382,101 @@ public class GamePanel extends JPanel implements Runnable{
 		wipe.draw();
 		console.draw();
 		
+	}
+
+
+
+	public void unpause_() {
+		player.frozen = false;
+		entityManager.frozen = false;
+		
+	}
+	public void pause_() {
+		player.frozen = true;
+		entityManager.frozen = true;
+		
+	}
+	
+	public void addComponent(IEditableComponent ec) {
+		this.components.add(ec);
+	}
+	
+	public void saveComponentData() {
+		 
+		String dataFolderName = GamePanel.LEVEL_DATA_SUBDIR;
+		Utils.createDirectoryIfNotExist(dataFolderName);
+		String currentWorkingDirectory = System.getProperty("user.dir");
+		Path dataPath = Paths.get(currentWorkingDirectory, dataFolderName);
+		System.out.println("Save component data "+ dataPath.toString());
+		String componentName;
+		for (IEditableComponent ec: this.components) {
+			componentName = ec.getEditMode().toString();
+			if(!ec.isModified()) {
+				System.out.println("Skip saving "+componentName);
+				continue;
+			}else {
+				String tilePath = ec.getDataFilename();
+				Path tilePathP = Paths.get(dataFolderName, tilePath);
+				try {
+					int[][] data = ec.getGridData();
+					if (data==null) {
+						throw new InvalidAttributeValueException("Component % componentName returned invalid data while saving.");
+					}
+					Utils.writeInt2DAToCSV(ec.getGridData(), tilePathP.toString());
+				} catch (Exception e) {
+					
+					e.printStackTrace();
+				}
+				System.out.println("Saved changes: "+componentName);
+			}
+			
+		}
+		
+
+	}
+	
+	public void loadComponentData() {
+		loadInProgress = true;
+		 
+		String dataFolderName = GamePanel.LEVEL_DATA_SUBDIR;
+		Utils.createDirectoryIfNotExist(dataFolderName);
+		String currentWorkingDirectory = System.getProperty("user.dir");
+		Path dataPath = Paths.get(currentWorkingDirectory, dataFolderName);
+		System.out.println(dataPath.toString());
+		String componentName;
+		for (IEditableComponent ec: this.components) {
+			componentName = ec.getEditMode().toString();
+			String tilePath = ec.getDataFilename();
+			Path tilePathP = Paths.get(dataFolderName, tilePath);
+			//Utils.writeInt2DAToCSV(ec.getGridData(), tilePathP.toString());
+			int[][] data=null;
+			try {
+				System.out.print("Loading component data :"+componentName);
+				try {
+
+					data = Utils.openCSVto2DAInt(tilePathP.toString());
+
+					System.out.println("..OK" );
+				}catch(FileNotFoundException e) {
+
+					System.out.println("..No FILE" );
+					if(CREATE_BLANK_MAP_IF_FILE_NOT_FOUND) {
+						System.out.println("creating blank data...");
+						ec.initBlank();
+					}
+				}
+				
+				ec.setGridData(data);
+			} catch (NegativeArraySizeException e) {
+				System.err.println("..FAIL" );
+				System.err.println("Error while loading file: "+ tilePathP.toString());
+				e.printStackTrace();
+				continue;
+			} catch (Exception e){
+				
+			}
+		}
+		loadInProgress = false;
 	}
 
 }

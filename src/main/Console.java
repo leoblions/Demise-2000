@@ -50,6 +50,47 @@ public class Console {
 		int wordAmount = splitCommand.length;
 		System.out.println("The command is "+command);
 		
+		if(wordAmount==0) {
+			System.out.println("Err: command evaluated to zero symbols");
+			return;
+		}else {
+			switch (splitCommand[0]) {
+			case "HEAL":
+				gp.player.fullHeal();
+				break;
+			case "TAI":
+				gp.entityManager.frozen =!gp.entityManager.frozen ;
+				System.out.printf("Entity frozen %b\n",gp.entityManager.frozen);
+				break;
+			case "WARP":
+				int warpID = Integer.parseInt(splitCommand[1]);
+				gp.warp.warpToID(warpID);
+				break;
+			case "WARPLOC":
+				int level = Integer.parseInt(splitCommand[1]);
+
+				int gridX = Integer.parseInt(splitCommand[2]);
+
+				int gridY = Integer.parseInt(splitCommand[3]);
+				gp.warp.warpToLocation(level, gridX, gridY);
+				break;
+			case "FILLTILE":
+				int kind = Integer.parseInt(splitCommand[1]);
+				gp.tileManager.fillTile(kind);
+				break;
+				
+			default:
+				System.err.printf("M No command found: %s\n",command);
+			}
+		}
+		
+	}
+	
+	private void runCommand_0(String command) {
+		String[] splitCommand = command.split(STRING_SEPARATOR);
+		int wordAmount = splitCommand.length;
+		System.out.println("The command is "+command);
+		
 		switch (wordAmount) {
 		case 0:
 			System.out.println("The command was empty");
@@ -60,13 +101,16 @@ public class Console {
 				gp.player.fullHeal();
 				break;
 			case "TAI":
-				gp.entityManager.entityAIEnabled =!gp.entityManager.entityAIEnabled ;
-				System.out.printf("Entity enabled %b\n",gp.entityManager.entityAIEnabled);
+				gp.entityManager.frozen =!gp.entityManager.frozen ;
+				System.out.printf("Entity frozen %b\n",gp.entityManager.frozen);
 				break;
 			default:
 				System.err.printf("0 No command found: %s\n",splitCommand[0]);
 			}
 			break;
+		case 2:
+			break;
+			
 		default:
 			System.err.printf("M No command found: %s\n",command);
 		}

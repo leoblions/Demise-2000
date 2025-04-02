@@ -135,8 +135,13 @@ public class PathFind {
 		this.pfGrid = new int[rows][cols];
 		int pgX = (gp.player.playerScreenX +TARGET_OFFSET_X )/ gp.TILE_SIZE_PX;
 		int pgY = (gp.player.playerScreenY +TARGET_OFFSET_Y )/ gp.TILE_SIZE_PX;
-		checkGrid[pgY][pgX]= true; 
-		pfGrid[pgY][pgX]= 5; 
+		try {
+
+			checkGrid[pgY][pgX]= true; 
+			pfGrid[pgY][pgX]= 5; 
+		}catch(ArrayIndexOutOfBoundsException e){
+			e.printStackTrace();
+		}
 		
 		for(int i = 0; i< PF_GRID_PASSES ; i++) {
 			pfPass(i);
@@ -211,6 +216,9 @@ public class PathFind {
 	}
 
 	public void update() {
+		if (gp.tileManager.nullGrid()) {
+			return;
+		}
 		updateWallGrid();
 		updatePFGrid();
 	}

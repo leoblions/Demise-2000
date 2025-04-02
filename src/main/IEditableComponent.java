@@ -21,6 +21,8 @@ public interface IEditableComponent {
 	
 	public void setGridData(int[][] data);
 	
+	public void initBlank();
+	
 	
 	public void paintAsset(int gridX, int gridY, int kind); 
 

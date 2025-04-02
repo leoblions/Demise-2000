@@ -5,6 +5,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import main.GamePanel.GameState;
 import main.GamePanel.InputAction;
 
 public class EntityManager implements IEditableComponent,IInputListener{
@@ -25,7 +26,8 @@ public class EntityManager implements IEditableComponent,IInputListener{
 	public final int HITBOX_OFFSET = -25;
 	public boolean playerMelee = false;
 
-	public boolean entityAIEnabled = true;
+
+	public boolean frozen = false;
 
 	public boolean drawHitbox = false;
 	public EntityManager(GamePanel gp) {
@@ -35,7 +37,7 @@ public class EntityManager implements IEditableComponent,IInputListener{
 		entityList = new ArrayList<>();
 		//this.addEntity(5, 5, 0, 0);
 		entityActivateDalay = new Delay();
-		gp.editor.addComponent(this);
+		gp.addComponent(this);
 		gp.input.addListener(this);
 
 		playerHitbox=new Rectangle();
@@ -101,8 +103,20 @@ public class EntityManager implements IEditableComponent,IInputListener{
 		
 	}
 	
+	
+	private void updateFrozenState() {
+
+		if (gp.gameState==GameState.GAMEOVER||gp.gameState==GameState.INVENTORYSCREEN||
+				gp.gameState==GameState.PAUSED||gp.gameState==GameState.TOOLBAR) {
+			frozen=true;
+		}else {
+			frozen=false;
+		}
+	}
+	
 	public void update() {
-		if(!entityAIEnabled) {
+		updateFrozenState();
+		if(frozen) {
 			return;
 		}
 		playerTouchedActorSincelastTick = false;
@@ -160,6 +174,22 @@ public class EntityManager implements IEditableComponent,IInputListener{
 		// init entity objects
 		instantiateEntityObjectsFromRecordList();
 		
+	}
+	@Override
+	public void initBlank( ) {
+		//this.barrierRecords = new ArrayList<>();
+		ArrayList<EntityRecord> outerList = new ArrayList<>();
+		
+		this.entityRecords = outerList;
+		ArrayList<Entity> el = new ArrayList<>();
+		 
+		
+		this.entityList = el;
+
+		//this.entityList = outerList;
+		//this.decorGrid = Utils.initBlankGrid(gp.MAP_TILES_Y, gp.MAP_TILES_X, BLANK_DECOR_TYPE);
+		//barrierGrid = Utils.initBlankGrid(GamePanel.MAP_TILES_Y, GamePanel.MAP_TILES_X, BLANK_ITEM_TYPE);
+
 	}
 
 	@Override

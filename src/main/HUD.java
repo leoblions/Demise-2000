@@ -39,36 +39,10 @@ public class HUD implements IStatusMessageListener, IInputListener {
 	public int gemCount = 0;
 	public HUDToolbar toolbar;
 	public HUDInventory inventoryScreen;
-	
-//	//equipped item
-//	public static final String INVENTORY_EQ_FRAME = "/images/InvHudSingle.png";
-//	public static final String INVENTORY_EQ_ITEMS = "/images/inventoryItem.png";
-//	public static final String BAR_BORDER = "/images/barBorder.png";
-//	
-//	private static final int ITEM_EQ_OFFSET_X = 10;
-//	private static final int ITEM_EQ_OFFSET_Y = 10;
-//	private static final int ITEM_EQ_FRAME_SIZE = 70;
-//	private static final int ITEM_EQ_ITEM_IMAGE_SIZE = 50;
-//	private static final int ITEM_EQ_ITEM_IMAGE_OFFSET = 10;
-//	private static final int ITEM_EQ_FRAME_ALPHA = 200;
-//	private static final int BLANK_ITEM_ID = -1;
-//	final int TOOLBAR_SLOTS = 10;
-//	int selectedSlot = 0;
-//	int selectedBoxX = 0;
-//	int selectedBoxY = 0;
+
 	private boolean[] movesRequested=new boolean[4];
 
-	
-//	private static int itemEqBrcOffsetY = 10;
-//	private static int itemEqBrcOffsetX = 0;
-//	private static int itemEqScreenY = 10;
-//	private static int itemEqScreenX = 10;
-//	private static int[] toolbarBoxOffsetsX;
-//	private static int[][] inventoryKindAmount;
-//	public static int itemEq = BLANK_ITEM_ID;
-//	public static boolean showToolbar = false;
-//	public boolean toggleToolbar = false;
-//	public static boolean showEquippedItemFrame = true;
+
 
 	public static final String BAR_BORDER = "/images/barBorder.png";
 	
@@ -80,10 +54,7 @@ public class HUD implements IStatusMessageListener, IInputListener {
 	public RasterString speakerString;
 	private final int RUN_STRNG_TEXT_OFFSET_X = 60;
 	private final int RUN_STRNG_TEXT_OFFSET_Y = 50;
-	
-	
-	// nameplate
-	
+
 	
 
 	public static final String NAMEPLATE_SPRITE = "/images/nameplate.png";
@@ -144,11 +115,7 @@ public class HUD implements IStatusMessageListener, IInputListener {
 		runString.visible=true;
 		arial16 = new Font("Arial",Font.PLAIN,16);
 		arial20 = new Font("Arial",Font.BOLD,20);
-		//mboxTextVisible=false;
-//		itemEqBrcOffsetY = GamePanel.HEIGHT -ITEM_EQ_OFFSET_Y -ITEM_EQ_FRAME_SIZE; // y position of equipped item frame
-//		itemEqBrcOffsetX = ITEM_EQ_OFFSET_X; 
-//		itemEqScreenY = itemEqBrcOffsetY + ITEM_EQ_ITEM_IMAGE_OFFSET;
-//		itemEqScreenX = itemEqBrcOffsetX + ITEM_EQ_ITEM_IMAGE_OFFSET;
+
 		initDialogTextBox();
 		initElementPositions();
 		speakerString=RasterString.RasterStringBGC(gp, "player", nameplateX+NAMEPLATE_TEXT_OFFSET, nameplateY+NAMEPLATE_TEXT_OFFSET, clear);
@@ -256,48 +223,10 @@ public class HUD implements IStatusMessageListener, IInputListener {
 		toolbar.draw();
 		inventoryScreen.draw();
 		
-		
-		// by default hide the text boxes unless another class needs them.
-		
-		//showPrompt=false; //press e
-		//showDialog=false;
+	
 		
 	}
-	
-//	public void drawInventoryToolbar() {
-//		int tbWidth = ITEM_EQ_FRAME_SIZE;
-//		int tbHeight = ITEM_EQ_FRAME_SIZE;
-//		
-//		if(showEquippedItemFrame) {
-//			int backgroundImage = 0;
-//			if(showToolbar) {
-//				
-//				backgroundImage = 1;
-//				tbWidth = ITEM_EQ_FRAME_SIZE*10;
-//				gp.g2.drawImage(images[backgroundImage],itemEqBrcOffsetX,itemEqBrcOffsetY,
-//						tbWidth,tbHeight,null);
-//				gp.g2.setStroke(borderStroke);
-//				gp.g2.setColor(selectedBoxColorBG);
-//				gp.g2.fillRect(selectedBoxX, selectedBoxY, ITEM_EQ_FRAME_SIZE, ITEM_EQ_FRAME_SIZE);
-//
-//				gp.g2.setColor(selectedBoxColor);
-//				gp.g2.drawRect(selectedBoxX, selectedBoxY, ITEM_EQ_FRAME_SIZE, ITEM_EQ_FRAME_SIZE);
-//				drawInventoryToolbarItemSprites();
-//				
-//			}else {
-//				gp.g2.drawImage(images[backgroundImage],itemEqBrcOffsetX,itemEqBrcOffsetY,
-//						tbWidth,tbHeight,null);
-//				if(itemEq>0) {
-//
-//					gp.g2.drawImage(itemImages[itemEq],itemEqScreenX,itemEqScreenY,
-//							ITEM_EQ_ITEM_IMAGE_SIZE,ITEM_EQ_ITEM_IMAGE_SIZE,null);
-//				}
-//				
-//			}
-//			
-//			
-//		}
-//	}
+
 	
 	
 	
@@ -464,14 +393,7 @@ public class HUD implements IStatusMessageListener, IInputListener {
 	
 	
 	public void mboxText(String s) {
-		//center lower message box
-//		this.mboxTextVisible = !mboxTextVisible;
-//		
-//		this.mboxTextString1 = s;
-//		this.mboxTextString2 = ("up_blocked "+gp.enemy.up_blocked);
-//		this.mboxTextString3 = ("down_blocked "+gp.enemy.down_blocked);
-//		this.mboxTextString4 = ("left_blocked "+gp.enemy.left_blocked);
-//		this.mboxTextString5 = ("right_blocked "+gp.enemy.right_blocked);
+
 		System.out.println("mboxText");
 	}
 	
@@ -521,12 +443,12 @@ public class HUD implements IStatusMessageListener, IInputListener {
 
 	public void toolbarModeToggle() {
 		toolbar.toggleActivate=true;
-		gp.player.frozen =! gp.player.frozen;
+		
 		
 	}
 	public void toggleInventoryScreen() {
 		inventoryScreen.toggleActivate=true;
-		gp.player.frozen =! gp.player.frozen;
+		
 		
 	}
 

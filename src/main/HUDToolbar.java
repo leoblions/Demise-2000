@@ -8,6 +8,8 @@ import java.awt.image.BufferedImage;
 
 import javax.imageio.ImageIO;
 
+import main.GamePanel.GameState;
+
 public class HUDToolbar {
 	// equipped item
 	public static final String INVENTORY_EQ_FRAME = "/images/InvHudSingle.png";
@@ -182,10 +184,13 @@ public class HUDToolbar {
 			showToolbar = !showToolbar;
 			inventoryKindAmount = gp.inventory.queryKindAndAmount();
 			System.out.println("Show toolbar " + showToolbar);
-
+			if (!showToolbar)  {
+				gp.gameState = GameState.PLAY;
+			}
 		}
 
 		if (showToolbar) {
+			gp.gameState=GameState.TOOLBAR;
 			selectedBoxX = ITEM_EQ_OFFSET_X + (selectedSlot * ITEM_EQ_FRAME_SIZE);
 			selectedBoxY = gp.getHeight() - ITEM_EQ_OFFSET_Y - ITEM_EQ_FRAME_SIZE;
 		}

@@ -74,7 +74,7 @@ public class Zone implements IEditableComponent , IInputListener{
 			e.printStackTrace();
 		}
 		
-		gp.editor.addComponent(this);
+		gp.addComponent(this);
 		gp.input.addListener(this);
 		actionPressBreaker=new Breaker();
 		soundEffectBreaker=new Breaker();
@@ -427,6 +427,14 @@ public int getNewUIDFromRecords( ) {
 		}
 		
 		
+	}
+	@Override
+	public void initBlank( ) {
+		//this.barrierRecords = new ArrayList<>();
+		this.zoneRecords=new ArrayList<>(); 
+
+		zoneGrid = Utils.initBlankGrid(GamePanel.MAP_TILES_Y, GamePanel.MAP_TILES_X, BLANK_ITEM_TYPE); 
+
 	}
 	@Override
 	public boolean isModified() {

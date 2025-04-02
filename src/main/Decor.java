@@ -3,6 +3,7 @@ package main;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -55,7 +56,7 @@ public class Decor implements IEditableComponent{
 		
 		
 		drawWallShadow();
-		gp.editor.addComponent(this);
+		gp.addComponent(this);
 		sizeArray = new int[bufferedImages.length];
 		for (int i = 0; i< sizeArray.length;i++) {
 			sizeArray[i] = defaultDecorSizePx;
@@ -426,6 +427,14 @@ public class Decor implements IEditableComponent{
 		}
 		
 		
+	}
+	
+	@Override
+	public void initBlank( ) {
+		//this.barrierRecords = new ArrayList<>();
+		this.decorGrid = Utils.initBlankGrid(gp.MAP_TILES_Y, gp.MAP_TILES_X, BLANK_DECOR_TYPE);
+		//barrierGrid = Utils.initBlankGrid(GamePanel.MAP_TILES_Y, GamePanel.MAP_TILES_X, BLANK_ITEM_TYPE);
+
 	}
 
 

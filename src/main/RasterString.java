@@ -6,6 +6,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -169,7 +170,12 @@ public class RasterString {
 
 	private static LinkedList<CharacterRecord> readSpriteLocationTableFile() {
 		String charmapDataPath = Paths.get(DATA_FOLDER, LETTERS_CHARMAP_FILE).toString();
-		String[][] stringsArray = Utils.openCSVto2DA( charmapDataPath);
+		String[][] stringsArray=null;
+		try {
+			stringsArray = Utils.openCSVto2DA( charmapDataPath);
+		} catch (FileNotFoundException e) { 
+			e.printStackTrace();
+		}
 		LinkedList<CharacterRecord>  recordsList = new LinkedList<>();
 				for (String[] inner : stringsArray) {
 					
