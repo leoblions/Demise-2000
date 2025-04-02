@@ -19,6 +19,7 @@ public class PathFind {
 	public final int TARGET_OFFSET_Y = 30;
 	private boolean DRAW_WALL_GRID = false;
 	private boolean DRAW_PF_NUMBERS = false;
+	private final boolean SUPPRESS_OOBE = true;
 
 	public PathFind(GamePanel gp) {
 		this.gp = gp;
@@ -140,7 +141,7 @@ public class PathFind {
 			checkGrid[pgY][pgX]= true; 
 			pfGrid[pgY][pgX]= 5; 
 		}catch(ArrayIndexOutOfBoundsException e){
-			e.printStackTrace();
+			if(!SUPPRESS_OOBE)e.printStackTrace();
 		}
 		
 		for(int i = 0; i< PF_GRID_PASSES ; i++) {

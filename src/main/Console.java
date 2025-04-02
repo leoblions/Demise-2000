@@ -4,6 +4,10 @@ import java.awt.Color;
 import java.awt.event.KeyEvent;
 
 public class Console {
+	/*
+	 * Activate the dev console with `
+	 * parses single or multi part commands to activate cheats and some editing tasks
+	 */
 	GamePanel gp;
 	private boolean active=false;
 
@@ -64,6 +68,7 @@ public class Console {
 				break;
 			case "WARP":
 				int warpID = Integer.parseInt(splitCommand[1]);
+				System.out.println("Warp to ID "+warpID);
 				gp.warp.warpToID(warpID);
 				break;
 			case "WARPLOC":

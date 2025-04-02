@@ -46,6 +46,7 @@ public class TileManager implements IEditableComponent{
 	}
 	
 	public void fillTile(int kind) {
+		modified=true;
 		System.out.println("Creating blank tile grid");
 		this.tileGrid = new int[GamePanel.MAP_TILES_Y][GamePanel.MAP_TILES_X];
 		for (int y = 0; y < GamePanel.MAP_TILES_Y;y++) {

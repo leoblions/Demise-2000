@@ -3,6 +3,9 @@ package main;
 import java.awt.Rectangle;
 
 public class Collision {
+	/*
+	 * handles a variety of collision tasks for player, projectiles, enemies, attacks
+	 */
 
 	GamePanel gp;
 	int BUFFER_ZONE = 2;

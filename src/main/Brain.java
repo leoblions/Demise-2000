@@ -8,14 +8,35 @@ import java.util.Map;
  */
 
 public class Brain implements Runnable{
+	/*
+	 * Brain maintains lists of flags.
+	 * Sets other flags when other combinations of flags are set
+	 * Triggers events based on flags
+	 */
 	GamePanel gp;
 	Thread brainThread;
 	private HashMap<String,Boolean>bflags;
 	public static final boolean BFLAG_DEFAULT_VAULE = false;
 	public static final int BRAIN_TICK_RATE = 10;
+	/*
+	 * zoneActions
+	 * 0 mapID   1 zoneID  2 actionID
+	 */
+	private final int DEF_ZONE_ACTIONS_AMOUNT = 10;
+	public int[][] zoneActions;
+	
+	
 	public Brain(GamePanel gp) {
 		this.gp=gp;
 		this.bflags=new HashMap<String, Boolean>();
+		
+		zoneActions = new int[DEF_ZONE_ACTIONS_AMOUNT][];
+		zoneActions[0] = new int[] {0,0,0};
+		zoneActions[1] = new int[] {0,1,1};
+		zoneActions[2] = new int[] {0,2,2};
+		zoneActions[3] = new int[] {0,3,3};
+		
+		// thread for processing flags asynchronously
 		brainThread = new Thread(this);
 		brainThread.start();
 		
@@ -103,6 +124,36 @@ public class Brain implements Runnable{
 			//System.out.printf("BrainsdfggggC: %d  %d \n ",entity.kind,entity.UID);
 		}
 		gp.hud.showActionPromptDelay.setDelay(60);
+		
+	}
+	
+	public void playerActivateZone(int kind, int UID) {
+		/*
+		 * zoneActions
+		 * 0 mapID   1 zoneID  2 actionID
+		 */
+		for(int[] zoneAction:zoneActions) {
+			if (null!=zoneAction && zoneAction[0]==gp.level && UID==zoneAction[1]) {
+				performActionByID(zoneAction[2]);
+			}
+		}
+		
+	}
+
+	private void performActionByID(int actionID) {
+		switch(actionID) {
+		case 0:
+			gp.warp.warpToID(1);
+			break;
+		case 1:
+			gp.warp.warpToID(1);
+			break;
+		case 2:
+			gp.warp.warpToID(3);
+			break;
+		default:
+			System.out.println("Brain: actionID not registered: "+actionID);
+		}
 		
 	}
 	

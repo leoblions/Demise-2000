@@ -197,6 +197,17 @@ public class EntityManager implements IEditableComponent,IInputListener{
 		// create entity object
 		// check if coords in use
 		// replace entity in coords if it does, append if does not
+		if(gp.editor.delete) {
+
+			int matchingIndex = getIndexEntityRecordWithMatchingGridCoord(  gridX,   gridY);
+			if(matchingIndex==-1) { 
+				System.out.println("No entity there");
+			}else {
+				System.out.println("Delete entity type: "+entityRecords.get(matchingIndex));
+				entityRecords.set(matchingIndex, null);
+				entityList.set(matchingIndex, null);
+			}
+		}
 		modified=true;
 		int UID = getNewUID();
 		Entity entity = new Entity(this.gp,  gridX,   gridY,   kind, UID);

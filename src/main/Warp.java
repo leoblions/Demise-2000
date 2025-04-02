@@ -11,11 +11,15 @@ public class Warp {
 		this.gp=gp;
 		warpZones = new int[ZONE_AMOUNT][];
 		// level, gx, gy
+		
+		//town
 		warpZones[0]=new int[] {0,3,3};
-
-		warpZones[1]=new int[] {1,3,3};
-
-		warpZones[1]=new int[] {2,3,3};
+		//farm
+		warpZones[1]=new int[] {1,99,10};
+		//mine
+		warpZones[2]=new int[] {2,3,3};
+		//forest
+		warpZones[3]=new int[] {2,3,3};
 		
 		loadWarpsFromFile();
 	}
@@ -28,6 +32,7 @@ public class Warp {
 		try {
 			int[] locationData = warpZones[warpID];
 			warpToLocation(locationData[0], locationData[1], locationData[2]);
+			System.out.printf("Warp: warp to ID %d, OK\n",warpID);
 		}catch(ArrayIndexOutOfBoundsException e) {
 			System.out.printf("Warp can't warp to ID %d, out of array bounds\n",warpID);
 		}catch(NullPointerException e) {
@@ -44,6 +49,7 @@ public class Warp {
 		gp.conversation.loadDataFromFileCurrentRoom();
 		gp.player.warpPlayer(gridX,gridY);
 		GamePanel.godMode = gm;
+		gp.camera.recenterCamera();
 	}
 	
 	

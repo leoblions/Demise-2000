@@ -76,51 +76,7 @@ public class Decor implements IEditableComponent{
 	
 	
 
-	public void randomPlaceDecor(int amount, int kind, int tileKind) {
-		int itemsPlaced = 0;
-		this.random = new Random();
-		int tmp = 0;
-		int height, width;
-		boolean keepTrying = false;
-		// loop through tileGrid
-		// check if tile is colliding or open
-		// use random number to decide place item or not
-		do {
-			for (int y = 1; y < GamePanel.MAP_TILES_Y; y++) {
-				for (int x = 1; x < GamePanel.MAP_TILES_X; x++) {
-					tmp = random.nextInt(RANDOM_ITEM_DENSITY);
-//					if(gp.tileGrid[y][x].kind!=tileKind || tmp!=10 ||
-//							(x <  MINIMUM_RANDOM_GRIDX &&
-//							y < MINIMUM_RANDOM_GRIDX)
-//							
-//							) {
-//						continue;
-//					}
-					if (gp.tileManager.getTileYX(y, x)  == tileKind && tmp == 10) {
-						try {
-							// get height and width of image
-							height = bufferedImages[kind].getHeight();
-							width = bufferedImages[kind].getWidth();
-							// place new decor object on the matrix
-							decorGrid[y][x] = kind;
-						} catch (Exception e) {
-							System.out.println(" randomPlaceDecor failed" + itemsPlaced);
-
-						}
-						itemsPlaced++;
-					} else {
-
-					}
-
-					if (itemsPlaced >= amount)
-						break;
-				}
-				if (itemsPlaced >= amount)
-					break;
-			}
-		} while (keepTrying);
-
-	}
+	
 
 	public void drawWallShadow() {
 		int kind, aboveKind;
@@ -268,50 +224,11 @@ public class Decor implements IEditableComponent{
 
 	}
 
-	public void addTree(int tileX, int tileY) {
-		;
-		decorGrid[tileY][tileX] = DecorType.LOLLIPOP_TREE.ordinal();
-	}
+	
 
-	public void drawRectOfDecor(
 
-			int startx, int starty, int width, int height, int kind) {
-		if (startx < 0)
-			startx = 0;
-		if (starty < 0)
-			starty = 0;
 
-		int endx = startx + width;
-		int endy = starty + height;
-		for (int x = startx; x < endx; x++) {
-			for (int y = starty; y < endy; y++) {
-				// addTree( x, y);
-				
-				decorGrid[y][x] = kind;
-			}
 
-		}
-
-	}
-
-	private void drawRectOfDecorStretch(int startx, int starty, int width, int height, int kind) {
-		if (startx < 0)
-			startx = 0;
-		if (starty < 0)
-			starty = 0;
-
-		int endx = startx + width;
-		int endy = starty + height;
-		for (int x = startx; x < endx; x++) {
-			for (int y = starty; y < endy; y++) {
-				// addTree( x, y);
-				
-				decorGrid[y][x] = kind;
-			}
-
-		}
-
-	}
 
 	public void update() {
 		 updateDrawRange();

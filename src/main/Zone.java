@@ -13,6 +13,14 @@ import java.util.Random;
 import main.GamePanel.InputAction;
 
 public class Zone implements IEditableComponent , IInputListener{
+	/*
+	 * Zones are cells marked to activate something if the player touches it (0)
+	 * or presses action while touching it(0)
+	 * 
+	 * Resulting actions can be dialogues, warps, added items, set flags in brain or a combination thereof
+	 * determined by Brain
+	 * 
+	 */
 	private static final String DATA_FILE_PREFIX = "zone";
 	private static final String DATA_FILE_SUFFIX = ".csv";
 	public final int ITEM_SCALE_PX = 25;
@@ -36,7 +44,7 @@ public class Zone implements IEditableComponent , IInputListener{
 	ArrayList<ZoneRecord> zoneIgnoreList; // temporarily deactivated zones
 	Rectangle testRectangle;
 	private boolean modified;
-	Color highlightColor = new Color(100, 50, 100, 100);
+	Color highlightColor = new Color(100, 100, 50, 100);
 	Breaker soundEffectBreaker ;
 	Breaker actionPressBreaker;
 	boolean activateZoneFlag = false;
@@ -82,7 +90,7 @@ public class Zone implements IEditableComponent , IInputListener{
 	
 	
 	
-	public int getUIDForzoneGridCoords(int gridX, int gridY) {
+	public int getUIDForzoneGridCoords_0(int gridX, int gridY) {
 		for (ZoneRecord zr: zoneRecords) {
 			if (gridX==zr.gridX()&&gridY==zr.gridY()) {
 				return zr.UID();
@@ -162,37 +170,65 @@ public class Zone implements IEditableComponent , IInputListener{
 		int pgY = gp.player.worldY/ GamePanel.TILE_SIZE_PX;
 		int kind = zoneGrid[pgY][pgX];
 		//gp.hud.showPrompt=false;
-		if (kind!=BLANK_ITEM_TYPE) {
-			//zoneGrid[pgY][pgX] = BLANK_ITEM_TYPE;
-			//System.out.println("Got item "+kind);
-			int UID = getUIDForzoneGridCoords(  pgY,   pgX);
-			touchZoneAction(kind,UID);
-			if (kind==1) {
-				gp.hud.showActionPromptDelay.setDelay(60);
-			}
-			
-		}else {
+		int UID;
+		//System.out.println("zone kind "+kind);
+		switch(kind) {
+		case -1:
+			// blank
 			actionPressBreaker.reset();
 			soundEffectBreaker.reset();
-		}
+			break;
+		case 0:
+			// on touch
+			UID = getUIDForzoneGridCoords(  pgX,   pgY);
+			touchZoneAction(kind,UID);
+			break;
+		case 1:
+			// on activate
+			UID = getUIDForzoneGridCoords(  pgX,   pgY);
+			touchZoneAction(kind,UID);
 
+			gp.hud.showActionPromptDelay.setDelay(60);
+			break;
+		}
 		
-		
-		
-		
-				
 	}
 	
-	public void touchZoneAction(int item, int UID) {
-		//System.out.println("Player touching zone "+ item);
-		//gp.hud.showPrompt;
+
+	public int getUIDForzoneGridCoords(int gridX, int gridY) {
+		//0 gridX, 1 gridY, 2 width, 3 height, 4 kind, 5 UID
+		//System.out.println("Zone.. Player gx "+gridX+ " gy "+gridY);
+		for (ZoneRecord zr: zoneRecords) {
+			int x1 = zr.gridX();
+			int x2 = zr.gridX() + zr.width();
+			int y1 = zr.gridY();
+			int y2 = zr.gridY() + zr.height();
+			if ((gridX>=x1&&gridX<=x2) && (gridY>=y1&&gridY<=y2)) {
+				return zr.UID();
+			}
+		}
+		return -1;
+	
+		
+	}
+	
+	
+	public void touchZoneAction(int kind, int UID) {
+		/*
+		 * type 0 activates if player touches it
+		 * type anything else activates if player presses action while touching
+		 */
 		gp.hud.showActionPromptDelay.setDelay(60);
 		
-		;
-		if(activateZoneFlag && actionPressBreaker.get() && soundEffectBreaker.get()) {
+		if (kind==0) {
+			gp.brain.playerActivateZone(  kind,   UID);
+		}else if(activateZoneFlag && actionPressBreaker.get() && soundEffectBreaker.get()) {
 			gp.sound.clipPlayFlags[2]=true;
+			System.out.println("player activate zone kind"+kind+" UID "+UID);
 			//actionPressBreaker.reset();
 			//gp.hud.showPrompt=false;
+
+			gp.brain.playerActivateZone(  kind,   UID);
 		}
 		
 		
@@ -229,7 +265,7 @@ public class Zone implements IEditableComponent , IInputListener{
 				
 				screenX = worldX - TopLeftCornerX;
 				screenY = worldY - TopLeftCornerY;
-				
+				gp.g2.setColor(highlightColor);
 				gp.g2.fillRect(
 						screenX,
 						screenY,
