@@ -79,16 +79,27 @@ public class Input implements KeyListener{
 				notifyListeners(InputAction.MUTE);
 				break;
 			case KeyEvent.VK_Q:
-				gp.hud.toolbarModeToggle();
+				if(gp.gameState==GameState.PLAY||gp.gameState==GameState.INVENTORYSCREEN||gp.gameState==GameState.TOOLBAR) {
+
+
+					gp.hud.toolbarModeToggle();
+				}
 				
 				break;
 			case KeyEvent.VK_I:
-				notifyListeners(InputAction.INVENTORY);
-				gp.hud.toggleInventoryScreen();
+				if(gp.gameState==GameState.PLAY||gp.gameState==GameState.INVENTORYSCREEN) {
+
+					notifyListeners(InputAction.INVENTORY);
+					gp.hud.toggleInventoryScreen();
+				}
 				
 				break;
 			case KeyEvent.VK_BACK_QUOTE:
-				gp.console.requestActivate();
+				if(gp.gameState==GameState.PLAY||gp.gameState==GameState.INVENTORYSCREEN||gp.gameState==GameState.PAUSED) {
+
+
+					gp.console.requestActivate();
+				}
 				
 				break;
 			case KeyEvent.VK_NUMPAD0:

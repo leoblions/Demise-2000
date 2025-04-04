@@ -3,6 +3,8 @@ package main;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 
+import main.GamePanel.GameState;
+
 public class Console {
 	/*
 	 * Activate the dev console with `
@@ -53,7 +55,7 @@ public class Console {
 		String[] splitCommand = command.split(STRING_SEPARATOR);
 		int wordAmount = splitCommand.length;
 		System.out.println("The command is "+command);
-		
+		int kind;
 		if(wordAmount==0) {
 			System.out.println("Err: command evaluated to zero symbols");
 			return;
@@ -67,11 +69,13 @@ public class Console {
 				System.out.printf("Entity frozen %b\n",gp.entityManager.frozen);
 				break;
 			case "WARP":
+				if(wordAmount!=2) break;
 				int warpID = Integer.parseInt(splitCommand[1]);
 				System.out.println("Warp to ID "+warpID);
 				gp.warp.warpToID(warpID);
 				break;
 			case "WARPLOC":
+				if(wordAmount!=3) break;
 				int level = Integer.parseInt(splitCommand[1]);
 
 				int gridX = Integer.parseInt(splitCommand[2]);
@@ -80,8 +84,51 @@ public class Console {
 				gp.warp.warpToLocation(level, gridX, gridY);
 				break;
 			case "FILLTILE":
-				int kind = Integer.parseInt(splitCommand[1]);
+				 kind = Integer.parseInt(splitCommand[1]);
 				gp.tileManager.fillTile(kind);
+				break;
+			case "TILE":
+				gp.editor.editMode=EditMode.TILE;
+				if(wordAmount!=2) break;
+				kind = Integer.parseInt(splitCommand[1]);
+				gp.editor.setAssetID(  kind) ;
+				break;
+			case "DECOR":
+				gp.editor.editMode=EditMode.DECOR;
+				if(wordAmount!=2) break;
+				kind = Integer.parseInt(splitCommand[1]);
+				gp.editor.setAssetID(  kind) ;
+				break;
+			case "BARRIER":
+				gp.editor.editMode=EditMode.BARRIER;
+				if(wordAmount!=2) break;
+				kind = Integer.parseInt(splitCommand[1]);
+				gp.editor.setAssetID(  kind) ;
+				break;
+			case "WIDGET":
+				gp.editor.editMode=EditMode.WIDGET;
+				if(wordAmount!=2) break;
+				kind = Integer.parseInt(splitCommand[1]);
+				gp.editor.setAssetID(  kind) ;
+				break;
+			case "ENTITY":
+				gp.editor.editMode=EditMode.ENTITY;
+				if(wordAmount!=2) break;
+				kind = Integer.parseInt(splitCommand[1]);
+				gp.editor.setAssetID(  kind) ;
+				break;
+			case "GRID":
+				
+				String locationString = String.format("Player gridX: %d, gridY: %d\n",gp.player.tilePlayer[0],gp.player.tilePlayer[1]);
+				System.out.println(locationString);
+				break;
+			case "LOC":
+				String locationStringM = String.format("Player worldX: %d, worldY: %d\n",gp.player.worldX,gp.player.worldY);
+				System.out.println(locationStringM);
+				break;
+			case "LEVEL":
+				String levelString = String.format("Current level is: %d\n",gp.level);
+				System.out.println(levelString);
 				break;
 				
 			default:
@@ -160,7 +207,11 @@ public class Console {
 	
 	public void requestActivate() {
 	if(!active && isReset) {
+
+		gp.gameState=GameState.PAUSED;
 		active = true;
+	}else {
+		gp.gameState=GameState.PLAY;
 	}
 	}
 	
@@ -171,8 +222,10 @@ public class Console {
 
 	public void toggleDevConsole() {
 		if(!active) {
-
+			gp.gameState=GameState.PAUSED;
 			this.active = true;
+		}else {
+			gp.gameState=GameState.PLAY;
 		}
 		
 	}

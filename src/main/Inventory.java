@@ -8,6 +8,11 @@ public class Inventory {
 	private final int BLANK_ITEM_KIND = -1;
 	private HashMap<Integer,Integer>inventoryItems;
 	GamePanel gp;
+
+	public final int WOOD = 24;
+	public final int STONE = 25;
+	public final int IRON = 26;
+	
 	public int activeItem = BLANK_ITEM_KIND;
 	public final int BLANK_PRIJECTILE_TYPE = -1;
 	public int projectileType = -1;
@@ -17,8 +22,8 @@ public class Inventory {
 		inventoryItems = new HashMap<Integer, Integer>();
 		testInv();
 		itemNames = new String[]{
-				"briefcase blue",
-				"briefcase brown",
+				"blue briefcase",
+				"brown briefcase ",
 				"bucket",
 				"gold coin",
 				"diamond",
@@ -41,7 +46,10 @@ public class Inventory {
 				"watering can",
 				"bear trap",
 				"pickaxe",
-				"cherry bomb"
+				"cherry bomb",
+				"wood",
+				"stone",
+				"iron"
 				
 				
 				

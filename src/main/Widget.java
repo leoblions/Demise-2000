@@ -27,9 +27,15 @@ public class Widget implements IEditableComponent {
 	public final int BLANK_ITEM_TYPE = -1;
 	public final int LEAF_PARTICLE = 0;
 	public final int ROCK_PARTICLE = 3;
+
+	public final int WOOD_PARTICLE = 4;
 	public final int PARTICLE_OFFSET_Y = 55;
+	public final int STICK1 = 16;
+	public final int STICK2 = 17;
 	public final int PLANT1 = 18;
 	public final int PLANT2 = 19;
+	public final int STUMP1 = 20;
+	public final int STUMP2 = 21;
 	public final int ROCK1 = 22;
 	public final int ROCK2 = 23;
 	public final int BARREL1 = 4;
@@ -191,12 +197,23 @@ public class Widget implements IEditableComponent {
 					break;
 				case ROCK1, ROCK2:
 					gp.particle.addParticle(wX, wY, ROCK_PARTICLE);
-
+					gp.inventory.addItem(gp.inventory.STONE, 1);
+					widgetGrid[gridY][gridX] = -1;
+					break;
+				case STICK1, STICK2:
+					gp.particle.addParticle(wX, wY, WOOD_PARTICLE);
+				gp.inventory.addItem(gp.inventory.WOOD, 2);
+					widgetGrid[gridY][gridX] = -1;
+					break;
+				case STUMP1, STUMP2:
+					gp.particle.addParticle(wX, wY, WOOD_PARTICLE);
+					gp.inventory.addItem(gp.inventory.WOOD, 2);
 					widgetGrid[gridY][gridX] = -1;
 					break;
 				case BARREL1:
 					gp.particle.addParticle(wX, wY, ROCK_PARTICLE);
-
+					gp.inventory.addItem(gp.inventory.WOOD, 1);
+					gp.inventory.addItem(gp.inventory.IRON, 1);
 					widgetGrid[gridY][gridX] = BARREL2;
 					break;
 				default:

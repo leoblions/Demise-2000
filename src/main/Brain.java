@@ -36,6 +36,8 @@ public class Brain implements Runnable{
 		zoneActions[2] = new int[] {0,2,2};
 		zoneActions[3] = new int[] {0,3,3};
 		
+		zoneActions[4] = new int[] {1,0,4};
+		
 		// thread for processing flags asynchronously
 		brainThread = new Thread(this);
 		brainThread.start();
@@ -150,6 +152,12 @@ public class Brain implements Runnable{
 			break;
 		case 2:
 			gp.warp.warpToID(3);
+			break;
+		case 3:
+			gp.warp.warpToID(4);
+			break;
+		case 4:
+			gp.warp.warpToID(4);
 			break;
 		default:
 			System.out.println("Brain: actionID not registered: "+actionID);

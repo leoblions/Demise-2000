@@ -106,7 +106,7 @@ public class Particle {
 
 	private void initImages() {
 		try {
-			bufferedImages = new Utils().spriteSheetCutter(SPRITE_SHEET, 4, 4, 50, 50);
+			bufferedImages = new Utils().spriteSheetCutter(SPRITE_SHEET, 4, 6, 50, 50);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -178,6 +178,14 @@ public class Particle {
 			case 3:
 				fmin = 12;
 				fmax = 15;
+				break;
+			case 4:
+				fmin = 16;
+				fmax = 19;
+				break;
+			case 5:
+				fmin = 20;
+				fmax = 23;
 				break;
 			default:
 				fmin = 0;

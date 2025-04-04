@@ -57,11 +57,6 @@ public class Editor {
 		return "Asset: "+ String.format(" %d", selectedAssetID);
 	}
 
-	public void scrollAssetID(int direction) {
-		if (direction == 1) {
-
-		}
-	}
 
 	public void updateStrings() {
 		editModeString = this.editMode.toString();
@@ -70,13 +65,20 @@ public class Editor {
 
 	public void incrementAssetID(int delta) {
 		int tempAssetID = delta + selectedAssetID;
-		IEditableComponent ec ;
-		//this.selectedAssetID = this.activeComponent.cycleAssetID(tempAssetID);
-		this.activeComponent = this.getActiveComponent();
-		System.out.println("cycle component id A");
+		IEditableComponent ec ; 
+		this.activeComponent = this.getActiveComponent(); 
 		if (this.activeComponent!=null && this.activeComponent.validateAssetID(tempAssetID)){
-			this.selectedAssetID = tempAssetID;
-			System.out.println("cycle component id B");
+			this.selectedAssetID = tempAssetID; 
+		}
+		this.updateStrings();
+	}
+	
+	public void setAssetID(int assetID) { 
+		int tempAssetID = assetID;
+		IEditableComponent ec ; 
+		this.activeComponent = this.getActiveComponent(); 
+		if (this.activeComponent!=null && this.activeComponent.validateAssetID(tempAssetID)){
+			this.selectedAssetID = tempAssetID; 
 		}
 		this.updateStrings();
 	}

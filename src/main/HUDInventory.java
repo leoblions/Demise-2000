@@ -419,7 +419,7 @@ public class HUDInventory {
 	}
 
 	public void update() {
-		if (toggleActivate) {
+		if (toggleActivate ) {
 			toggleActivate = false;
 			showInventoryScreen = !showInventoryScreen;
 			inventoryKindAmount = gp.inventory.queryKindAndAmount();
@@ -433,7 +433,7 @@ public class HUDInventory {
 
 		}
 
-		if (showInventoryScreen) {
+		if (showInventoryScreen &&(gp.gameState == GameState.PLAY || gp.gameState == GameState.TOOLBAR|| gp.gameState == GameState.INVENTORYSCREEN)) {
 			gp.gameState = GameState.INVENTORYSCREEN;
 			selectedBoxX = ITEM_EQ_OFFSET_X + (selectedSlot * ITEM_EQ_FRAME_SIZE);
 			selectedBoxY = gp.getHeight() - ITEM_EQ_OFFSET_Y - ITEM_EQ_FRAME_SIZE;

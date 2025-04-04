@@ -15,11 +15,13 @@ public class Warp {
 		//town
 		warpZones[0]=new int[] {0,3,3};
 		//farm
-		warpZones[1]=new int[] {1,99,10};
+		warpZones[1]=new int[] {1,99,17};
 		//mine
 		warpZones[2]=new int[] {2,3,3};
 		//forest
 		warpZones[3]=new int[] {2,3,3};
+		//to town L
+		warpZones[4]=new int[] {0,1,17};
 		
 		loadWarpsFromFile();
 	}
