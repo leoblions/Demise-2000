@@ -46,6 +46,7 @@ public class GamePanel extends JPanel implements Runnable{
 	public static final int TILE_SIZE_PX = 50; 
 	public static final int MAP_TILES_X = 100; 
 	public static final int MAP_TILES_Y = 100;
+	private static final long MENU_DEBOUNCE_INTERVAL_MS = 1000L;
 	public static final String LEVEL_DATA_SUBDIR = "leveldata";
 	
 	// variables relating to camera
@@ -62,6 +63,7 @@ public class GamePanel extends JPanel implements Runnable{
 	public boolean loadInProgress = false;
 	//public static int[][] tileGrid;
 	public int[] visibleArea;
+	public TimeDelay stateChangeDelay = new TimeDelay(MENU_DEBOUNCE_INTERVAL_MS);
 	
 	/**
 	 * flag to tell certain methods not to run until map tiles are done being placed
@@ -105,6 +107,9 @@ public class GamePanel extends JPanel implements Runnable{
 	Console console;
 	Projectile projectile;
 	Warp warp;
+	Plant plant;
+	StackMenu mainMenu;
+	
 	public enum InputAction{
 		UP,
 		DOWN,
@@ -206,9 +211,12 @@ public class GamePanel extends JPanel implements Runnable{
 		barrier = new Barrier(this);
 		wipe = new Wipe(this);
 		projectile=new Projectile(this);
+		mainMenu=new StackMenu(this,0);
 
 		warp=new Warp(this);
 		console = new Console(this);
+
+		plant = new Plant(this);
 		//rs1 = new RasterString(this, "TEST", 45, 45);
 		
 		
@@ -335,6 +343,9 @@ public class GamePanel extends JPanel implements Runnable{
 		wipe.update();
 		console.update();
 		projectile.update();
+		plant.update();
+
+		mainMenu.update();
 		Point p = this.getMousePosition();
 		if (p != null){
 			this.mouseX = (int) p.getX();
@@ -359,9 +370,11 @@ public class GamePanel extends JPanel implements Runnable{
 		}
 		tileManager.draw();
 		decor.draw();
+		plant.draw();
 		player.draw();
 		entityManager.draw();
 		decor.drawLower();
+		plant.drawLower();
 		
 		raycast.draw();
 		
@@ -382,6 +395,9 @@ public class GamePanel extends JPanel implements Runnable{
 		wipe.draw();
 		console.draw();
 		
+
+		mainMenu.draw();
+		
 	}
 
 
@@ -399,6 +415,24 @@ public class GamePanel extends JPanel implements Runnable{
 	
 	public void addComponent(IEditableComponent ec) {
 		this.components.add(ec);
+	}
+	
+	public boolean requestStateChange(GameState state) {
+		if(stateChangeDelay.check()) {
+			this.gameState=state;
+			return true;
+		}else {
+			return false;
+		}
+		
+	}
+	
+	public void toggleInGameMenu() {
+		if (gameState==GameState.MENU) {
+			gameState=GameState.PLAY;
+		}else {
+			gameState=GameState.MENU;
+		}
 	}
 	
 	public void saveComponentData() {
@@ -434,6 +468,8 @@ public class GamePanel extends JPanel implements Runnable{
 		
 
 	}
+	
+	
 	
 	public void loadComponentData() {
 		loadInProgress = true;

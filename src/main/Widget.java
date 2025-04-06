@@ -411,6 +411,9 @@ public class Widget implements IEditableComponent {
 	@Override
 	public void paintAsset(int gridX, int gridY, int kind) {
 		modified = true;
+		if(gp.editor.delete) {
+			kind = -1;
+		}
 		try {
 			this.widgetGrid[gridY][gridX] = kind;
 			addRecordOrReplace(gridX, gridY, kind);

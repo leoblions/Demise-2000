@@ -1,10 +1,8 @@
 package main;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Random;
 
 
@@ -13,60 +11,58 @@ import java.util.Random;
 public class Plant implements IEditableComponent{
 	private static final String DATA_FILE_PREFIX = "decor";
 	private static final String DATA_FILE_SUFFIX = ".csv";
-	private static final String SPRITE_SHEET_URL = "/images/decorCommon.png";
-	private static final String SPRITE_TREE_URL = "/images/decorTree100.png";
-	private static final String SPRITE_COMMON2_URL = "/images/decorCommercial.png";
+	private static final String SPRITE_SHEET_URL = "/images/plantA.png";
+	//private static final String SPRITE_TREE_URL = "/images/decorTree100.png";
+	//private static final String SPRITE_COMMON2_URL = "/images/decorCommercial.png";
 	private static int[] sizeArray;
 	GamePanel gp;
 	BufferedImage[] bufferedImages;
 	Random random;
-	public int[][] decorGrid;
-	public final int maxDecorOnScreen = 200;
+	public int[][] plantGrid;
+	public final int maxPlantOnScreen = 200;
 
 	public final int TREE_DECOR_SIZE = 100;
 	public final int COMMON_DECOR_SIZE = 50;
-	public final int defaultDecorSizePx = 50;
-	public final int defaultDecorSizePxX = 25;
-	public final int defaultDecorSizePxY = 25;
+	public final int defaultPlantSizePx = 50;
+	public final int defaultPlantSizePxX = 25;
+	public final int defaultPlantSizePxY = 25;
 	public final int minTilesDrawX = 16;
 	public final int minTilesDrawY = 12;
 	public final int RANDOM_ITEM_DENSITY = 50;
 	public final int MINIMUM_RANDOM_GRIDX = 300;
 	public final int Y_CUTOFF_OFFSET = 40;
-	//public Dictionary<DecorType, Integer> kindMap;
+	//public Dictionary<PlantType, Integer> kindMap;
 	int drawableRange;
 	public final int WALL_TILE_TYPE = 1;
-	public final int BLANK_DECOR_TYPE = -1;
+	public final int BLANK_ASSET_TYPE = -1;
 	private boolean modified = false;
 	private int xstart, xend, ystart, yend, yCutoff;
 
 	public Plant(GamePanel gp) {
 		this.gp = gp;
 
-		//decorGrid = new int[gp.MAP_TILES_Y][gp.MAP_TILES_X];
-		decorGrid = Utils.initBlankGrid(gp.MAP_TILES_Y, gp.MAP_TILES_X, BLANK_DECOR_TYPE);
+		//plantGrid = new int[GamePanel.MAP_TILES_Y][GamePanel.MAP_TILES_X];
+		this.plantGrid = (new Utils()).initBlankGridD(GamePanel.MAP_TILES_Y, GamePanel.MAP_TILES_X, BLANK_ASSET_TYPE);
 		//BufferedImage[] decorImages = new BufferedImage[10];
 		try {
-			initDecorImages();
+			initPlantImages();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		
-		
-		drawWallShadow();
 		gp.addComponent(this);
 		sizeArray = new int[bufferedImages.length];
 		for (int i = 0; i< sizeArray.length;i++) {
-			sizeArray[i] = defaultDecorSizePx;
+			sizeArray[i] = defaultPlantSizePx;
 		}
 		//sizes to render sprites by kind
-		for(int i = 0;i< 16;i++) {
+		for(int i = 0;i< 8;i++) {
 			sizeArray[i]=COMMON_DECOR_SIZE;
 			
 		}
-		for(int i = 16;i< 20;i++) {
+		for(int i = 8;i< 9;i++) {
 			sizeArray[i]= TREE_DECOR_SIZE;
 			
 		}
@@ -77,45 +73,18 @@ public class Plant implements IEditableComponent{
 	
 
 	
-
-	public void drawWallShadow() {
-		int kind, aboveKind;
-		for (int y = 0; y < GamePanel.MAP_TILES_Y - 1; y++) {
-			for (int x = 0; x < GamePanel.MAP_TILES_X; x++) {
-				// place shadows on wall tiles
-				try {
-					kind = gp.tileManager.getTileYX(y,x);
-					aboveKind = gp.tileManager.getTileYX(y+1, x);
-					boolean solid = Collision.tileKindIsSolid(kind);
-					boolean solidAbove = Collision.tileKindIsSolid(aboveKind);
-					if (true == solid && !solidAbove) {
-						decorGrid[y][x] = kind;
-					}
-				} catch (Exception e) {
-					// throw away index oob exceptions
-				}
-
-			}
-
-		}
+	private void initPlantImages() throws IOException {
+		BufferedImage[] commonPlant = new Utils().spriteSheetCutter(SPRITE_SHEET_URL, 4, 2, 50, 50);
+		BufferedImage[] bigPlant = new Utils().spriteSheetCutter(SPRITE_SHEET_URL, 2, 2, 100, 100);
+		//BufferedImage[] treePlant = new Utils().spriteSheetCutter(SPRITE_TREE_URL, 2, 2, 100, 100);
+		//BufferedImage[] common2Plant = new Utils().spriteSheetCutter(SPRITE_COMMON2_URL, 4, 4, 50, 50);
+		this.bufferedImages = Utils.appendArray(commonPlant,  Arrays.copyOfRange(bigPlant, 2, 4));
+		//this.bufferedImages = Utils.appendArray(bufferedImages, common2Plant);
+		//this.bufferedImages = commonPlant;
+	
 
 	}
 
-	public void putDecorOnTileType(int kind, DecorType dtype) {
-		// int kind;
-		for (int y = 0; y < gp.MAP_TILES_Y - 1; y++) {
-			for (int x = 0; x < gp.MAP_TILES_X; x++) {
-				// place shadows on wall tiles
-				kind = gp.tileManager.getTileYX(y, x) ;
-				if (kind == WALL_TILE_TYPE && gp.tileManager.getTileYX(y+1, x)  != WALL_TILE_TYPE) {
-
-					decorGrid[y][x] = kind;
-				}
-
-			}
-		}
-
-	}
 
 	public int clamp(int minval, int maxval, int test) {
 		if (test < minval)
@@ -132,10 +101,10 @@ public class Plant implements IEditableComponent{
 	 */
 	public int[] gridRange() {
 		int[] range = new int[4];
-		range[0] = gp.wpScreenLocX / gp.TILE_SIZE_PX;
-		range[1] = gp.wpScreenLocY / gp.TILE_SIZE_PX;
-		range[2] = (gp.WIDTH + gp.wpScreenLocX) / gp.TILE_SIZE_PX;
-		range[3] = (gp.HEIGHT + gp.wpScreenLocY) / gp.TILE_SIZE_PX;
+		range[0] = GamePanel.wpScreenLocX / GamePanel.TILE_SIZE_PX;
+		range[1] = GamePanel.wpScreenLocY / GamePanel.TILE_SIZE_PX;
+		range[2] = (GamePanel.WIDTH + GamePanel.wpScreenLocX) / GamePanel.TILE_SIZE_PX;
+		range[3] = (GamePanel.HEIGHT + GamePanel.wpScreenLocY) / GamePanel.TILE_SIZE_PX;
 		return range;
 	}
 	
@@ -152,35 +121,40 @@ public class Plant implements IEditableComponent{
 			ystart = 0;
 		if (xstart < 0)
 			xstart = 0;
-		if (xend > gp.MAP_TILES_X)
-			xend = gp.MAP_TILES_X;
-		if (yend > gp.MAP_TILES_Y)
-			yend = gp.MAP_TILES_Y;
+		if (xend > GamePanel.MAP_TILES_X)
+			xend = GamePanel.MAP_TILES_X;
+		if (yend > GamePanel.MAP_TILES_Y)
+			yend = GamePanel.MAP_TILES_Y;
 		
 	}
-
+	
 	public void draw() {
-		// render tiles above yCutoff first, then render Actors, then render lower Decor Sprites on top
+		drawTop();
+	}
+
+	public void drawTop() {
+		// render tiles above yCutoff first, then render Actors, then render lower Plant Sprites on top
 
 		int screenX, screenY;
-		clamp(0, gp.MAP_TILES_X, xend);
-		clamp(0, gp.MAP_TILES_Y, yend);
+		clamp(0, GamePanel.MAP_TILES_X, xend);
+		clamp(0, GamePanel.MAP_TILES_Y, yend);
 		yCutoff = (gp.player.worldY+Y_CUTOFF_OFFSET)/GamePanel.TILE_SIZE_PX;
 
-		clamp(0, gp.MAP_TILES_Y, yCutoff);
+		clamp(0, GamePanel.MAP_TILES_Y, yCutoff);
 
 		for (int x = xstart; x < xend; x++) {
 			for (int y = ystart; y < yCutoff; y++) {
-				int kind = decorGrid[y][x];
+				int kind = plantGrid[y][x];
 				//System.err.println(kind);
-				if (kind != BLANK_DECOR_TYPE) {
+				if (kind != BLANK_ASSET_TYPE) {
 					// System.out.println("tree");
 					int worldX = x * GamePanel.TILE_SIZE_PX;
 					int worldY = y * GamePanel.TILE_SIZE_PX;
 					screenX = worldX - GamePanel.wpScreenLocX;
 					screenY = worldY - GamePanel.wpScreenLocY;
 					int size = sizeArray[kind];
-					gp.g2.drawImage(bufferedImages[kind], screenX, screenY, size,
+					 
+					GamePanel.g2.drawImage(bufferedImages[kind], screenX, screenY, size,
 							size, null);
 
 				}
@@ -192,29 +166,30 @@ public class Plant implements IEditableComponent{
 	
 	public void drawLower() {
 
-		// render tiles above yCutoff first, then render Actors, then render lower Decor Sprites on top
+		// render tiles above yCutoff first, then render Actors, then render lower Plant Sprites on top
 
 		int screenX, screenY;
-		clamp(0, gp.MAP_TILES_X, xend);
-		clamp(0, gp.MAP_TILES_Y, yend);
+		clamp(0, GamePanel.MAP_TILES_X, xend);
+		clamp(0, GamePanel.MAP_TILES_Y, yend);
 		int kind;
 		
 
 		for (int x = xstart; x < xend; x++) {
 			for (int y = yCutoff; y < yend; y++) {
 				try {
-					kind = decorGrid[y][x];
+					kind = plantGrid[y][x];
 				}catch(ArrayIndexOutOfBoundsException e) {
-					kind = BLANK_DECOR_TYPE;
+					kind = BLANK_ASSET_TYPE;
 				}
 				
-				if (kind != BLANK_DECOR_TYPE) {
+				if (kind != BLANK_ASSET_TYPE) {
 					int worldX = x * GamePanel.TILE_SIZE_PX;
 					int worldY = y * GamePanel.TILE_SIZE_PX;
 					screenX = worldX - GamePanel.wpScreenLocX;
 					screenY = worldY - GamePanel.wpScreenLocY;
 					int size = sizeArray[kind];
-					gp.g2.drawImage(bufferedImages[kind], screenX, screenY, size,
+					 
+					GamePanel.g2.drawImage(bufferedImages[kind], screenX, screenY, size,
 							size, null);
 
 				}
@@ -234,30 +209,16 @@ public class Plant implements IEditableComponent{
 		 updateDrawRange();
 	}
 
-	public enum DecorType {
-		LOLLIPOP_TREE, BARREL, CHAIR2, OLDPC, FOUNTAIN, TOMBSTONE, WALLSHADOW, BOX, TABLE, SKELETON, COBWEB, HOUSEPLANT
-	}
 
-	public class DecorItem {
-		public int worldX, worldY, height, width;
-		public DecorType dtype;
 
-		DecorItem(int worldX, int worldY, int width, int height, DecorType dtype) {
-			this.worldX = worldX;
-			this.worldY = worldY;
-			this.dtype = dtype;
-			this.height = height;
-			this.width = width;
-		}
 
-	}
 
 	public boolean visibleOnScreen(int worldX, int worldY) {
 		int buffer = 100;
-		int swx = gp.wpScreenLocX;
-		int swy = gp.wpScreenLocY;
-		if (worldX > swx - buffer && worldY > swy - buffer && worldX < swx + buffer + gp.WIDTH
-				&& worldX < swy + buffer + gp.HEIGHT) {
+		int swx = GamePanel.wpScreenLocX;
+		int swy = GamePanel.wpScreenLocY;
+		if (worldX > swx - buffer && worldY > swy - buffer && worldX < swx + buffer + GamePanel.WIDTH
+				&& worldX < swy + buffer + GamePanel.HEIGHT) {
 			return true;
 		} else {
 			return false;
@@ -265,16 +226,7 @@ public class Plant implements IEditableComponent{
 
 	}
 
-	private void initDecorImages() throws IOException {
-		BufferedImage[] commonDecor = new Utils().spriteSheetCutter(SPRITE_SHEET_URL, 4, 4, 50, 50);
-		BufferedImage[] treeDecor = new Utils().spriteSheetCutter(SPRITE_TREE_URL, 2, 2, 100, 100);
-		BufferedImage[] common2Decor = new Utils().spriteSheetCutter(SPRITE_COMMON2_URL, 4, 4, 50, 50);
-		this.bufferedImages = Utils.appendArray(commonDecor, treeDecor);
-		this.bufferedImages = Utils.appendArray(bufferedImages, common2Decor);
 
-	
-
-	}
 
 	@Override
 	public boolean validateAssetID(int testAssetID) {
@@ -304,7 +256,7 @@ public class Plant implements IEditableComponent{
 			kind = -1;
 		}
 		try {
-			this.decorGrid[gridY][gridX] = kind;
+			this.plantGrid[gridY][gridX] = kind;
 			
 			System.err.println(kind);
 		}
@@ -328,19 +280,20 @@ public class Plant implements IEditableComponent{
 
 	@Override
 	public EditMode getEditMode() {
-		return EditMode.DECOR;
+		return EditMode.PLANT;
 	}
 
 	@Override
 	public int[][] getGridData() {
 		// TODO Auto-generated method stub
-		return this.decorGrid;
+		return this.plantGrid;
 	}
 
 	@Override
 	public void setGridData(int[][] data) {
+		if( data.equals(data))return;
 		if (null!=data) {
-			this.decorGrid = data;
+			this.plantGrid = data;
 		}
 		
 		
@@ -349,7 +302,7 @@ public class Plant implements IEditableComponent{
 	@Override
 	public void initBlank( ) {
 		//this.barrierRecords = new ArrayList<>();
-		this.decorGrid = Utils.initBlankGrid(gp.MAP_TILES_Y, gp.MAP_TILES_X, BLANK_DECOR_TYPE);
+		this.plantGrid = Utils.initBlankGrid(GamePanel.MAP_TILES_Y, GamePanel.MAP_TILES_X, BLANK_ASSET_TYPE);
 		//barrierGrid = Utils.initBlankGrid(GamePanel.MAP_TILES_Y, GamePanel.MAP_TILES_X, BLANK_ITEM_TYPE);
 
 	}

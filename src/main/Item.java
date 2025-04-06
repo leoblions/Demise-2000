@@ -286,6 +286,9 @@ public class Item implements IEditableComponent{
 		try {
 			this.itemGrid[gridY][gridX] = kind;
 			modified=true;
+			if(gp.editor.delete) {
+				kind = -1;
+			}
 			System.err.println(kind);
 		}
 		catch(Exception e){

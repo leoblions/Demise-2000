@@ -94,6 +94,9 @@ public class Input implements KeyListener{
 				}
 				
 				break;
+			case KeyEvent.VK_ESCAPE:
+				gp.toggleInGameMenu();
+				break;
 			case KeyEvent.VK_BACK_QUOTE:
 				if(gp.gameState==GameState.PLAY||gp.gameState==GameState.INVENTORYSCREEN||gp.gameState==GameState.PAUSED) {
 

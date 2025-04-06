@@ -176,6 +176,17 @@ public class Utils {
 		return grid;
 	}
 	
+	public int[][] initBlankGridD(int cols , int rows , int fill  ){
+		int[][] grid = new int[rows][cols];
+		for (int r= 0; r<rows; r++) {
+			for(int c= 0; c< cols;c++) {
+				grid[r][c] = fill;
+				
+			}
+		}
+		return grid;
+	}
+	
 	public static boolean[][] initBlankGrid(int cols , int rows , boolean fill  ){
 		boolean[][] grid = new boolean[rows][cols];
 		for (int r= 0; r<rows; r++) {
