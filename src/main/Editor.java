@@ -17,7 +17,9 @@ import javax.naming.directory.InvalidAttributeValueException;
  * 
  */
 
-public class Editor {
+import main.GamePanel.GameState;
+
+public class Editor implements IClickableElement{
 	GamePanel gp;
 	Color smBorder = new Color(50, 50, 50, 50);
 	private static String editModeString, selectedAssetIDstring,latchString;
@@ -30,13 +32,14 @@ public class Editor {
 	public boolean latchEnable = false;
 	public boolean latchActive = false;
 
-	public Editor(GamePanel gp) {
+	public Editor(GamePanel gp)  {
 		this.gp = gp;
 		arial16 = new Font("Arial", Font.PLAIN, 16);
 		this.editMode = EditMode.NORMAL;
 		editModeString = this.editMode.toString();
 		selectedAssetIDstring = getAssetIDString();
 		this.latchString = "";
+		gp.clickableElements.add(this);
 
 	}
 	
@@ -107,7 +110,7 @@ public class Editor {
 		
 		if (latchEnable && latchActive) {
 			paintAsset();
-			System.out.println("painting");
+			//System.out.println("painting");
 		}
 
 	}
@@ -232,6 +235,28 @@ public class Editor {
 		}else {
 			System.out.println("delete mode off");
 		}
+		
+	}
+	
+	public void click(int kind, int mouseX, int mouseY) {
+		if(gp.gameState==GameState.PLAY) {
+			 this.handleClick(kind, 1);
+             System.out.printf("Mouse down %d %d %d\n",mouseX, mouseY, kind);
+             switch(kind) {
+             case 1:
+            	 this.paintAsset();
+            	 break;
+             case 2:
+            	 this.incrementAssetID(1);
+            	 break;
+             case 3:
+            	 this.incrementAssetID(-1);
+            	 break;
+            default:
+            	break;
+            
+		}
+             }
 		
 	}
 

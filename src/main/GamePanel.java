@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -15,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import javax.naming.directory.InvalidAttributeValueException;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class GamePanel extends JPanel implements Runnable{
@@ -35,11 +35,13 @@ public class GamePanel extends JPanel implements Runnable{
 	public static final long FRAMES_PER_SECOND = 60;
 	public static final long TICKS_PER_SECOND = 60;
 	Thread gameThread;
-	
+	public JFrame parentFrame;
+	public String parentFrameTitle;
 	public static final boolean LOAD_LEVEL_ON_START = true;
 	public static final int LEVEL_TO_LOAD_ON_START = 0;
 	public static final boolean CREATE_BLANK_MAP_IF_FILE_NOT_FOUND = true;
 	public ArrayList<IEditableComponent> components = new ArrayList<>();
+	public ArrayList<IClickableElement> clickableElements= new ArrayList<>();
 	public final String SETTINGS_FILE="settings.ini";
 	public static final int WIDTH = 720;
 	public static final int HEIGHT = 600;
@@ -48,7 +50,7 @@ public class GamePanel extends JPanel implements Runnable{
 	public static final int MAP_TILES_Y = 100;
 	private static final long MENU_DEBOUNCE_INTERVAL_MS = 1000L;
 	public static final String LEVEL_DATA_SUBDIR = "leveldata";
-	
+	public final GameState DEFAULT_GAME_STATE = GameState.PLAY;
 	// variables relating to camera
 	public static final int worldSizePxX = TILE_SIZE_PX*MAP_TILES_X;
 	public static final int worldSizePxY = TILE_SIZE_PX*MAP_TILES_Y;
@@ -109,6 +111,7 @@ public class GamePanel extends JPanel implements Runnable{
 	Warp warp;
 	Plant plant;
 	StackMenu mainMenu;
+	Spinner spinner;
 	
 	public enum InputAction{
 		UP,
@@ -132,11 +135,13 @@ public class GamePanel extends JPanel implements Runnable{
 		
 		PAUSED,
 		GAMEOVER,
-		INVENTORYSCREEN,
+		INVENTORY,
 		TOOLBAR,
 		CONVERSATION,
 		MENU,
-		PLAY
+		PLAY,
+		CONSOLE
+		
 	}
 	
 	private static final long serialVersionUID = 6644375181764124582L;
@@ -158,24 +163,11 @@ public class GamePanel extends JPanel implements Runnable{
 				 mouseY = e.getY();
 				 
 				 int kind = e.getButton();
-				 editor.handleClick(kind, 1);
-                 System.out.printf("Mouse down %d %d %d\n",mouseX, mouseY, kind);
-                 switch(kind) {
-                 case 1:
-                	 editor.paintAsset();
-                	 break;
-                 case 2:
-                	 editor.incrementAssetID(1);
-                	 break;
-                 case 3:
-                	 editor.incrementAssetID(-1);
-                	 break;
-                default:
-                	break;
-                
-                 }
+				 
 
-            	 hud.inventoryScreen.click(kind,mouseX,mouseY);
+            	 for (var ce : clickableElements) {
+            		 ce.click(kind,mouseX,mouseY);
+            	 }
              }
 
              @Override
@@ -211,6 +203,7 @@ public class GamePanel extends JPanel implements Runnable{
 		barrier = new Barrier(this);
 		wipe = new Wipe(this);
 		projectile=new Projectile(this);
+		spinner = new Spinner(this,(int)WIDTH/2,(int)(HEIGHT*0.20),200);
 		mainMenu=new StackMenu(this,0);
 
 		warp=new Warp(this);
@@ -282,6 +275,15 @@ public class GamePanel extends JPanel implements Runnable{
 			settingsio.readFile();
 			String tmp;
 			
+			if(settingsio.stringsDict.get("title")!=null ) {
+				String title = settingsio.stringsDict.get("title");
+				if(parentFrame!=null) {
+					parentFrame.setTitle(title);
+				}
+				parentFrameTitle = title;
+				
+			}
+			
 			 
 			if(settingsio.stringsDict.get("drawShadows").equals("true")) {
 				GamePanel.drawShadows=true;
@@ -344,7 +346,7 @@ public class GamePanel extends JPanel implements Runnable{
 		console.update();
 		projectile.update();
 		plant.update();
-
+		spinner.update();
 		mainMenu.update();
 		Point p = this.getMousePosition();
 		if (p != null){
@@ -395,7 +397,7 @@ public class GamePanel extends JPanel implements Runnable{
 		wipe.draw();
 		console.draw();
 		
-
+		spinner.draw();
 		mainMenu.draw();
 		
 	}
@@ -429,10 +431,20 @@ public class GamePanel extends JPanel implements Runnable{
 	
 	public void toggleInGameMenu() {
 		if (gameState==GameState.MENU) {
-			gameState=GameState.PLAY;
+			gameState=DEFAULT_GAME_STATE;
 		}else {
 			gameState=GameState.MENU;
 		}
+	}
+	public void toggleMode(GameState state) {
+		System.out.println("Toggle game mode: "+state.toString());
+		if (gameState==state) {
+			gameState=DEFAULT_GAME_STATE;
+		}else {
+			gameState=state;
+		}
+
+		System.out.println("Current state: "+gameState.toString());
 	}
 	
 	public void saveComponentData() {

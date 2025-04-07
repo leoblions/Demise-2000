@@ -49,6 +49,7 @@ public class HUD implements IStatusMessageListener, IInputListener {
 	// text boxes
 	private boolean showDialog = false;
 	private boolean showPrompt = false;
+	
 	public Delay showActionPromptDelay = new Delay();
 	public boolean showNamePlate = true;
 	public RasterString speakerString;
@@ -441,16 +442,16 @@ public class HUD implements IStatusMessageListener, IInputListener {
 		startDisplayStatusMessage(60);
 	}
 
-	public void toolbarModeToggle() {
-		toolbar.toggleActivate=true;
-		
-		
-	}
-	public void toggleInventoryScreen() {
-		inventoryScreen.toggleActivate=true;
-		
-		
-	}
+//	public void toolbarModeToggle() {
+//		toolbar.toggleActivate=true;
+//		
+//		
+//	}
+//	public void toggleInventoryScreen() {
+//		inventoryScreen.toggleActivate=true;
+//		
+//		
+//	}
 
 	@Override
 	public void inputListenerAction(InputAction action) {

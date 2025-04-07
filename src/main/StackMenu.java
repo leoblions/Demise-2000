@@ -1,20 +1,32 @@
 package main;
 
-import java.awt.BasicStroke;
+import java.awt.Font;
+import java.awt.Point;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 import main.GamePanel.GameState;
 
-public class StackMenu {
+public class StackMenu implements IClickableElement{
 	private final int DEFAULT_BUTTON_AMOUNT = 7;
 	private final int BUTTON_WIDTH = 200;
 	private final int BUTTON_HEIGHT = 50;
 	private final int BUTTON_SPACING_Y = 10;
+	private final int STACK_Y_ADJUSTMENT = -100;
+	private final int FONTISPIECE_Y_ADJUSTMENT = 25;
+	private final int FONTISPIECE_X_ADJUSTMENT = -10;
+	private Font arial20;
+
+	private final String fileURL = "/images/title.png";
+	
 	GamePanel gp;
 	private static String[] mainMenuLabels = new String[] {
-			"Continue","New Game","Load Game","Options","Exit"
+			"Continue","New Game","Load Game","Options","Quit"
 	};
 	private static String[] inGameMenuLabels = new String[] {
-			"Continue","Save Game","Load Game","Options","Exit"
+			"Continue","Save Game","Load Game","Options","Quit"
 	};
 	private static String[] optionsMenuLabels = new String[] {
 			"Music","SFX Volume","Day Cycle","Autosave","Exit"
@@ -28,6 +40,10 @@ public class StackMenu {
 	
 	String[] currentButtonStrings;
 	Button[] buttons ;
+	
+	BufferedImage fontispiece;
+	int fontispieceX,fontispieceY,fontispieceW,fontispieceH;
+	
 	int screenX,screenY;
 	int stackHeight;
 	boolean visible;
@@ -49,36 +65,57 @@ public class StackMenu {
 		 * 
 		 */
 		// @formatter:on
+	private boolean playerClicked;
+	private int[] mouseClickData;
 	
 	public StackMenu(GamePanel gp, int kind) {
 		this.gp=gp;
 		this.kind=kind;
 		this.buttons = new Button[DEFAULT_BUTTON_AMOUNT];
+		arial20 = new Font("Arial",Font.BOLD,20);
+		initImages();
 		setButtonStackPosition();
-		
+		mouseClickData = new int[3];
 		initButtons();
 		stackHeight=calcStackHeight();
-		System.out.println("stackheight "+stackHeight);
+		//System.out.println("stackheight "+stackHeight);
 		repositionButtons();
 		setButtonStackPosition();
+		gp.clickableElements.add(this);
+		
 		
 	}
 	
+	private void initImages() {
+		fontispiece = null;
+		try {
+			fontispiece = ImageIO.read(getClass().getResourceAsStream(fileURL));
+			fontispieceW = fontispiece.getWidth();
+			fontispieceH = fontispiece.getHeight();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+
 	private int getButtonYOffset(int buttonID) {
-		int leadingButtons = ((buttonID - 1>=0)?buttonID-1:0);
+		int leadingButtons = buttonID;
 		return leadingButtons * (BUTTON_HEIGHT+BUTTON_SPACING_Y);
 		
 	}
 	
 	private void setButtonStackPosition() {
 		this.screenX = (GamePanel.WIDTH / 2) - (BUTTON_WIDTH/2); 
-		this.screenY = (GamePanel.HEIGHT / 2) - (stackHeight/2); 
+		this.screenY = (GamePanel.HEIGHT / 2) - (stackHeight/2) + STACK_Y_ADJUSTMENT; 
+		this.fontispieceX = (GamePanel.WIDTH / 2) - (this.fontispieceW/2) + FONTISPIECE_X_ADJUSTMENT;
+		this.fontispieceY = ((GamePanel.HEIGHT / 2) - (stackHeight/2) - fontispieceH) + FONTISPIECE_Y_ADJUSTMENT ;
+		//System.out.println("fontispieceY "+(screenY+ STACK_Y_ADJUSTMENT));
 	}
 	private void assignLabels(String[] labels) {
 		if(null==buttons)System.err.println("StackMenu tried assigning labels to buttons, but the button list is null");
 		int lastIndex = (labels.length<buttonsAmount)?labels.length:buttonsAmount;
 		for(int i = 0;i< lastIndex;i++) {
-			buttons[i].label=labels[i];
+			buttons[i].setLabel(labels[i]);
 		}
 		
 	}
@@ -120,7 +157,7 @@ public class StackMenu {
 			int w = BUTTON_WIDTH;
 			int h = BUTTON_HEIGHT;
 			buttons[i]=new Button(gp,x,y,w,h);
-			buttons[i].label=currentButtonStrings[i];
+			buttons[i].setLabel(currentButtonStrings[i]);
 			buttons[i].id=i;
 		}
 		
@@ -132,11 +169,16 @@ public class StackMenu {
 	
 	public void draw() {
 		if(!visible)return;
-		GamePanel.g2.drawRect(screenX, screenY, BUTTON_WIDTH, stackHeight);
+		//GamePanel.g2.drawRect(screenX, screenY, BUTTON_WIDTH, stackHeight);
 		
 		for(Button b: buttons) {
 			if (null!=b) {
 				b.draw();
+			}
+		}
+		if(kind==0||kind==1) {
+			if(fontispiece!=null) {
+				GamePanel.g2.drawImage(fontispiece,fontispieceX, fontispieceY, fontispieceW, fontispieceH,null);
 			}
 		}
 	}
@@ -144,12 +186,64 @@ public class StackMenu {
 	public void update() {
 		if(gp.gameState==GameState.MENU) {
 			visible=true;
+			if(playerClicked) {
+				playerClicked=false;
+				handleClickData();
+			}
 		}else {
 			visible=false;
 		}
 		for(Button b: buttons) {
 			if (null!=b) b.update();
 		
+		}
+		
+	}
+	private void handleClickData() {
+		System.out.println("player clicked inventory");
+		Point clickPoint = new Point(mouseClickData[1],mouseClickData[2]);
+		for (Button button:buttons) {
+			if(null!=button&&button.contains(clickPoint)) {
+				System.out.printf("Button number %d pressed \n",button.id);
+				handleMenuButtonPress(button.id);
+			}
+		}
+	}
+	private void handleMenuButtonPress(int id) {
+		switch (gp.gameState) {
+		case MENU:
+			switch (id) {
+			case 0:
+				gp.gameState=GameState.PLAY;
+				break;
+			case 1:
+				gp.gameState=GameState.PLAY;
+				break;
+			case 2:
+				gp.gameState=GameState.PLAY;
+				break;
+			case 3:
+				gp.gameState=GameState.PLAY;
+				break;
+			case 4:
+				gp.gameThread.interrupt();
+				System.exit(0);
+				
+				break;
+			}
+		break;	
+		default:
+			break;
+		}
+		
+	}
+
+	public void click(int kind, int mouseX, int mouseY) {
+		if(gp.gameState==GameState.MENU) {
+			playerClicked = true;
+			mouseClickData[0]=kind;
+			mouseClickData[1]=mouseX;
+			mouseClickData[2]=mouseY;
 		}
 		
 	}

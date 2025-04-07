@@ -13,7 +13,7 @@ import javax.imageio.ImageIO;
 
 import main.GamePanel.GameState;
 
-public class HUDInventory {
+public class HUDInventory implements IClickableElement{
 	/*
 	 * Draw a 3x10 grid containing item image, name, quantity, and a button to use and drop the item
 	 * 0: image 
@@ -44,6 +44,8 @@ public class HUDInventory {
 	private final int MENU_SLOTS_X = 5;
 	private final int MENU_SLOTS_Y = 10;
 	
+	private boolean inventoryDisplayedLastTick = false;
+	
 	int screenX,screenY, cellUnitSize, width, height;
 	int titleScreenY;
 	int cellHeight, cellHeightShort; 
@@ -56,7 +58,10 @@ public class HUDInventory {
 	private static final String PAGE_STRING_TEMPLATE = "Page %d of %d";
 	private static String pageString;
 	int invButtonX,invButtonY,pageControlButtonSize,pageControlButtonY,pageControlButtonX1,pageControlButtonX2,pageControlButtonX3;
-	Rectangle[] pageButtonRect, selectButtonRect,deleteButtonRect;
+	Rectangle[]  selectButtonRect,deleteButtonRect;
+	Button[] pageButtons; // 
+	Button[] selectButtons;
+	Button[] deleteButtons;
 	int rowStart,rowEnd,rowsToDisplay;
 	int deleteXOffset, selectXOffset;
 	
@@ -97,11 +102,18 @@ public class HUDInventory {
 		
 		initLayoutDimensions();
 		initImages();
+		setButtonImages();
 		createGridBackground();
 		recalculateRows();
+		gp.clickableElements.add(this);
 
 	}
 	
+	private void setButtonImages() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	private void initLayoutDimensions() {
 		screenX = GamePanel.WIDTH / 10;
 		screenY = screenX;
@@ -131,18 +143,19 @@ public class HUDInventory {
 		pageControlButtonX1 = invButtonX + 4;
 		pageControlButtonX2 = pageControlButtonX1 + pageControlButtonSize ;
 		pageControlButtonX3 = pageControlButtonX2 + pageControlButtonSize ;
-		pageButtonRect = new Rectangle[3];
-		deleteButtonRect = new Rectangle[10];
-		selectButtonRect = new Rectangle[10];
+		pageButtons = new Button[3];
+		deleteButtons = new Button[10];
+		selectButtons = new Button[10];
 		// move page buttons
-		pageButtonRect[0] = new Rectangle(pageControlButtonX1,pageControlButtonY,pageControlButtonSize,pageControlButtonSize);
-		pageButtonRect[1] = new Rectangle(pageControlButtonX2,pageControlButtonY,pageControlButtonSize,pageControlButtonSize);
-		pageButtonRect[2] = new Rectangle(pageControlButtonX3,pageControlButtonY,pageControlButtonSize,pageControlButtonSize);
+		pageButtons[0] = Button.InventoryButton(gp,pageControlButtonX1,pageControlButtonY,pageControlButtonSize,pageControlButtonSize).setID(0);
+		pageButtons[1] = Button.InventoryButton(gp,pageControlButtonX2,pageControlButtonY,pageControlButtonSize,pageControlButtonSize).setID(1);
+		pageButtons[2] = Button.InventoryButton(gp,pageControlButtonX3,pageControlButtonY,pageControlButtonSize,pageControlButtonSize).setID(2);
 		// select and delete buttons
 		for (int i = 0; i < MENU_SLOTS_Y;i++) {
 			int buttonY = (i*cellUnitSize)+screenY;
-			selectButtonRect[i] = new Rectangle(screenX+selectXOffset, buttonY,cellUnitSize,cellUnitSize);
-			deleteButtonRect[i] = new Rectangle(screenX+deleteXOffset, buttonY,cellUnitSize,cellUnitSize);
+			selectButtons[i] = Button.InventoryButton(gp,screenX+selectXOffset, buttonY,cellUnitSize,cellUnitSize).setID(i);
+			deleteButtons[i] = Button.InventoryButton(gp,screenX+deleteXOffset, buttonY,cellUnitSize,cellUnitSize).setID(i);
+		
 		}
 		
 	}
@@ -253,6 +266,9 @@ public class HUDInventory {
 
 	public void drawMenuItemSprites() {
 
+		if(null==inventoryKindAmount) {
+			this.inventoryKindAmount = gp.inventory.queryKindAndAmount();
+		}
 		int items = MENU_SLOTS_Y;
 		if (inventoryKindAmount.length < MENU_SLOTS_Y) {
 			items = inventoryKindAmount.length;
@@ -303,16 +319,23 @@ public class HUDInventory {
 	}
 	
 	public void recalculateRows() {
+		if(inventoryKindAmount==null) {
+			return;
+		}
 		 rowStart = (inventoryCurrentPage-1)*MENU_SLOTS_Y;
+		 inventorymaxPage = (inventoryKindAmount.length / MENU_SLOTS_Y) +1;
 		 rowEnd = rowStart + MENU_SLOTS_Y;
 		 if(inventoryCurrentPage<inventorymaxPage) {
 			 rowsToDisplay = MENU_SLOTS_Y;
 		 }else if(inventoryKindAmount!=null){
 			 rowsToDisplay = (inventoryKindAmount.length % MENU_SLOTS_Y);
+
+			 //System.out.println("inventoryKindAmount.length " +inventoryKindAmount.length);
 		 }else {
 			 rowsToDisplay = MENU_SLOTS_Y;
 		 }
-		 System.out.println("rowEnd "+rowEnd);
+		 //System.out.println("rowEnd "+rowEnd);
+
 	}
 
 	public void handleMenuInput(boolean[] movesRequested) {
@@ -358,7 +381,7 @@ public class HUDInventory {
 
 		if (showEquippedItemFrame) {
 			int backgroundImage = 0;
-			if (showInventoryScreen) {
+			if (gp.gameState==GameState.INVENTORY) {
 
 				
 				
@@ -405,13 +428,80 @@ public class HUDInventory {
 	}
 	
 	private void handleClickData() {
+		//System.out.println("player clicked inventory");
+		Point clickPoint = new Point(mouseClickData[1],mouseClickData[2]);
+		//page buttons
+		for(var button: pageButtons) {
+			if (button.contains(clickPoint)) {
+				switch (button.id) {
+				case 0:
+					changePage(-1);
+					break;
+				case 1:
+					changePage(1);
+					break;
+				case 2:
+					showInventoryScreen = false;
+					gp.gameState=GameState.PLAY;
+					break;
+				default:
+					showInventoryScreen = false;
+					gp.gameState=GameState.PLAY;
+					break;
+					
+				}
+				return;
+			}
+		}
+		//delete buttons
+		int kind = -1;
+		for(var button: deleteButtons) {
+			
+			if (button.contains(clickPoint)) {
+				System.out.println("Player delete item");
+				kind = getItemTypeFromRowID(button.id);
+				gp.inventory.deleteAllItemOfType(kind);
+				recalculateRows();
+				this.inventoryKindAmount = gp.inventory.queryKindAndAmount();
+				return;
+			}
+		}
+		for(var button: selectButtons) {
+			if (button.contains(clickPoint)) {
+				System.out.println("Player select item");
+				kind = getItemTypeFromRowID(button.id);
+				gp.inventory.selectItem(kind);
+				gp.hud.toolbar.itemEq=kind;
+				gp.gameState=GameState.PLAY;
+				return;
+			}
+		}
+		
+		
+	}
+	
+	private int getItemTypeFromRowID(int rowID) {
+		
+		int row = rowStart+rowID;
+		int kind = -1;
+			try {
+
+				kind=inventoryKindAmount[row][0];
+			}catch(ArrayIndexOutOfBoundsException e) {
+				e.printStackTrace();
+			}
+		return kind;
+		
+	}
+	
+	private void handleClickData0() {
 		System.out.println("player clicked inventory");
 		Point clickPoint = new Point(mouseClickData[1],mouseClickData[2]);
-		if (pageButtonRect[0].contains(clickPoint)) {
+		if (pageButtons[0].contains(clickPoint)) {
 			changePage(-1);
-		}else if(pageButtonRect[1].contains(clickPoint)) {
+		}else if(pageButtons[1].contains(clickPoint)) {
 			changePage(1);
-		}else if(pageButtonRect[2].contains(clickPoint)) {
+		}else if(pageButtons[2].contains(clickPoint)) {
 			System.out.println("page Close");
 			showInventoryScreen = false;
 			gp.gameState=GameState.PLAY;
@@ -419,22 +509,13 @@ public class HUDInventory {
 	}
 
 	public void update() {
-		if (toggleActivate ) {
-			toggleActivate = false;
-			showInventoryScreen = !showInventoryScreen;
-			inventoryKindAmount = gp.inventory.queryKindAndAmount();
-			inventorymaxPage = (inventoryKindAmount.length / 10 )+1;
-			System.out.println("Show toolbar " + showInventoryScreen);
-			if (!showInventoryScreen)  {
-				gp.gameState = GameState.PLAY;
-			}else {
-				recalculateRows();
+		if(gp.gameState == GameState.INVENTORY) {
+			recalculateRows();
+			if(!inventoryDisplayedLastTick) {
+				this.inventoryKindAmount = gp.inventory.queryKindAndAmount();
+				
 			}
-
-		}
-
-		if (showInventoryScreen &&(gp.gameState == GameState.PLAY || gp.gameState == GameState.TOOLBAR|| gp.gameState == GameState.INVENTORYSCREEN)) {
-			gp.gameState = GameState.INVENTORYSCREEN;
+			
 			selectedBoxX = ITEM_EQ_OFFSET_X + (selectedSlot * ITEM_EQ_FRAME_SIZE);
 			selectedBoxY = gp.getHeight() - ITEM_EQ_OFFSET_Y - ITEM_EQ_FRAME_SIZE;
 			pageString = String.format(PAGE_STRING_TEMPLATE, inventoryCurrentPage,inventorymaxPage);
@@ -442,16 +523,22 @@ public class HUDInventory {
 				playerClicked=false;
 				handleClickData();
 			}
+			
+			inventoryDisplayedLastTick = true;
+		}else {
+			inventoryDisplayedLastTick = false;
 		}
+		
 
 	}
 	
 	public void click(int kind, int mouseX, int mouseY) {
-		//System.out.printf("Inventory screen click %d %d %d \n",kind, mouseX,mouseY);
-		playerClicked = true;
-		mouseClickData[0]=kind;
-		mouseClickData[1]=mouseX;
-		mouseClickData[2]=mouseY;
+		if(gp.gameState==GameState.INVENTORY) {
+			playerClicked = true;
+			mouseClickData[0]=kind;
+			mouseClickData[1]=mouseX;
+			mouseClickData[2]=mouseY;
+		}
 	}
 
 }

@@ -136,11 +136,11 @@ public class Plant implements IEditableComponent{
 		// render tiles above yCutoff first, then render Actors, then render lower Plant Sprites on top
 
 		int screenX, screenY;
-		clamp(0, GamePanel.MAP_TILES_X, xend);
-		clamp(0, GamePanel.MAP_TILES_Y, yend);
+		xend=clamp(0, GamePanel.MAP_TILES_X, xend);
+		yend=clamp(0, GamePanel.MAP_TILES_Y, yend);
 		yCutoff = (gp.player.worldY+Y_CUTOFF_OFFSET)/GamePanel.TILE_SIZE_PX;
 
-		clamp(0, GamePanel.MAP_TILES_Y, yCutoff);
+		yCutoff=clamp(0, GamePanel.MAP_TILES_Y, yCutoff);
 
 		for (int x = xstart; x < xend; x++) {
 			for (int y = ystart; y < yCutoff; y++) {
@@ -169,8 +169,8 @@ public class Plant implements IEditableComponent{
 		// render tiles above yCutoff first, then render Actors, then render lower Plant Sprites on top
 
 		int screenX, screenY;
-		clamp(0, GamePanel.MAP_TILES_X, xend);
-		clamp(0, GamePanel.MAP_TILES_Y, yend);
+		xend=clamp(0, GamePanel.MAP_TILES_X, xend);
+		yend=clamp(0, GamePanel.MAP_TILES_Y, yend);
 		int kind;
 		
 

@@ -79,31 +79,35 @@ public class Input implements KeyListener{
 				notifyListeners(InputAction.MUTE);
 				break;
 			case KeyEvent.VK_Q:
-				if(gp.gameState==GameState.PLAY||gp.gameState==GameState.INVENTORYSCREEN||gp.gameState==GameState.TOOLBAR) {
-
-
-					gp.hud.toolbarModeToggle();
-				}
-				
+				gp.toggleMode(GameState.TOOLBAR);
+//				if(gp.gameState==GameState.PLAY||gp.gameState==GameState.INVENTORYSCREEN||gp.gameState==GameState.TOOLBAR) {
+//
+//
+//					gp.hud.toolbarModeToggle();
+//				}
+//				
 				break;
 			case KeyEvent.VK_I:
-				if(gp.gameState==GameState.PLAY||gp.gameState==GameState.INVENTORYSCREEN) {
 
-					notifyListeners(InputAction.INVENTORY);
-					gp.hud.toggleInventoryScreen();
-				}
+				gp.toggleMode(GameState.INVENTORY);
+//				if(gp.gameState==GameState.PLAY||gp.gameState==GameState.INVENTORYSCREEN) {
+//
+//					notifyListeners(InputAction.INVENTORY);
+//					gp.hud.toggleInventoryScreen();
+//				}
 				
 				break;
 			case KeyEvent.VK_ESCAPE:
 				gp.toggleInGameMenu();
 				break;
 			case KeyEvent.VK_BACK_QUOTE:
-				if(gp.gameState==GameState.PLAY||gp.gameState==GameState.INVENTORYSCREEN||gp.gameState==GameState.PAUSED) {
-
-
-					gp.console.requestActivate();
-				}
-				
+				gp.toggleMode(GameState.CONSOLE);
+//				if(gp.gameState==GameState.PLAY||gp.gameState==GameState.INVENTORYSCREEN||gp.gameState==GameState.PAUSED) {
+//
+//
+//					gp.console.requestActivate();
+//				}
+//				
 				break;
 			case KeyEvent.VK_NUMPAD0:
 			case KeyEvent.VK_HOME:

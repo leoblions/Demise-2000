@@ -29,7 +29,9 @@ public class SettingsIO {
 		defaultsDict = new Hashtable<>();
 		defaultsDict.put("godMode","false");
 		defaultsDict.put("noClip","false");
-		defaultsDict.put("drawShadows","true");
+		defaultsDict.put("drawShadows","false");
+
+		defaultsDict.put("title","DEMISE 2000");
 		
 	}
 	/**

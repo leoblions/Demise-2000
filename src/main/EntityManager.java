@@ -106,7 +106,7 @@ public class EntityManager implements IEditableComponent,IInputListener{
 	
 	private void updateFrozenState() {
 
-		if (gp.gameState==GameState.GAMEOVER||gp.gameState==GameState.INVENTORYSCREEN||
+		if (gp.gameState==GameState.GAMEOVER||gp.gameState==GameState.INVENTORY||
 				gp.gameState==GameState.PAUSED||gp.gameState==GameState.TOOLBAR) {
 			frozen=true;
 		}else {

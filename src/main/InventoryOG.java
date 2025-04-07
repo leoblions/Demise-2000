@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
 
-public class Inventory {
+public class InventoryOG {
 	private final int BLANK_ITEM_KIND = -1;
 	private HashMap<Integer,Integer>inventoryItems;
 	GamePanel gp;
@@ -17,7 +17,7 @@ public class Inventory {
 	public final int BLANK_PRIJECTILE_TYPE = -1;
 	public int projectileType = -1;
 	public String[] itemNames;
-	public Inventory(GamePanel gp) {
+	public InventoryOG(GamePanel gp) {
 		this.gp=gp;
 		inventoryItems = new HashMap<Integer, Integer>();
 		testInv();
@@ -92,13 +92,6 @@ public class Inventory {
 		}else {
 			System.err.printf("Inventory cannot add itemID: %d , amount: %d \n",itemID,amountToAdd);
 		}
-	}
-	
-	public void deleteAllItemOfType(int itemID) {
-		
-		//nventoryItems.(itemID,0);
-		inventoryItems.remove(itemID);
-		//System.out.printf("Inventory added itemID: %d , amount: %d , total: %d \n",itemID,amountToAdd,newValue);
 	}
 	
 	public int[][]queryKindAndAmount(){

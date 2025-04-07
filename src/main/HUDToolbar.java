@@ -37,6 +37,7 @@ public class HUDToolbar {
 	public static boolean showToolbar = false;
 	public boolean toggleActivate = false;
 	public static boolean showEquippedItemFrame = true;
+	private boolean componentEnabledLastTick = false;
 	private BufferedImage[] images;
 	private BufferedImage[] itemImages;
 	Color selectedBoxColor = new Color(222, 222, 0, 222);
@@ -119,20 +120,26 @@ public class HUDToolbar {
 	public void handleMenuInput(boolean[] movesRequested) {
 		boolean moved = (itemEq == BLANK_ITEM_ID);
 
-		if (showToolbar) {
+		if (gp.gameState==GameState.TOOLBAR) {
 			if (movesRequested[2]) {
 				this.selectedSlot -= 1;
+
 				moved = true;
 			} else if (movesRequested[3]) {
 				this.selectedSlot += 1;
+
 				moved = true;
 			}
 			selectedSlot = Utils.clamp(0, TOOLBAR_SLOTS, selectedSlot);
 			if (moved) {
 				try {
+
+					System.out.println("toolbar move selector "+selectedSlot);
 					itemEq = inventoryKindAmount[selectedSlot][0];
 					gp.inventory.selectItem(itemEq);
-					System.out.println("inv item " + gp.inventory.selectItem(itemEq));
+					//System.out.println("inv item " + gp.inventory.selectItem(itemEq));
+					selectedBoxX = ITEM_EQ_OFFSET_X + (selectedSlot * ITEM_EQ_FRAME_SIZE);
+					selectedBoxY = gp.getHeight() - ITEM_EQ_OFFSET_Y - ITEM_EQ_FRAME_SIZE;
 					gp.inventory.selectProjectileType();
 				} catch (ArrayIndexOutOfBoundsException e) {
 				
@@ -152,7 +159,7 @@ public class HUDToolbar {
 
 		if (showEquippedItemFrame) {
 			int backgroundImage = 0;
-			if (showToolbar) {
+			if (gp.gameState==GameState.TOOLBAR) {
 
 				backgroundImage = 1;
 				tbWidth = ITEM_EQ_FRAME_SIZE * 10;
@@ -179,6 +186,28 @@ public class HUDToolbar {
 	}
 
 	public void update() {
+		if (gp.gameState==GameState.TOOLBAR) {
+			if(!componentEnabledLastTick) {
+
+				inventoryKindAmount = gp.inventory.queryKindAndAmount();
+				selectedBoxX = ITEM_EQ_OFFSET_X + (selectedSlot * ITEM_EQ_FRAME_SIZE);
+				selectedBoxY = gp.getHeight() - ITEM_EQ_OFFSET_Y - ITEM_EQ_FRAME_SIZE;
+				
+
+				componentEnabledLastTick = true;
+			}
+			//componentEnabledLastTick = true;
+			//toggleActivate = false;
+			//showToolbar = !showToolbar;
+			
+		}else {
+			componentEnabledLastTick = false;
+		}
+
+
+	}
+	
+	public void update_toggle() {
 		if (toggleActivate) {
 			toggleActivate = false;
 			showToolbar = !showToolbar;

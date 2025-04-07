@@ -194,11 +194,10 @@ public class Player implements IInputListener {
 	}
 	
 	private void updateFrozenState() {
-		if (gp.gameState==GameState.GAMEOVER||gp.gameState==GameState.INVENTORYSCREEN||
-				gp.gameState==GameState.PAUSED||gp.gameState==GameState.TOOLBAR) {
-			frozen=true;
-		}else {
+		if (gp.gameState==GameState.PLAY) {
 			frozen=false;
+		}else {
+			frozen=true;
 		}
 	}
 
