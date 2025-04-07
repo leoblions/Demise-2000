@@ -56,7 +56,8 @@ public class HUDInventory implements IClickableElement{
 	int inventoryCurrentPage = 1;
 	int inventorymaxPage = 1;
 	private static final String PAGE_STRING_TEMPLATE = "Page %d of %d";
-	private static String pageString;
+	private static final String MONEY_STRING_TEMPLATE = "Cash $%d";
+	private static String pageString,moneyString;
 	int invButtonX,invButtonY,pageControlButtonSize,pageControlButtonY,pageControlButtonX1,pageControlButtonX2,pageControlButtonX3;
 	Rectangle[]  selectButtonRect,deleteButtonRect;
 	Button[] pageButtons; // 
@@ -369,7 +370,8 @@ public class HUDInventory implements IClickableElement{
 	}
 	
 	public void drawPageControls() {
-		GamePanel.g2.drawString(pageString, pageControlButtonX1, pageControlButtonY-20);
+		GamePanel.g2.drawString(pageString, pageControlButtonX1+10, pageControlButtonY-20);
+		GamePanel.g2.drawString(moneyString, pageControlButtonX1+10, screenX + 20);
 		GamePanel.g2.drawImage(this.inventoryButtonImages[0] , pageControlButtonX1, pageControlButtonY, pageControlButtonSize, pageControlButtonSize, null);
 		GamePanel.g2.drawImage(this.inventoryButtonImages[1] , pageControlButtonX2, pageControlButtonY, pageControlButtonSize, pageControlButtonSize, null);
 		GamePanel.g2.drawImage(this.inventoryButtonImages[3] , pageControlButtonX3, pageControlButtonY, pageControlButtonSize, pageControlButtonSize, null);
@@ -519,6 +521,7 @@ public class HUDInventory implements IClickableElement{
 			selectedBoxX = ITEM_EQ_OFFSET_X + (selectedSlot * ITEM_EQ_FRAME_SIZE);
 			selectedBoxY = gp.getHeight() - ITEM_EQ_OFFSET_Y - ITEM_EQ_FRAME_SIZE;
 			pageString = String.format(PAGE_STRING_TEMPLATE, inventoryCurrentPage,inventorymaxPage);
+			moneyString = String.format(MONEY_STRING_TEMPLATE,  gp.player.money);
 			if(playerClicked) {
 				playerClicked=false;
 				handleClickData();

@@ -205,29 +205,34 @@ public class Console {
 		}
 	}
 	
-	public void requestActivate() {
-	if(!active && isReset) {
-
-		gp.gameState=GameState.PAUSED;
-		active = true;
-	}else {
-		gp.gameState=GameState.PLAY;
-	}
-	}
+//	public void requestActivate() {
+//	if(!active && isReset) {
+//
+//		gp.gameState=GameState.PAUSED;
+//		active = true;
+//	}else {
+//		gp.gameState=GameState.PLAY;
+//	}
+//	}
 	
 	public void update() {
-		isReset = true;
-		
-	}
-
-	public void toggleDevConsole() {
-		if(!active) {
-			gp.gameState=GameState.PAUSED;
-			this.active = true;
+		//isReset = true;
+		if(gp.gameState==GameState.CONSOLE) {
+			active=true;
 		}else {
-			gp.gameState=GameState.PLAY;
+			active=false;
 		}
 		
 	}
+
+//	public void toggleDevConsole() {
+//		if(!active) {
+//			gp.gameState=GameState.PAUSED;
+//			this.active = true;
+//		}else {
+//			gp.gameState=GameState.PLAY;
+//		}
+//		
+//	}
 
 }

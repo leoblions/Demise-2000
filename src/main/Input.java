@@ -88,7 +88,7 @@ public class Input implements KeyListener{
 //				
 				break;
 			case KeyEvent.VK_I:
-
+				
 				gp.toggleMode(GameState.INVENTORY);
 //				if(gp.gameState==GameState.PLAY||gp.gameState==GameState.INVENTORYSCREEN) {
 //
@@ -98,7 +98,12 @@ public class Input implements KeyListener{
 				
 				break;
 			case KeyEvent.VK_ESCAPE:
-				gp.toggleInGameMenu();
+				if(GamePanel.inGameMenu==1) {
+					gp.toggleMode(GameState.PAUSED);
+				}else {
+
+					gp.toggleInGameMenu();
+				}
 				break;
 			case KeyEvent.VK_BACK_QUOTE:
 				gp.toggleMode(GameState.CONSOLE);

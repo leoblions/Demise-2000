@@ -73,6 +73,7 @@ public class GamePanel extends JPanel implements Runnable{
 	public boolean tilesPlacedComplete = false;
 	public int level = 0;
 	boolean playerPressActivate = false;;
+	public static int inGameMenu = 1;
 	
 	/**
 	 * Declare main game objects
@@ -111,6 +112,7 @@ public class GamePanel extends JPanel implements Runnable{
 	Warp warp;
 	Plant plant;
 	StackMenu mainMenu;
+	StackMenu pauseMenu;
 	Spinner spinner;
 	
 	public enum InputAction{
@@ -140,7 +142,10 @@ public class GamePanel extends JPanel implements Runnable{
 		CONVERSATION,
 		MENU,
 		PLAY,
-		CONSOLE
+		CONSOLE,
+		OPTION,
+		STORE,
+		QUESTION
 		
 	}
 	
@@ -205,6 +210,7 @@ public class GamePanel extends JPanel implements Runnable{
 		projectile=new Projectile(this);
 		spinner = new Spinner(this,(int)WIDTH/2,(int)(HEIGHT*0.20),200);
 		mainMenu=new StackMenu(this,0);
+		pauseMenu=new StackMenu(this,1);
 
 		warp=new Warp(this);
 		console = new Console(this);
@@ -348,6 +354,7 @@ public class GamePanel extends JPanel implements Runnable{
 		plant.update();
 		spinner.update();
 		mainMenu.update();
+		pauseMenu.update();
 		Point p = this.getMousePosition();
 		if (p != null){
 			this.mouseX = (int) p.getX();
@@ -399,6 +406,7 @@ public class GamePanel extends JPanel implements Runnable{
 		
 		spinner.draw();
 		mainMenu.draw();
+		pauseMenu.draw();
 		
 	}
 
@@ -440,8 +448,10 @@ public class GamePanel extends JPanel implements Runnable{
 		System.out.println("Toggle game mode: "+state.toString());
 		if (gameState==state) {
 			gameState=DEFAULT_GAME_STATE;
-		}else {
+		}else if (gameState==DEFAULT_GAME_STATE) {
 			gameState=state;
+		}else {
+			
 		}
 
 		System.out.println("Current state: "+gameState.toString());

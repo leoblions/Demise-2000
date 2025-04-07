@@ -19,7 +19,8 @@ public class StackMenu implements IClickableElement{
 	private final int FONTISPIECE_X_ADJUSTMENT = -10;
 	private Font arial20;
 
-	private final String fileURL = "/images/title.png";
+	private final String fileURL0 = "/images/title.png";
+	private final String fileURL1 = "/images/paused.png";
 	
 	GamePanel gp;
 	private static String[] mainMenuLabels = new String[] {
@@ -88,6 +89,17 @@ public class StackMenu implements IClickableElement{
 	
 	private void initImages() {
 		fontispiece = null;
+		String fileURL = null;
+		switch(kind) {
+		case 0:
+			fileURL = fileURL0;
+			break;
+		case 1:
+			fileURL = fileURL1;
+			break;
+		default:
+			return;
+		}
 		try {
 			fontispiece = ImageIO.read(getClass().getResourceAsStream(fileURL));
 			fontispieceW = fontispiece.getWidth();
@@ -183,8 +195,28 @@ public class StackMenu implements IClickableElement{
 		}
 	}
 	
+	private boolean isActive() {
+		switch (kind){
+		case 0:
+			if (gp.gameState==GameState.MENU)return true;
+			break;
+		case 1:
+			if (gp.gameState==GameState.PAUSED)return true;
+			break;
+		case 2:
+			if (gp.gameState==GameState.OPTION)return true;
+			break;
+		case 3:
+			if (gp.gameState==GameState.OPTION)return true;
+			break;
+		}
+		
+		return false;
+		
+	}
+	
 	public void update() {
-		if(gp.gameState==GameState.MENU) {
+		if(isActive() ) {
 			visible=true;
 			if(playerClicked) {
 				playerClicked=false;
@@ -232,6 +264,27 @@ public class StackMenu implements IClickableElement{
 				break;
 			}
 		break;	
+		case PAUSED:
+			switch (id) {
+			case 0:
+				gp.gameState=GameState.PLAY;
+				break;
+			case 1:
+				gp.gameState=GameState.PLAY;
+				break;
+			case 2:
+				gp.gameState=GameState.PLAY;
+				break;
+			case 3:
+				gp.gameState=GameState.PLAY;
+				break;
+			case 4:
+				gp.gameThread.interrupt();
+				System.exit(0);
+				
+				break;
+			}
+		break;
 		default:
 			break;
 		}
@@ -239,7 +292,7 @@ public class StackMenu implements IClickableElement{
 	}
 
 	public void click(int kind, int mouseX, int mouseY) {
-		if(gp.gameState==GameState.MENU) {
+		if(visible) {
 			playerClicked = true;
 			mouseClickData[0]=kind;
 			mouseClickData[1]=mouseX;

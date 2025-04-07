@@ -35,6 +35,7 @@ public class Player implements IInputListener {
 	public int playerScreenX, playerScreenY;
 	public int health=100;
 	private int stamina=100;
+	public int money=110;
 	public PlayerState state;
 	private final int CYCLE_IMAGE_FREQ = 9;
 	private final int MAX_HEALTH = 100;
@@ -43,6 +44,7 @@ public class Player implements IInputListener {
 	private final int STAM_HEAL_RATE = 12;
 	private final int START_HEALTH = 80;
 	private final int STAMINA_DRAIN = 1;
+	
 	private final String SPRITE_SHEET = "/images/entityP.png";
 	private final String SPRITE_SHEET_ATTACK = "/images/entityPA.png";
 	private Pacer animationPacer, healPacer, staminaPacer;
