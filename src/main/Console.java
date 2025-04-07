@@ -87,6 +87,10 @@ public class Console {
 				 kind = Integer.parseInt(splitCommand[1]);
 				gp.tileManager.fillTile(kind);
 				break;
+			case "ADDITEM":
+				 kind = Integer.parseInt(splitCommand[1]);
+				gp.inventory.addItem(kind, 1);
+				break;
 			case "TILE":
 				gp.editor.editMode=EditMode.TILE;
 				if(wordAmount!=2) break;

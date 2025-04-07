@@ -103,7 +103,9 @@ public class HUDToolbar {
 	}
 
 	public void drawInventoryToolbarItemSprites() {
-
+		if (null == inventoryKindAmount ) {
+			inventoryKindAmount = gp.inventory.queryKindAndAmount();
+		}
 		int spriteAmount = 10;
 		if (inventoryKindAmount.length < 10) {
 			spriteAmount = inventoryKindAmount.length;

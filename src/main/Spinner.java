@@ -149,6 +149,13 @@ public class Spinner {
 	}
 	public void update() {
 		
+		if(gp.gameState==GameState.MENU||gp.gameState==GameState.PAUSED) {
+			visible=true;
+		}else {
+			visible=false;
+			return;
+		}
+		
 		incrementAngles();
 		int blueCh = blue+colorWave.getValue();
 		color =  new Color(red,green,blueCh,100);
@@ -157,11 +164,7 @@ public class Spinner {
 			yPoints[i] = memoY[angles[i]];
 			xPoints[i] = memoX[angles[i]];
 		}
-		if(gp.gameState==GameState.MENU||gp.gameState==GameState.PAUSED) {
-			visible=true;
-		}else {
-			visible=false;
-		}
+		
 
 		
 		
