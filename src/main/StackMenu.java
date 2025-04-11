@@ -270,9 +270,11 @@ public class StackMenu implements IClickableElement{
 				gp.gameState=GameState.PLAY;
 				break;
 			case 1:
+				gp.saveData.updateAndSaveDataToFile();
 				gp.gameState=GameState.PLAY;
 				break;
 			case 2:
+				gp.saveData.loadSaveDataFromFileAndUpdateClasses();
 				gp.gameState=GameState.PLAY;
 				break;
 			case 3:

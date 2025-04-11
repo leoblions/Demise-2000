@@ -96,39 +96,27 @@ public class Barrier implements IEditableComponent {
 
 	public void playerAttackBarrierMelee() {
 		
-		int pgX = gp.player.tileForward[0]  ;
-		int pgY = gp.player.tileForward[1]  ;
-		int fwX = gp.player.tileForward[0]  * GamePanel.TILE_SIZE_PX;
-		int fwY = gp.player.tileForward[1] * GamePanel.TILE_SIZE_PX ;
+		int forwardTileX = gp.player.tileForward[0]  ;
+		int forwardTileY = gp.player.tileForward[1]  ;
+		
+		int forwardWorldX = gp.player.tileForward[0] * GamePanel.TILE_SIZE_PX ;
+		int forwardWorldY = gp.player.tileForward[1] * GamePanel.TILE_SIZE_PX ;
 		int kind ;
 		try {
-			kind = barrierGrid[pgY][pgX];
+			kind = barrierGrid[forwardTileY][forwardTileX];
 			if (kind != BLANK_ITEM_TYPE) {
 				System.out.println("Player melee barrier "+kind);
-				int UID = getUIDForbarrierGridCoords(pgY, pgX);
+				int UID = getUIDForbarrierGridCoords(forwardTileY, forwardTileX);
 				//toggleBarrier(kind, UID);
 				if(kind>=0) {
-					 barrierGrid[pgY][pgX]=BLANK_ITEM_TYPE; // for displaying barrier sprite
-					 gp.tileManager.revertTileMarkedAsBarrier(pgX,pgY);
-					 gp.particle.addParticle(pgX, fwY, RUBBLE);
+					 barrierGrid[forwardTileY][forwardTileX]=BLANK_ITEM_TYPE; // for displaying barrier sprite
+					 gp.tileManager.revertTileMarkedAsBarrier(forwardTileX,forwardTileY);
+					 gp.particle.addParticle(forwardWorldX, forwardWorldY, RUBBLE);
 					 return;
 				}
 				
 			}
-			kind = barrierGrid[pgY+1][pgX];
-			if (kind != BLANK_ITEM_TYPE) {
-				System.out.println("Player melee barrier "+kind);
-				int UID = getUIDForbarrierGridCoords(pgY+1, pgX);
-				//toggleBarrier(kind, UID);
-				if(kind>=0) {
-					 barrierGrid[pgY+1][pgX]=BLANK_ITEM_TYPE;
-					 gp.particle.addParticle(fwX, fwY+GamePanel.TILE_SIZE_PX, RUBBLE);
-					 gp.tileManager.revertTileMarkedAsBarrier(pgX,pgY);
-					 toggleBarrier(kind, UID);
-					 return;
-				}
-				
-			}
+			
 		}catch(ArrayIndexOutOfBoundsException e) {
 		}
 	}

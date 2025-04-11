@@ -34,7 +34,7 @@ public class Player implements IInputListener {
 	public int velX, velY;
 	public int playerScreenX, playerScreenY;
 	public int health=100;
-	private int stamina=100;
+	public int stamina=100;
 	public int money=110;
 	public PlayerState state;
 	private final int CYCLE_IMAGE_FREQ = 9;
@@ -44,6 +44,10 @@ public class Player implements IInputListener {
 	private final int STAM_HEAL_RATE = 12;
 	private final int START_HEALTH = 80;
 	private final int STAMINA_DRAIN = 1;
+	
+	// tool
+	public AttackMode attackMode = AttackMode.NONE;
+	
 	
 	private final String SPRITE_SHEET = "/images/entityP.png";
 	private final String SPRITE_SHEET_ATTACK = "/images/entityPA.png";
@@ -88,6 +92,10 @@ public class Player implements IInputListener {
 
 	public enum PlayerState {
 		WALK, STAND, DEAD, ZOMBIE, POD, ATTACK, DIZZY
+	}
+	
+	public enum AttackMode {
+		SHOOT, GRENADE, HOE, DIG, PICK, SLASH, SPRAY, NONE,SEED
 	}
 	
 	public boolean getRun() {
@@ -529,16 +537,33 @@ public class Player implements IInputListener {
 		attack = true;
 		attackTimeout.setDelay(60);
 		walkCycleCounter = 0;
-		int ax = tileForward[0] * gp.TILE_SIZE_PX;
-		int ay = tileForward[1] * gp.TILE_SIZE_PX;
-		gp.widget.playerAttackWidgetMelee();
-		if(!gp.projectile.playerFireProjectile()) {
-
+		calculateTileForward();
+		
+		
+		gp.inventory.selectProjectileType();
+		switch(attackMode) {
+		case SHOOT:
+			gp.projectile.playerFireProjectile();
+			break;
+		case SLASH:
+			gp.widget.playerAttackWidgetMelee();
 			gp.particle.addParticleUnit(gp.particle.Swosh(worldX, worldY, direction));
 			gp.barrier.playerAttackBarrierMelee();
 			gp.entityManager.playerAttackEntityMelee();
+			break;
+		case SEED:
+			gp.plant.plantSeed();
+			break;
+		case HOE:
+			gp.plant.hoeGround();
+			break;
+		default:
+			break;
 		}
-		gp.inventory.selectProjectileType();
+		
+		
+		
+		
 
 	}
 

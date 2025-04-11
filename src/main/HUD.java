@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 
 import javax.imageio.ImageIO;
 
+import main.GamePanel.GameState;
 import main.GamePanel.InputAction;
 
 public class HUD implements IStatusMessageListener, IInputListener {
@@ -98,6 +99,7 @@ public class HUD implements IStatusMessageListener, IInputListener {
 	Color smBorder = new Color(50, 50, 50, alpha);
 	Color healthBarColor = new Color(50, 200, 50);
 	Color clear = new Color(50, 200, 50,0);
+	public boolean receivedInput =false;
 	
 	private static boolean mboxTextVisible ;
 	private static int mboxTextVisibleTimeout =60;
@@ -264,7 +266,11 @@ public class HUD implements IStatusMessageListener, IInputListener {
 		
 		showPrompt = !showActionPromptDelay.delayExpired();
 		showActionPromptDelay.reduce();
-		toolbar.handleMenuInput(this.movesRequested) ;
+		if(receivedInput) {
+
+			toolbar.handleMenuInput(this.movesRequested) ;
+		}
+		this.receivedInput  = false;
 		
 		
 	}
@@ -455,7 +461,7 @@ public class HUD implements IStatusMessageListener, IInputListener {
 
 	@Override
 	public void inputListenerAction(InputAction action) {
-
+		this.receivedInput = true;
 		switch (action) {
 		case UP:
 			this.movesRequested[0] = true;
@@ -483,10 +489,13 @@ public class HUD implements IStatusMessageListener, IInputListener {
 			this.movesRequested[3] = false;
 			break;
 		case FIRE:
+			if(gp.gameState==GameState.TOOLBAR) {
+				toolbar.clearItem();
+			}
 			break;
 		case ACTION:
-			gp.inventory.selectItem(toolbar.itemEq);
-			System.out.println("select item "+toolbar.itemEq);
+			gp.inventory.selectItem(gp.inventory.getEquippedItemType());
+			System.out.println("select item "+gp.inventory.getEquippedItemType());
 			break;
 		case INVENTORY:
 			//p.inventory.selectItem(toolbar.itemEq);

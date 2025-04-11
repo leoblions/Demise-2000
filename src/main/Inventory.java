@@ -2,6 +2,9 @@ package main;
 
 import java.util.HashMap;
 import java.util.Map.Entry;
+
+import main.Player.AttackMode;
+
 import java.util.Set;
 
 public class Inventory {
@@ -13,6 +16,10 @@ public class Inventory {
 	public final int STONE = 25;
 	public final int IRON = 26;
 
+	// only place player's active item should be referenced
+	private static final int BLANK_ITEM_ID = -1;
+	private int equippedItem;
+
 	public int activeItem = BLANK_ITEM_KIND;
 	public final int BLANK_PRIJECTILE_TYPE = -1;
 	public int projectileType = -1;
@@ -21,7 +28,7 @@ public class Inventory {
 	public Inventory(GamePanel gp) {
 		this.gp = gp;
 		inventoryItems = new HashMap<Integer, Integer>();
-		testInv();
+		//stestInv();
 		itemNames = new String[] { "blue briefcase", "brown briefcase ", "bucket", "gold coin", "diamond", "emerald",
 				"ruby", "sapphire", "fire extinguisher", "iron key", "brass key", "anodized key", "medkit",
 				"healing herb", "semi auto pistol", "snap trap",
@@ -31,6 +38,45 @@ public class Inventory {
 
 		};
 
+	}
+	
+	public HashMap<Integer, Integer> getInventoryDataCopy() {
+		HashMap<Integer, Integer> dataCopy = new HashMap<Integer, Integer>();
+		dataCopy = (HashMap<Integer, Integer>) inventoryItems.clone();
+		return dataCopy;
+	}
+	
+	public HashMap<Integer, Integer> copyHashMap(HashMap<Integer, Integer>  oldData ) {
+		HashMap<Integer, Integer> dataCopy = new HashMap<Integer, Integer>();
+		dataCopy = (HashMap<Integer, Integer>) oldData.clone();
+		return dataCopy;
+	}
+	
+	public void setInventoryData(HashMap<Integer, Integer> newInventoryData) {
+		HashMap<Integer, Integer> dataCopy = new HashMap<Integer, Integer>();
+		dataCopy = (HashMap<Integer, Integer>) newInventoryData.clone();
+		inventoryItems = dataCopy;
+	}
+
+	public void setEquippedItemType(int kind) {
+		equippedItem = kind;
+		//int equippedItem = gp.inventory.getEquippedItemType();
+		
+		gp.player.attackMode = switch(equippedItem) {
+		case 8-> AttackMode.SPRAY;
+		case 14->AttackMode.SHOOT;
+		case 17->AttackMode.SEED;
+		case 18->AttackMode.SLASH;
+		case 19->AttackMode.HOE;
+		case 20->AttackMode.SPRAY;
+		case 21->AttackMode.SHOOT;
+		case 22->AttackMode.HOE;
+		default->AttackMode.SLASH;
+		};
+	}
+
+	public int getEquippedItemType() {
+		return equippedItem;
 	}
 
 	private void testInv() {

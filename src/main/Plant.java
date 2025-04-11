@@ -31,6 +31,9 @@ public class Plant implements IEditableComponent{
 	public final int RANDOM_ITEM_DENSITY = 50;
 	public final int MINIMUM_RANDOM_GRIDX = 300;
 	public final int Y_CUTOFF_OFFSET = 40;
+	//
+	private final int SEEDKIND = 1;
+	private final int TILLEDKIND = 0;
 	//public Dictionary<PlantType, Integer> kindMap;
 	int drawableRange;
 	public final int WALL_TILE_TYPE = 1;
@@ -70,7 +73,31 @@ public class Plant implements IEditableComponent{
 
 	}
 	
+	public int[][] copyGrid(int[][] original){
+		int rows = original.length;
+		if( rows==0) return null;
+		int cols = original[0].length;
+		int[][] output = new int[rows][cols];
+		for(int r = 0;r<rows;r++) {
+			for(int c= 0;c<cols;c++) {
+				output[r][c] = original[r][c];
+			}
+		}
+		return output;
+	}
 	
+	public int[][] copyPlantData(){
+		int rows = plantGrid.length;
+		if( rows==0) return null;
+		int cols = plantGrid[0].length;
+		int[][] output = new int[rows][cols];
+		for(int r = 0;r<rows;r++) {
+			for(int c= 0;c<cols;c++) {
+				output[r][c] = plantGrid[r][c];
+			}
+		}
+		return output;
+	}
 
 	
 	private void initPlantImages() throws IOException {
@@ -316,6 +343,48 @@ public class Plant implements IEditableComponent{
 			return true;
 		}
 		return false;
+	}
+
+
+
+
+	public void plantSeed() {
+		modified=true;
+		
+		try {
+			if(this.plantGrid[gp.player.tileForward[1]][gp.player.tileForward[0]] == TILLEDKIND) {
+
+				this.plantGrid[gp.player.tileForward[1]][gp.player.tileForward[0]] = SEEDKIND;
+			}
+			
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+		
+	}
+	public void hoeGround() {
+		modified=true;
+		
+		try {
+			int gx = gp.player.tileForward[0];
+			int gy = gp.player.tileForward[1];
+			int tile = gp.tileManager.getTileYX(gy, gx);
+			// tile should be grass
+			// not contain other plant
+			// not contain widget
+			if( (tile==2||tile==1) &&
+					( plantGrid[gx][gy] == BLANK_ASSET_TYPE)&&
+					gp.widget.getWidgetGridXY(gx, gy)==gp.widget.BLANK_ITEM_TYPE){
+
+				this.plantGrid[gp.player.tileForward[1]][gp.player.tileForward[0]] = TILLEDKIND;
+			}
+			
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+		
 	}
 
 }

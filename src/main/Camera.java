@@ -14,8 +14,8 @@ public class Camera {
 		 */
 		this.gp=gp;
 		System.out.println("camera created");
-		screenCenterWorldX=gp.wpScreenLocX+(gp.WIDTH/2);
-		screenCenterWorldY=gp.wpScreenLocY+(gp.HEIGHT/2);
+		screenCenterWorldX=GamePanel.wpScreenLocX+(gp.WIDTH/2);
+		screenCenterWorldY=GamePanel.wpScreenLocY+(gp.HEIGHT/2);
 	}
 	
 	public double distance(int x1, int y1, int x2, int y2) {
@@ -31,37 +31,33 @@ public class Camera {
 	}
 	
 	public void recenterCamera() {
-		//int playerScreenX = gp.player.worldX - gp.wpScreenLocX;
-		//int playerScreenY = gp.player.worldY - gp.wpScreenLocY;
-		gp.wpScreenLocY =  gp.player.worldY - (gp.HEIGHT/2);
-		gp.wpScreenLocX =  gp.player.worldX - (gp.WIDTH/2);
-		//gp.player.playerScreenX = playerScreenX;
-		//gp.player.playerScreenY = playerScreenY;
+		GamePanel.wpScreenLocY =  gp.player.worldY - (GamePanel.HEIGHT/2);
+		GamePanel.wpScreenLocX =  gp.player.worldX - (GamePanel.WIDTH/2);
 	}
 	
 	
 	public void update() {
-		int playerScreenX = gp.player.worldX - gp.wpScreenLocX;
-		int playerScreenY = gp.player.worldY - gp.wpScreenLocY;
+		int playerScreenX = gp.player.worldX - GamePanel.wpScreenLocX;
+		int playerScreenY = gp.player.worldY - GamePanel.wpScreenLocY;
 		int cameraSpeed = gp.player.velocity;
 		
 		//move camera up
-		if(playerScreenY < (gp.HEIGHT/2) - MOVE_CAMERA_THRESHOLD_DISTANCE) {
-			gp.wpScreenLocY -= cameraSpeed;
+		if(playerScreenY < (GamePanel.HEIGHT/2) - MOVE_CAMERA_THRESHOLD_DISTANCE) {
+			GamePanel.wpScreenLocY -= cameraSpeed;
 		}
 		
 		//move camera down
-		if(playerScreenY > (gp.HEIGHT/2) + MOVE_CAMERA_THRESHOLD_DISTANCE) {
-			gp.wpScreenLocY += cameraSpeed;
+		if(playerScreenY > (GamePanel.HEIGHT/2) + MOVE_CAMERA_THRESHOLD_DISTANCE) {
+			GamePanel.wpScreenLocY += cameraSpeed;
 		}
 		//move cam left
-		if(playerScreenX < (gp.WIDTH/2) - MOVE_CAMERA_THRESHOLD_DISTANCE) {
-			gp.wpScreenLocX -= cameraSpeed;
+		if(playerScreenX < (GamePanel.WIDTH/2) - MOVE_CAMERA_THRESHOLD_DISTANCE) {
+			GamePanel.wpScreenLocX -= cameraSpeed;
 		}
 		
 		//move camera down
-		if(playerScreenX > (gp.WIDTH/2) + MOVE_CAMERA_THRESHOLD_DISTANCE) {
-			gp.wpScreenLocX += cameraSpeed;
+		if(playerScreenX > (GamePanel.WIDTH/2) + MOVE_CAMERA_THRESHOLD_DISTANCE) {
+			GamePanel.wpScreenLocX += cameraSpeed;
 		}
 		
 		gp.player.playerScreenX = playerScreenX;

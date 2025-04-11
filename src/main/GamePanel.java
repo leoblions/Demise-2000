@@ -114,6 +114,7 @@ public class GamePanel extends JPanel implements Runnable{
 	StackMenu mainMenu;
 	StackMenu pauseMenu;
 	Spinner spinner;
+	SaveData saveData;
 	
 	public enum InputAction{
 		UP,
@@ -211,6 +212,7 @@ public class GamePanel extends JPanel implements Runnable{
 		spinner = new Spinner(this,(int)WIDTH/2,(int)(HEIGHT*0.20),200);
 		mainMenu=new StackMenu(this,0);
 		pauseMenu=new StackMenu(this,1);
+		saveData = new SaveData(this);
 
 		warp=new Warp(this);
 		console = new Console(this);

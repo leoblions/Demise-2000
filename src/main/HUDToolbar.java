@@ -33,7 +33,7 @@ public class HUDToolbar {
 	private static int itemEqScreenX = 10;
 	private static int[] toolbarBoxOffsetsX;
 	private static int[][] inventoryKindAmount;
-	public static int itemEq = BLANK_ITEM_ID;
+	private static int itemEq = BLANK_ITEM_ID; //only highlighted item in toolbar
 	public static boolean showToolbar = false;
 	public boolean toggleActivate = false;
 	public static boolean showEquippedItemFrame = true;
@@ -134,18 +134,19 @@ public class HUDToolbar {
 			}
 			selectedSlot = Utils.clamp(0, TOOLBAR_SLOTS, selectedSlot);
 			if (moved) {
-				try {
-
-					System.out.println("toolbar move selector "+selectedSlot);
-					itemEq = inventoryKindAmount[selectedSlot][0];
-					gp.inventory.selectItem(itemEq);
-					//System.out.println("inv item " + gp.inventory.selectItem(itemEq));
-					selectedBoxX = ITEM_EQ_OFFSET_X + (selectedSlot * ITEM_EQ_FRAME_SIZE);
-					selectedBoxY = gp.getHeight() - ITEM_EQ_OFFSET_Y - ITEM_EQ_FRAME_SIZE;
-					gp.inventory.selectProjectileType();
-				} catch (ArrayIndexOutOfBoundsException e) {
+				System.out.println("toolbar move selector "+selectedSlot);
+				selectedBoxX = ITEM_EQ_OFFSET_X + (selectedSlot * ITEM_EQ_FRAME_SIZE);
+				selectedBoxY = gp.getHeight() - ITEM_EQ_OFFSET_Y - ITEM_EQ_FRAME_SIZE;
 				
+				try {
+					itemEq = inventoryKindAmount[selectedSlot][0];
+					
+				} catch (ArrayIndexOutOfBoundsException e) {
+					System.err.println("No item in that slot");
+					itemEq = BLANK_ITEM_ID;
 				}
+				gp.inventory.selectItem(itemEq);
+				gp.inventory.selectProjectileType();
 			}
 
 		}
@@ -153,6 +154,9 @@ public class HUDToolbar {
 		movesRequested[1] = false;
 		movesRequested[2] = false;
 		movesRequested[3] = false;
+		
+		gp.inventory.selectItem(itemEq);
+		gp.inventory.setEquippedItemType(itemEq);
 	}
 
 	public void draw() {
@@ -226,6 +230,22 @@ public class HUDToolbar {
 			selectedBoxY = gp.getHeight() - ITEM_EQ_OFFSET_Y - ITEM_EQ_FRAME_SIZE;
 		}
 
+	}
+
+	public void clearItem() {
+		int kind = BLANK_ITEM_ID;
+		itemEq = kind;
+		gp.inventory.selectItem(itemEq);
+		gp.inventory.setEquippedItemType(itemEq);
+		
+	}
+	
+	public void toolbarSetActiveItem(int kind) {
+		//int kind = BLANK_ITEM_ID;
+		itemEq = kind;
+		gp.inventory.selectItem(itemEq);
+		gp.inventory.setEquippedItemType(itemEq);
+		
 	}
 
 }

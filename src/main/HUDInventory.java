@@ -472,8 +472,11 @@ public class HUDInventory implements IClickableElement{
 			if (button.contains(clickPoint)) {
 				System.out.println("Player select item");
 				kind = getItemTypeFromRowID(button.id);
+				System.out.println("  select item kind: "+kind);
 				gp.inventory.selectItem(kind);
-				gp.hud.toolbar.itemEq=kind;
+				//gp.hud.toolbar.itemEq=kind;
+				gp.hud.toolbar.toolbarSetActiveItem(kind);
+				gp.inventory.setEquippedItemType(kind);
 				gp.gameState=GameState.PLAY;
 				return;
 			}

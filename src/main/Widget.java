@@ -107,6 +107,14 @@ public class Widget implements IEditableComponent {
 
 		gp.addComponent(this);
 	}
+	
+	public int getWidgetGridXY(int gx, int gy) {
+		int retval=-1;
+		try {
+			retval = widgetGrid[gy][gx];
+		}catch(ArrayIndexOutOfBoundsException e) {}
+		return retval;
+	}
 
 	public int getUIDForWidgetGridCoords(int gridX, int gridY) {
 		for (WidgetRecord wr : widgetRecords) {
