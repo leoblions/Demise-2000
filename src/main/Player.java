@@ -17,14 +17,20 @@ public class Player implements IInputListener {
 	// worldX and worldY are the TLC of the hitbox in world
 	public int gridX, gridY, worldX, worldY;
 	public int collision;
-	// public int wpSolidAreaX,wpSolidAreaY,wpSolidAreaWidth,wpSolidAreaHeight;
-	public Rectangle wpSolidArea;
+	
+	public Rectangle wpSolidArea; //for collisions
+	public Rectangle wpActivateArea;// for activating widgets, NPCs
 	public Rectangle spriteRect;
 	private Rectangle proposedMove;
-	public int spriteHitboxOffsetX = -20;
-	public int spriteHitboxOffsetY = 0;
+	private int spriteHitboxOffsetX = -20;
+	private int spriteHitboxOffsetY = 0;
 	public int velocity = 5;
 	public int defaultVelocity = 5;
+	
+	private static final int PLAYER_COLLIDER_W = 15;
+	private static final int PLAYER_COLLIDER_H = 35;
+	private static final float PLAYER_ACTIVATE_RECT_MULTIPLIER = 3.0f;
+	private int activateAreaOffsetX, activateAreaOffsetY;
 
 	public final float DIAGONAL_FACTOR = 0.71f;
 	private boolean run = false;
@@ -66,9 +72,14 @@ public class Player implements IInputListener {
 	public Player(GamePanel gp) {
 		this.gp = gp;
 		this.wpSolidArea = new Rectangle();
+		this.wpActivateArea = new Rectangle();
 		this.proposedMove = new Rectangle();
-		this.wpSolidArea.width = 15;
-		this.wpSolidArea.height = 35;
+		this.wpSolidArea.width = PLAYER_COLLIDER_W;
+		this.wpSolidArea.height = PLAYER_COLLIDER_H;
+		this.wpActivateArea.width = (int)PLAYER_ACTIVATE_RECT_MULTIPLIER * this.wpSolidArea.width;
+		this.wpActivateArea.height = (int)PLAYER_ACTIVATE_RECT_MULTIPLIER * this.wpSolidArea.height;
+		activateAreaOffsetX = this.wpActivateArea.width/2;
+		activateAreaOffsetY = this.wpActivateArea.height/2;
 		this.proposedMove.width = wpSolidArea.width;
 		this.proposedMove.height = wpSolidArea.height;
 		this.worldX = 200;
@@ -95,7 +106,7 @@ public class Player implements IInputListener {
 	}
 	
 	public enum AttackMode {
-		SHOOT, GRENADE, HOE, DIG, PICK, SLASH, SPRAY, NONE,SEED
+		SHOOT, GRENADE, HOE, DIG, PICK, SLASH, SPRAY, NONE,SEED, BOMB
 	}
 	
 	public boolean getRun() {
@@ -228,6 +239,8 @@ public class Player implements IInputListener {
 		playerHeal();
 		this.wpSolidArea.x = worldX;
 		this.wpSolidArea.y = worldY;
+		this.wpActivateArea.x = worldX - activateAreaOffsetX;
+		this.wpActivateArea.y = worldY - activateAreaOffsetY;
 		attack = false; //reset attack flag
 
 	}
@@ -543,6 +556,7 @@ public class Player implements IInputListener {
 		gp.inventory.selectProjectileType();
 		switch(attackMode) {
 		case SHOOT:
+		case BOMB:
 			gp.projectile.playerFireProjectile();
 			break;
 		case SLASH:

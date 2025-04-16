@@ -13,8 +13,11 @@ import javax.imageio.ImageIO;
 
 import main.GamePanel.GameState;
 
-public class HUDInventory implements IClickableElement{
+public class HUDStore implements IClickableElement{
 	/*
+	 * 
+	 * Works similarly to inventory.  Sell screen shows player inventory with sell button replacing delete.
+	 * Buy mode only has buy button.
 	 * Draw a 3x10 grid containing item image, name, quantity, and a button to use and drop the item
 	 * 0: image 
 	 * 1: name
@@ -29,13 +32,17 @@ public class HUDInventory implements IClickableElement{
 	private static final String CELL_C = "/images/menuCellC.png";
 	private static final String BAR_BORDER = "/images/barBorder.png";
 	private static final String NAMEPLATE_SPRITE = "/images/nameplateC.png";
-	private static final String NAMEPLATE_TITLE = "INVENTORY";
+	private static final String BUY_MODE_TITLE = " -- Buy Items --";
+	private static final String SELL_MODE_TITLE = " -- Sell Items --";
+	private String menuTitle = "";
 	private static int titleX, titleY;
 	private static final int ITEM_EQ_OFFSET_X = 15;
 	private static final int ITEM_EQ_OFFSET_Y = 15;
 	private static final int ITEM_EQ_FRAME_SIZE = 70;
 	private final int ITEM_ICON_SIZE = 40;
 	private final int CELL_SIZE = 55;
+	
+	private BufferedImage rsBuy, rsSell, rsSellItems, rsBuyItems, rsTalk, rsDown,rsUp;
 
 	private final int TEXT_CORNER_OFFSET = 20;
 	private static final int CELL_CONTENT_OFFSET = 10;
@@ -45,6 +52,8 @@ public class HUDInventory implements IClickableElement{
 	private final int MENU_SLOTS_Y = 10;
 	
 	private boolean inventoryDisplayedLastTick = false;
+	
+	public StoreMode storeMode = StoreMode.BUY;
 	
 	int screenX,screenY, cellUnitSize, width, height;
 	int titleScreenY;
@@ -61,8 +70,8 @@ public class HUDInventory implements IClickableElement{
 	int invButtonX,invButtonY,pageControlButtonSize,pageControlButtonY,pageControlButtonX1,pageControlButtonX2,pageControlButtonX3;
 	Rectangle[]  selectButtonRect,deleteButtonRect;
 	Button[] pageButtons; // 
-	Button[] selectButtons;
-	Button[] deleteButtons;
+	Button[] buyButtons;
+	Button[] sellButtons, infoButtons;
 	int rowStart,rowEnd,rowsToDisplay;
 	int deleteXOffset, selectXOffset;
 	
@@ -95,10 +104,14 @@ public class HUDInventory implements IClickableElement{
 	Stroke stroke4 = new BasicStroke(4);
 	Stroke stroke10 = new BasicStroke(10);
 	
+	public enum StoreMode {
+		BUY, SELL
+	}
+	
 	
 	GamePanel gp;
 
-	public HUDInventory(GamePanel gp) {
+	public HUDStore(GamePanel gp) {
 		this.gp = gp;
 		
 		initLayoutDimensions();
@@ -111,7 +124,9 @@ public class HUDInventory implements IClickableElement{
 	}
 	
 	private void setButtonImages() {
-		// TODO Auto-generated method stub
+		pageButtons[0].setImage(inventoryButtonImages[0]);
+		pageButtons[1].setImage(inventoryButtonImages[1]);
+		pageButtons[2].setImage(inventoryButtonImages[3]);
 		
 	}
 
@@ -144,18 +159,26 @@ public class HUDInventory implements IClickableElement{
 		pageControlButtonX1 = invButtonX + 4;
 		pageControlButtonX2 = pageControlButtonX1 + pageControlButtonSize ;
 		pageControlButtonX3 = pageControlButtonX2 + pageControlButtonSize ;
-		pageButtons = new Button[3];
-		deleteButtons = new Button[10];
-		selectButtons = new Button[10];
+		
+		pageButtons = new Button[5];
+		sellButtons = new Button[10];
+		buyButtons = new Button[10];
+		infoButtons = new Button[10];
 		// move page buttons
 		pageButtons[0] = Button.InventoryButton(gp,pageControlButtonX1,pageControlButtonY,pageControlButtonSize,pageControlButtonSize).setID(0);
 		pageButtons[1] = Button.InventoryButton(gp,pageControlButtonX2,pageControlButtonY,pageControlButtonSize,pageControlButtonSize).setID(1);
 		pageButtons[2] = Button.InventoryButton(gp,pageControlButtonX3,pageControlButtonY,pageControlButtonSize,pageControlButtonSize).setID(2);
+		//store buttons
+		int pageControlButtonY2 = pageControlButtonY - pageControlButtonSize;
+		int pageControlButtonY3 = pageControlButtonY - (2*pageControlButtonSize);
+		pageButtons[3] = Button.InventoryButton(gp,pageControlButtonX1,pageControlButtonY2,pageControlButtonSize*3,pageControlButtonSize).setID(3);
+		pageButtons[4] = Button.InventoryButton(gp,pageControlButtonX1,pageControlButtonY3,pageControlButtonSize*3,pageControlButtonSize).setID(4);
 		// select and delete buttons
 		for (int i = 0; i < MENU_SLOTS_Y;i++) {
 			int buttonY = (i*cellUnitSize)+screenY;
-			selectButtons[i] = Button.InventoryButton(gp,screenX+selectXOffset, buttonY,cellUnitSize,cellUnitSize).setID(i);
-			deleteButtons[i] = Button.InventoryButton(gp,screenX+deleteXOffset, buttonY,cellUnitSize,cellUnitSize).setID(i);
+			buyButtons[i]  = Button.InventoryButton(gp,screenX+selectXOffset, buttonY,cellUnitSize,cellUnitSize).setID(i);
+			sellButtons[i] = Button.InventoryButton(gp,screenX+deleteXOffset, buttonY,cellUnitSize,cellUnitSize).setID(i);
+			infoButtons[i] = Button.InventoryButton(gp,screenX+deleteXOffset, buttonY,cellUnitSize,cellUnitSize).setID(i);
 		
 		}
 		
@@ -185,13 +208,36 @@ public class HUDInventory implements IClickableElement{
 			 * down
 			 * drop
 			 * cancel
+			 * private BufferedImage rsBuy, rsSell, rsSellItems, rsBuyItems, rsTalk, rsDown,rsUp;
 			 */
+			rsBuy = RasterString.getRasterStringAsSingleImage(new RasterString(gp,"BUY",0,0));
+			rsSell = RasterString.getRasterStringAsSingleImage(new RasterString(gp,"SELL",0,0));
+			rsSellItems = RasterString.getRasterStringAsSingleImage(new RasterString(gp,"BUY ITEMS",0,0));
+			rsBuyItems = RasterString.getRasterStringAsSingleImage(new RasterString(gp,"SELL ITEMS",0,0));
+			rsTalk = RasterString.getRasterStringAsSingleImage(new RasterString(gp,"TALK",0,0));
+			rsUp = RasterString.getRasterStringAsSingleImage(new RasterString(gp,"UP",0,0));
+			rsDown = RasterString.getRasterStringAsSingleImage(new RasterString(gp,"DOWN",0,0));
+			
+			
 			
 			
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void stampTextOnButton(Button button, String text, int offsetX, int offsetY) {
+		BufferedImage buttonImage = button.getImage();
+		int w = buttonImage.getWidth();
+		int h = buttonImage.getHeight();
+		BufferedImage output = new BufferedImage(w, h, buttonImage.getType());
+		Graphics2D graphics = (Graphics2D) output.getGraphics();
+		graphics.drawImage(buttonImage,0,0,w,h,null);
+		BufferedImage rsText = RasterString.getRasterStringAsSingleImage(new RasterString(this.gp,text,0,0));
+		graphics.drawImage(rsText,offsetX,offsetY,rsText.getWidth(),rsText.getHeight(),null);
+		
+		button.setImage(output);
 	}
 	
 	private void createGridBackground() {
@@ -311,7 +357,7 @@ public class HUDInventory implements IClickableElement{
 			}
 			//GamePanel.g2.drawImage(itemImages[imageID], currX, currY, ITEM_ICON_SIZE, ITEM_ICON_SIZE, null);
 			String itemname = gp.inventory.itemNames[imageID];
-			int iAmount = gp.inventory.queryItemAmount(imageID,0);
+			int iAmount = gp.inventory.queryItemAmount(imageID,1);
 			String sAmount = String.valueOf(iAmount);
 			GamePanel.g2.drawString(itemname, TEXT_CORNER_OFFSET+currXname, TEXT_CORNER_OFFSET+ currY);
 			GamePanel.g2.drawString(sAmount, TEXT_CORNER_OFFSET+currXamount, TEXT_CORNER_OFFSET+ currY);
@@ -372,9 +418,15 @@ public class HUDInventory implements IClickableElement{
 	public void drawPageControls() {
 		GamePanel.g2.drawString(pageString, pageControlButtonX1+10, pageControlButtonY-20);
 		GamePanel.g2.drawString(moneyString, pageControlButtonX1+10, screenX + 20);
-		GamePanel.g2.drawImage(this.inventoryButtonImages[0] , pageControlButtonX1, pageControlButtonY, pageControlButtonSize, pageControlButtonSize, null);
-		GamePanel.g2.drawImage(this.inventoryButtonImages[1] , pageControlButtonX2, pageControlButtonY, pageControlButtonSize, pageControlButtonSize, null);
-		GamePanel.g2.drawImage(this.inventoryButtonImages[3] , pageControlButtonX3, pageControlButtonY, pageControlButtonSize, pageControlButtonSize, null);
+		for(Button button: pageButtons) {
+			button.draw();
+		}
+//		pageButtons[0].draw();
+//		pageButtons[1].draw();
+//		pageButtons[2].draw();
+//		GamePanel.g2.drawImage(this.inventoryButtonImages[0] , pageControlButtonX1, pageControlButtonY, pageControlButtonSize, pageControlButtonSize, null);
+//		GamePanel.g2.drawImage(this.inventoryButtonImages[1] , pageControlButtonX2, pageControlButtonY, pageControlButtonSize, pageControlButtonSize, null);
+//		GamePanel.g2.drawImage(this.inventoryButtonImages[3] , pageControlButtonX3, pageControlButtonY, pageControlButtonSize, pageControlButtonSize, null);
 	}
 
 	public void draw() {
@@ -383,7 +435,7 @@ public class HUDInventory implements IClickableElement{
 
 		if (showEquippedItemFrame) {
 			int backgroundImage = 0;
-			if (gp.gameState==GameState.INVENTORY) {
+			if (gp.gameState==GameState.STORE) {
 
 				
 				
@@ -391,11 +443,11 @@ public class HUDInventory implements IClickableElement{
 				GamePanel.g2.drawImage(gridbackgroundImage, screenX, screenY, width, height, null);
 				//title bar
 				GamePanel.g2.drawImage(this.images[2] , screenX, titleScreenY, width, cellHeightShort, null);
-				GamePanel.g2.drawString(NAMEPLATE_TITLE, titleX, titleY);
+				GamePanel.g2.drawString(menuTitle, titleX, titleY);
 				drawPageControls();
 				drawMenuItemSprites();
 				drawMenuItemStrings();
-				drawSelectAndDeleteButtons();
+				drawBuyAndSellButtons();
 
 			} else {
 				
@@ -405,14 +457,26 @@ public class HUDInventory implements IClickableElement{
 		}
 	}
 	
-	private void drawSelectAndDeleteButtons() {
+	private void drawBuyAndSellButtons() {
 		
 		for (int i = 0; i < rowsToDisplay;i++) {
 			int buttonY = (i*cellUnitSize)+screenY;
-			//select buttons
-			GamePanel.g2.drawImage(inventoryButtonImages[6],screenX+selectXOffset, buttonY,cellUnitSize,cellUnitSize,null);
-			//delete buttons
-			GamePanel.g2.drawImage(inventoryButtonImages[7],screenX+deleteXOffset, buttonY,cellUnitSize,cellUnitSize,null);
+			int labelY = ((i+1)*cellUnitSize)+screenY-12;
+			int labelH = 15;
+			if(storeMode==StoreMode.BUY) {
+				//col 1
+				GamePanel.g2.drawImage(inventoryButtonImages[9],screenX+selectXOffset, buttonY,cellUnitSize,cellUnitSize,null);
+				GamePanel.g2.drawImage(rsBuy,screenX+selectXOffset, labelY,cellUnitSize,labelH,null);
+				//col 2
+				GamePanel.g2.drawImage(inventoryButtonImages[10],screenX+deleteXOffset, buttonY,cellUnitSize,cellUnitSize,null);
+			}else {
+				//col 1
+				GamePanel.g2.drawImage(inventoryButtonImages[9],screenX+selectXOffset, buttonY,cellUnitSize,cellUnitSize,null);
+				GamePanel.g2.drawImage(rsSell,screenX+selectXOffset, labelY,cellUnitSize,labelH,null);
+				//col 2
+				GamePanel.g2.drawImage(inventoryButtonImages[10],screenX+deleteXOffset, buttonY,cellUnitSize,cellUnitSize,null);
+			}
+			
 		}
 		
 	}
@@ -457,7 +521,7 @@ public class HUDInventory implements IClickableElement{
 		}
 		//delete buttons
 		int kind = -1;
-		for(var button: deleteButtons) {
+		for(var button: sellButtons) {
 			
 			if (button.contains(clickPoint)) {
 				System.out.println("Player delete item");
@@ -468,7 +532,7 @@ public class HUDInventory implements IClickableElement{
 				return;
 			}
 		}
-		for(var button: selectButtons) {
+		for(var button: buyButtons) {
 			if (button.contains(clickPoint)) {
 				System.out.println("Player select item");
 				kind = getItemTypeFromRowID(button.id);
@@ -514,10 +578,16 @@ public class HUDInventory implements IClickableElement{
 	}
 
 	public void update() {
-		if(gp.gameState == GameState.INVENTORY) {
+		if(gp.gameState == GameState.STORE) {
 			recalculateRows();
 			if(!inventoryDisplayedLastTick) {
-				this.inventoryKindAmount = gp.inventory.queryKindAndAmount();
+				if (storeMode==StoreMode.BUY) {
+					this.menuTitle = BUY_MODE_TITLE;
+					this.inventoryKindAmount = gp.inventory.queryKindAndAmount(1);
+				}else {
+					this.menuTitle = SELL_MODE_TITLE;
+					this.inventoryKindAmount = gp.inventory.queryKindAndAmount(0);
+				}
 				
 			}
 			
@@ -539,7 +609,7 @@ public class HUDInventory implements IClickableElement{
 	}
 	
 	public void click(int kind, int mouseX, int mouseY) {
-		if(gp.gameState==GameState.INVENTORY) {
+		if(gp.gameState==GameState.STORE) {
 			playerClicked = true;
 			mouseClickData[0]=kind;
 			mouseClickData[1]=mouseX;

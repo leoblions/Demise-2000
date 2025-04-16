@@ -64,6 +64,9 @@ public class Console {
 			case "HEAL":
 				gp.player.fullHeal();
 				break;
+			case "STORE":
+				gp.gameState=GameState.STORE;
+				break;
 			case "TAI":
 				gp.entityManager.frozen =!gp.entityManager.frozen ;
 				System.out.printf("Entity frozen %b\n",gp.entityManager.frozen);

@@ -57,23 +57,31 @@ public class Entity {
 	public Position position, testPosition;
 	public Rectangle collider;
 	
+	
 	/*
 	 * Types: 
-	 * 0 Orb 
+	 * 0 Meatberry 
 	 * 1 Bat 
 	 * 2 Centipede 
 	 * 3 Spider 
 	 * 4 Maggot 
 	 * 5 Earwig 
-	 * 6 Zombie1 
-	 * 7 Zombie2 
-	 * 8 Mercenary 1 
-	 * 9 Mercenary 2 
+	 * 6 Groundhog 
+	 * 7 Zombie 
+	 * 8 Mercenary
+	 * 9 Mercenary Leader 
+	 * 
 	 * 10 Rick 
 	 * 11 Lilly 
 	 * 12 Rodney 
 	 * 13 Nicole
-	 * 
+	 * 14 Ed
+	 * 15 Melissa
+	 * 16 John
+	 * 17 Terry
+	 * 18 Sue
+	 * 19 Jed
+	 * 20 Mary
 	 */
 
 	/**
@@ -396,9 +404,21 @@ public class Entity {
 		}
 		
 	}
+	
+	public void drawSolidArea(Rectangle solidArea) {
+		if(GamePanel.g2==null)return;
+		GamePanel.g2.setColor(Color.black);
+		int x = solidArea.x - GamePanel.wpScreenLocX;
+		int y = solidArea.y - GamePanel.wpScreenLocY;
+		int width =  solidArea.width;
+		int height = solidArea.height;
+		GamePanel.g2.drawRect(x,y,width,height);
+	}
 
 	public void entityCollidePlayer() {
-		if ( this.wpSolidArea.intersects(gp.player.wpSolidArea)) {
+		//drawSolidArea(  gp.player.wpActivateArea) ;
+		if ( this.wpSolidArea.intersects(gp.player.wpActivateArea)) {
+			
 			
 			if(enemy && alive) {
 				//gp.player.health -= ENEMY_DAMAGE;

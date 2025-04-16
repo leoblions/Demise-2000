@@ -108,7 +108,7 @@ public class RasterString {
 
 	}
 
-	private static BufferedImage getRasterStringAsSingleImage(RasterString instance) {
+	public static BufferedImage getRasterStringAsSingleImage(RasterString instance) {
 		int width = instance.stringContent.length() * letterWidth;
 		WritableRaster wr = null;
 		Graphics2D graphics = null;

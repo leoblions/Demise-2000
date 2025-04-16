@@ -22,7 +22,14 @@ public class Conversation implements IInputListener {
 	public static final int CONV_FILES_FIELDS = 3;
 	public static final boolean LOAD_FIRST_ROOM = true;
 	public static final boolean FREEZE_PLAYER_ON_CONVERSATION = true;
-	public static String playerActorName = "Tony";
+	
+	// string subtitutions
+	public static final String PC_NAME = "Mike";
+	public static final String TOWN_NAME = "Milkington";
+	public static final String CITY_NAME = "Garry";
+	public static final String ACTOR = "ACTOR";
+	public static final char DOUBLE_QUOTE = '"';
+	public static final int ACTOR_NUMBER_STRING_LENGTH = 2;
 
 	public int activeMessageID = 0;
 	public int activeMessageIterator = 0;
@@ -37,6 +44,7 @@ public class Conversation implements IInputListener {
 	ArrayList<ConvRecord> currentConvRecords;
 	HashMap<Integer, Integer[]> conversationChains; // chain ID : messageIDS
 	Integer[] activeChainArray = null;
+	private int speakerNPC;
 
 	/*
 	 * conv.cfg files: messageID`actorID`MessageString
@@ -59,6 +67,12 @@ public class Conversation implements IInputListener {
 
 	public void draw() {
 
+	}
+	
+	public void setSpeakerNPC(int entityKind){
+		if (entityKind>0) {
+			this.speakerNPC = entityKind;
+		}
 	}
 	
 	public ConvRecord getConvRecordByID(int recordID) {
@@ -104,8 +118,10 @@ public class Conversation implements IInputListener {
 		try {
 			activeMessageID = activeChainArray[activeMessageIterator];
 			currentDialogText = getConvRecordByID(activeMessageID).message();
-			gp.hud.dialogTextBox.setTextContent(currentDialogText);
 			String actorName = getActorNameFromID(getConvRecordByID(activeMessageID).actor());
+			currentDialogText = substituteNamesInString(  currentDialogText,   actorName);
+	
+			gp.hud.dialogTextBox.setTextContent(currentDialogText);
 			gp.hud.speakerString.updateString(actorName);
 			if(FREEZE_PLAYER_ON_CONVERSATION) {
 				gp.player.frozen=true;
@@ -115,6 +131,27 @@ public class Conversation implements IInputListener {
 		}
 
 	}
+	
+	private String substituteNamesInString(String rawString, String actorName) {
+		if(rawString.charAt(0)==DOUBLE_QUOTE) {
+			rawString = rawString.substring(1);
+		} 
+		if(rawString.charAt(rawString.length()-1)==DOUBLE_QUOTE) {
+			rawString = rawString.substring(0,rawString.length()-1);
+		}
+		rawString = rawString.replaceAll("TOWN_NAME", TOWN_NAME);
+		rawString = rawString.replaceAll("PC_NAME", PC_NAME);
+		rawString = rawString.replaceAll("ACTOR_NAME", actorName);
+		rawString = rawString.replaceAll("CITY_NAME", CITY_NAME);
+		int location = rawString.indexOf("ACTOR[0-9]+",0);
+		if (-1 != location) {
+			int end = location + ACTOR.length() + ACTOR_NUMBER_STRING_LENGTH;
+			String actorNumberString = rawString.substring(location, end);
+			String actorOther = getActorNameFromID(Integer.parseInt(actorNumberString));
+			rawString = rawString.replaceAll("ACTOR[0-9]+", actorOther);
+		}
+		return rawString;
+	}
 
 	public void advanceConversation() {
 		if(chainActive) {
@@ -122,10 +159,13 @@ public class Conversation implements IInputListener {
 			System.out.println("advanceConversation "+activeMessageID);
 			try {
 				activeMessageID = activeChainArray[activeMessageIterator];
-				currentDialogText = getConvRecordByID(activeMessageID).message();
-				gp.hud.dialogTextBox.setTextContent(currentDialogText);
 				int actorID = getConvRecordByID(activeMessageID).actor();
 				String actorName = getActorNameFromID(actorID);
+				currentDialogText = getConvRecordByID(activeMessageID).message();
+				currentDialogText = substituteNamesInString(  currentDialogText,   actorName);
+
+				gp.hud.dialogTextBox.setTextContent(currentDialogText);
+				
 				//System.out.println(actorID);
 				gp.hud.speakerString.updateString(actorName);
 			} catch (Exception e) {
@@ -145,6 +185,7 @@ public class Conversation implements IInputListener {
 		displayTextBox = false;
 		gp.hud.setShowDialogBox(false);
 		gp.player.frozen = false;
+		gp.brain.endConversationNPC(this.speakerNPC);
 	}
 
 	public void loadRecordsFromFile(int conversationID) {
@@ -292,7 +333,7 @@ public class Conversation implements IInputListener {
 	public String getActorNameFromID(int ID) {
 		switch(ID) {
 		case -1:
-			return playerActorName;
+			return PC_NAME;
 		case 10:
 			return "Rick";
 		case 11:

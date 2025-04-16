@@ -44,9 +44,9 @@ public class Editor implements IClickableElement{
 	}
 	
 	public IEditableComponent getActiveComponent() {
-		for (IEditableComponent c: gp.components) {
-			if (c.getEditMode() == this.editMode){
-				return c;
+		for (IEditableComponent comp: gp.components) {
+			if (comp.getEditMode() == this.editMode){
+				return comp;
 			}
 		}
 		return null;

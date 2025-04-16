@@ -14,6 +14,7 @@ public class Button extends Rectangle{
 	private Color highlight;
 	private final String SPRITE_SHEET_URL = "/images/buttons2.png";
 	private static BufferedImage[] buttonImages; 
+	private BufferedImage backgroundImage; 
 	public BufferedImage icon;
 	public int iconSize = 40;
 	private final int buttonHeightSS = 50;
@@ -33,7 +34,11 @@ public class Button extends Rectangle{
 			throw new IllegalArgumentException("Button: dimension cannot be 0");
 		}
 		this.gp = gp;
-		initImages();
+		if(buttonImages==null) {
+
+			initImages();
+		}
+		backgroundImage = buttonImages[kind];
 		arial20 = new Font("Arial",Font.BOLD,20);
 	}
 	
@@ -64,6 +69,19 @@ public class Button extends Rectangle{
 		
 	}
 	
+	public void setImage(BufferedImage newImage) {
+		if (newImage!=null) {
+			backgroundImage= newImage;
+			
+		}
+		
+	}
+	
+	public BufferedImage getImage(   ) {
+		return backgroundImage;
+		
+	}
+	
 	public Button setID(int id) {
 		this.id=id;
 		return this;
@@ -73,7 +91,7 @@ public class Button extends Rectangle{
 	public void draw() {
 
 		GamePanel.g2.drawRect(this.x, this.y, width, height);
-		GamePanel.g2.drawImage(buttonImages[kind], x, y, width, height, null);
+		GamePanel.g2.drawImage(backgroundImage, x, y, width, height, null);
 		if (kind==0) {
 			GamePanel.g2.setColor(Color.BLACK);
 			GamePanel.g2.setFont(arial20);

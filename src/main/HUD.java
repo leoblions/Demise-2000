@@ -38,8 +38,11 @@ public class HUD implements IStatusMessageListener, IInputListener {
 	public String killCountString = ""; 
 	public String gemCountString = "";
 	public int gemCount = 0;
-	public HUDToolbar toolbar;
-	public HUDInventory inventoryScreen;
+	
+	// subcomponents
+	public HUDToolbar hudToolbar;
+	public HUDInventory hudInventory;
+	public HUDStore hudStore;
 
 	private boolean[] movesRequested=new boolean[4];
 
@@ -110,8 +113,10 @@ public class HUD implements IStatusMessageListener, IInputListener {
 		if(gp==null) System.out.println("HUD ctor received null reference 1") ;
 		if(g2==null) System.out.println("HUD ctor received null reference 2") ;
 		this.gp = gp;
-		inventoryScreen = new HUDInventory(gp);
-		toolbar = new HUDToolbar(gp);
+		// hud subcomponents
+		hudInventory = new HUDInventory(gp);
+		hudToolbar = new HUDToolbar(gp);
+		hudStore = new HUDStore(gp);
 		int runStringX = gp.WIDTH - RUN_STRNG_TEXT_OFFSET_X;
 		int runStringY = RUN_STRNG_TEXT_OFFSET_Y;
 		runString = new RasterString(gp, "RUN", runStringX, runStringY);
@@ -223,9 +228,9 @@ public class HUD implements IStatusMessageListener, IInputListener {
 			promptTextBox.draw();
 		}
 
-		toolbar.draw();
-		inventoryScreen.draw();
-		
+		hudToolbar.draw();
+		hudInventory.draw();
+		hudStore.draw();
 	
 		
 	}
@@ -241,8 +246,9 @@ public class HUD implements IStatusMessageListener, IInputListener {
 		}
 		
 		// check if player pressed to show inv toolbar
-		toolbar.update();
-		inventoryScreen.update();
+		hudToolbar.update();
+		hudInventory.update();
+		hudStore.update();
 		
 		//lcText = "wX: "+ gp.player.worldX+" wY: "+ gp.player.worldY ;
 		gp.clamp(1, 100, health);
@@ -268,7 +274,7 @@ public class HUD implements IStatusMessageListener, IInputListener {
 		showActionPromptDelay.reduce();
 		if(receivedInput) {
 
-			toolbar.handleMenuInput(this.movesRequested) ;
+			hudToolbar.handleMenuInput(this.movesRequested) ;
 		}
 		this.receivedInput  = false;
 		
@@ -490,7 +496,7 @@ public class HUD implements IStatusMessageListener, IInputListener {
 			break;
 		case FIRE:
 			if(gp.gameState==GameState.TOOLBAR) {
-				toolbar.clearItem();
+				hudToolbar.clearItem();
 			}
 			break;
 		case ACTION:

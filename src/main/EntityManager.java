@@ -27,9 +27,61 @@ public class EntityManager implements IEditableComponent,IInputListener{
 	public boolean playerMelee = false;
 
 
+	public String[] entityNames= {
+			"Meatberry",
+			"Bat",
+			"Centipede",
+			"Spider",
+			"Maggot",
+			"Earwig",
+			"Groundhog",
+			"Zombie",
+			"Mercenary",
+			"Mercenary Leader",
+			"Rick",
+			"Lilly",
+			"Rodney",
+			"Nicole",
+			"Ed",
+			"Melissa",
+			"John",
+			"Terry",
+			"Sue",
+			"Jason",
+			"Mary",
+			
+	};
 	public boolean frozen = false;
-
 	public boolean drawHitbox = false;
+	
+	/*
+	 * Types: 
+	 * 0 Meatberry 
+	 * 1 Bat 
+	 * 2 Centipede 
+	 * 3 Spider 
+	 * 4 Maggot 
+	 * 5 Earwig 
+	 * 6 Groundhog 
+	 * 7 Zombie 
+	 * 8 Mercenary
+	 * 9 Mercenary Leader 
+	 * 
+	 * 10 Rick 
+	 * 11 Lilly 
+	 * 12 Rodney 
+	 * 13 Nicole
+	 * 14 Ed
+	 * 15 Melissa
+	 * 16 John
+	 * 17 Terry
+	 * 18 Sue
+	 * 19 Jason
+	 * 20 Mary
+	 */
+	
+	
+	
 	public EntityManager(GamePanel gp) {
 		this.gp=gp;
 		entityRecords = new ArrayList<>();

@@ -9,6 +9,8 @@ public class Projectile {
 	/*
 	 * Projectile class is moving damaging sprites. They are not loaded/saved with
 	 * the level Player and enemies can fire them.
+	 * 0 bullet   1 web   2 poison   3 bomb  4 seed   5 explosion
+	 * 
 	 */
 
 	private final String SPRITE_SHEET = "/images/projectile.png";
@@ -17,13 +19,17 @@ public class Projectile {
 	private final int SWOSH_KIND = 2;
 	private final int MAX_PROJECTILES = 10;
 	private final int DEFAULT_PROJECTILE_SPEED = 10;
+	private final int DEFAULT_PROJECTILE_LIFE = 60;
+	private final int DEFAULT_PROJECTILE_SIZE = 50;
 	private final int BOMB_SPEED = 5;
 	private final int MAX_IMAGE_TYPES = 6;
 	private final int MAX_FRAMES = 4;
 	private final int DEFAULT_TTL = 400;
 	private final int SPRITE_SIZE = 50;
+	private final int BULLET_SIZE = 20;
 	private final int BLOOD_PARTICLE = 1;
 	private final int PROJECTILE_DAMAGE = 50;
+	
 	private Pacer framePacer = new Pacer(5);
 	GamePanel gp;
 	//ArrayList<ProjectileUnit> projectileUnits;
@@ -39,6 +45,10 @@ public class Projectile {
 		initImages();
 		//projectileUnits.add(new ProjectileUnit(10, 10, 1));
 
+	}
+	
+	public enum ProjectileKind{
+		BULLET,WEB,POISON,BOMB,SEED,EXPLOSION
 	}
 
 	
@@ -76,16 +86,16 @@ public class Projectile {
 	}
 
 	public ProjectileUnit addProjectile(int worldX, int worldY, int kind) {
-		ProjectileUnit pu = new ProjectileUnit(worldX, worldY, kind);
+		ProjectileKind pk = ProjectileKind.values()[kind];
+		ProjectileUnit pu = new ProjectileUnit(worldX, worldY, pk);
 		if (kind == 0) {
 			pu.worldY -= 10;
-			pu.velY = 1;
 		}
 		if (kind == 1) {
 			pu.worldY -= 20;
 			pu.worldX -= 20;
 		}
-		pu.timeToLive = 30;
+		pu.timeToLive = DEFAULT_PROJECTILE_LIFE;
 		
 		for (int i = 0; i < MAX_PROJECTILES; i++) {
 			if (projectileUnits[i] == null) {
@@ -116,6 +126,9 @@ public class Projectile {
 		}
 		//System.out.println("add projectile");
 		ProjectileUnit pu = addProjectile(gp.player.worldX, gp.player.worldY, kind);
+		if (kind==ProjectileKind.BULLET.ordinal()) {
+			pu.size = BULLET_SIZE;
+		}
 		setProjectileUnitMotion(pu);
 		return true;
 	}
@@ -148,8 +161,8 @@ public class Projectile {
 				continue;
 			}
 			// pu.frame = pu.selector.getNextImageID();
-			BufferedImage image = imageArray[pu.kind][pu.frame];
-			gp.g2.drawImage(image, pu.worldX - GamePanel.wpScreenLocX, pu.worldY - GamePanel.wpScreenLocY, 50, 50,
+			BufferedImage image = imageArray[pu.kind.ordinal()][pu.frame];
+			gp.g2.drawImage(image, pu.worldX - GamePanel.wpScreenLocX, pu.worldY - GamePanel.wpScreenLocY, pu.size, pu.size,
 					null);
 		}
 
@@ -197,11 +210,14 @@ public class Projectile {
 	}
 
 	class ProjectileUnit {
-		int worldX, worldY, timeToLive, kind;
+		int worldX, worldY, timeToLive;
 		int fmin, fmax, frame, velX, velY;
+		int size;
+		ProjectileKind kind;
 		IImageSelector selector;
 
-		public ProjectileUnit(int startX, int startY, int kind) {
+		public ProjectileUnit(int startX, int startY, ProjectileKind kind) {
+			this.size = DEFAULT_PROJECTILE_SIZE;
 			this.worldX = startX;
 			this.worldY = startY;
 			this.timeToLive = DEFAULT_TTL;

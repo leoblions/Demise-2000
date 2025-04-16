@@ -552,6 +552,17 @@ public class Utils {
 		return arr3;
 		
 	}
+	
+	public static <T> boolean  contains(T[] collection, T query) {
+		// equivalent to Python's "in" keyword using generics
+		// test if a primative variable is in an array
+		for(T test: collection) {
+			if (test==query) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public static BufferedImage imageSetAlpha(BufferedImage input, int alpha) {
 		int rows = input.getHeight();

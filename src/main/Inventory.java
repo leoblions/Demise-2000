@@ -10,6 +10,7 @@ import java.util.Set;
 public class Inventory {
 	private final int BLANK_ITEM_KIND = -1;
 	private HashMap<Integer, Integer> inventoryItems;
+	private HashMap<Integer, Integer> storeItems;
 	GamePanel gp;
 
 	public final int WOOD = 24;
@@ -28,6 +29,7 @@ public class Inventory {
 	public Inventory(GamePanel gp) {
 		this.gp = gp;
 		inventoryItems = new HashMap<Integer, Integer>();
+		storeItems = new HashMap<Integer, Integer>();
 		//stestInv();
 		itemNames = new String[] { "blue briefcase", "brown briefcase ", "bucket", "gold coin", "diamond", "emerald",
 				"ruby", "sapphire", "fire extinguisher", "iron key", "brass key", "anodized key", "medkit",
@@ -37,6 +39,8 @@ public class Inventory {
 				"wood", "stone", "iron"
 
 		};
+		
+		testStore();
 
 	}
 	
@@ -71,6 +75,7 @@ public class Inventory {
 		case 20->AttackMode.SPRAY;
 		case 21->AttackMode.SHOOT;
 		case 22->AttackMode.HOE;
+		case 23->AttackMode.BOMB;
 		default->AttackMode.SLASH;
 		};
 	}
@@ -101,6 +106,21 @@ public class Inventory {
 		selectItem(4);
 
 	}
+	
+	private void testStore() {
+
+		addItemTo(1, 10,storeItems);
+		addItemTo(2, 10,storeItems);
+		addItemTo(3, 10,storeItems);
+		addItemTo(4, 10,storeItems);
+		addItemTo(5, 10,storeItems);
+		addItemTo(6, 10,storeItems);
+		addItemTo(7, 10,storeItems);
+		addItemTo(8, 10,storeItems);
+		addItemTo(9, 10,storeItems);
+
+
+	}
 
 	public void addItem(int itemID, int amountToAdd) {
 
@@ -113,6 +133,20 @@ public class Inventory {
 			System.out.printf("Inventory added itemID: %d , amount: %d , total: %d \n", itemID, amountToAdd, newValue);
 		} else {
 			System.err.printf("Inventory cannot add itemID: %d , amount: %d \n", itemID, amountToAdd);
+		}
+	}
+	
+	public void addItemTo(int itemID, int amountToAdd, HashMap<Integer,Integer>collection) {
+
+		int oldValue = collection.getOrDefault(itemID, 0);
+		// System.out.println("add item");
+		int newValue = 0;
+		if (amountToAdd > 0) {
+			newValue = oldValue + amountToAdd;
+			collection.put(itemID, newValue);
+			System.out.printf("Collection added itemID: %d , amount: %d , total: %d \n", itemID, amountToAdd, newValue);
+		} else {
+			System.err.printf("Collection cannot add itemID: %d , amount: %d \n", itemID, amountToAdd);
 		}
 	}
 
@@ -135,14 +169,34 @@ public class Inventory {
 
 		inventoryItems.remove(itemID);
 	}
+	
+	public int[][] queryKindAndAmount(){
+		return queryKindAndAmount(  0);
+	}
+	
+	private HashMap<Integer,Integer> getCollectionByID(int collectionID){
+		HashMap<Integer,Integer> collection = null;
+		switch(collectionID) {
+		case 0:
+			collection = inventoryItems;
+			// player inventory
+		case 1:
+			collection = storeItems;
+			break;
+		default:
+			collection = inventoryItems;
+		}
+		return collection;
+	}
 
-	public int[][] queryKindAndAmount() {
+	public int[][] queryKindAndAmount(int collectionID) {
+		HashMap<Integer,Integer>collection=getCollectionByID( collectionID);
 		// get 2d array of item kinds and amounts
-		int amountOfItemKindsPresent = inventoryItems.size();
+		int amountOfItemKindsPresent = collection.size();
 		int[][] kvpOuterArray = new int[amountOfItemKindsPresent][];
 		System.out.println("amountOfItemKindsPresent " + amountOfItemKindsPresent);
 		int iter = 0;
-		Set<Entry<Integer, Integer>> es = inventoryItems.entrySet();
+		Set<Entry<Integer, Integer>> es = collection.entrySet();
 		for (Entry<Integer, Integer> entry : es) {
 			int k = entry.getKey();
 			int v = entry.getValue();
@@ -156,10 +210,13 @@ public class Inventory {
 		// return new int[][]{{0,1},{1,1},{3,1}};
 		return kvpOuterArray;
 	}
+	
+	
 
-	public int queryItemAmount(int itemID) {
+	public int queryItemAmount(int itemID, int collectionID) {
+		HashMap<Integer,Integer>collection=getCollectionByID( collectionID);
 
-		return inventoryItems.get(itemID);
+		return collection.get(itemID);
 	}
 
 	public int selectItem(int itemType) {
