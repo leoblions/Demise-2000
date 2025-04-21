@@ -36,6 +36,7 @@ public class HUDInventory implements IClickableElement{
 	private static final int ITEM_EQ_FRAME_SIZE = 70;
 	private final int ITEM_ICON_SIZE = 40;
 	private final int CELL_SIZE = 55;
+	private final int INVENTORY_COLLECTION_ID = 0;
 
 	private final int TEXT_CORNER_OFFSET = 20;
 	private static final int CELL_CONTENT_OFFSET = 10;
@@ -268,7 +269,7 @@ public class HUDInventory implements IClickableElement{
 	public void drawMenuItemSprites() {
 
 		if(null==inventoryKindAmount) {
-			this.inventoryKindAmount = gp.inventory.queryKindAndAmount();
+			this.inventoryKindAmount = gp.inventory.queryKindAndAmount(INVENTORY_COLLECTION_ID);
 		}
 		int items = MENU_SLOTS_Y;
 		if (inventoryKindAmount.length < MENU_SLOTS_Y) {
@@ -464,7 +465,7 @@ public class HUDInventory implements IClickableElement{
 				kind = getItemTypeFromRowID(button.id);
 				gp.inventory.deleteAllItemOfType(kind);
 				recalculateRows();
-				this.inventoryKindAmount = gp.inventory.queryKindAndAmount();
+				this.inventoryKindAmount = gp.inventory.queryKindAndAmount(INVENTORY_COLLECTION_ID);
 				return;
 			}
 		}
@@ -517,7 +518,7 @@ public class HUDInventory implements IClickableElement{
 		if(gp.gameState == GameState.INVENTORY) {
 			recalculateRows();
 			if(!inventoryDisplayedLastTick) {
-				this.inventoryKindAmount = gp.inventory.queryKindAndAmount();
+				this.inventoryKindAmount = gp.inventory.queryKindAndAmount(INVENTORY_COLLECTION_ID);
 				
 			}
 			

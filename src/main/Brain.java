@@ -28,6 +28,7 @@ public class Brain implements Runnable{
 	public HashMap<Integer,Integer> entityFlags; // entity kind -> int flag
 	public HashMap<Integer,int[]> entityConversationChains; 
 	private final Integer[] VENDOR_NPC = {13,14};
+	public boolean talkWithShopkeeper = false;
 	
 	/*
 	 * zoneActions
@@ -211,11 +212,18 @@ public class Brain implements Runnable{
 		
 	}
 	
+	
+	
 	public void endConversationNPC(int kind) {
 		// action to be taken at end of conversation
 		System.out.printf("Brain: player end conversation NPC: %d   \n ",kind);
-		if (Utils.contains(VENDOR_NPC,kind)) {
-			gp.gameState = GameState.STORE;
+		if (Utils.contains(VENDOR_NPC,kind) ) {
+			if(talkWithShopkeeper) {
+				talkWithShopkeeper = false;
+			}else {
+				gp.gameState = GameState.STORE;
+			}
+			
 		}
 		
 	}

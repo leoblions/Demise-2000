@@ -10,6 +10,7 @@ import java.awt.Stroke;
 import java.awt.image.BufferedImage;
 
 import javax.imageio.ImageIO;
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 
 import main.GamePanel.GameState;
 
@@ -32,8 +33,8 @@ public class HUDStore implements IClickableElement{
 	private static final String CELL_C = "/images/menuCellC.png";
 	private static final String BAR_BORDER = "/images/barBorder.png";
 	private static final String NAMEPLATE_SPRITE = "/images/nameplateC.png";
-	private static final String BUY_MODE_TITLE = " -- Buy Items --";
-	private static final String SELL_MODE_TITLE = " -- Sell Items --";
+	private static final String BUY_MODE_TITLE = " Store: Buy Items";
+	private static final String SELL_MODE_TITLE = " Store: Sell Items";
 	private String menuTitle = "";
 	private static int titleX, titleY;
 	private static final int ITEM_EQ_OFFSET_X = 15;
@@ -41,8 +42,14 @@ public class HUDStore implements IClickableElement{
 	private static final int ITEM_EQ_FRAME_SIZE = 70;
 	private final int ITEM_ICON_SIZE = 40;
 	private final int CELL_SIZE = 55;
+	private final int  INVENTORY_COLLECTION_ID = 0;
+	private final int STORE_COLLECTION_ID = 1;
 	
-	private BufferedImage rsBuy, rsSell, rsSellItems, rsBuyItems, rsTalk, rsDown,rsUp;
+	private BufferedImage rsBuy, rsSell;
+	private BufferedImage buttonImageTalk, buttonImageSellItems, buttonImageBuyItems;
+	
+	public final int DEFAULT_PRICE = 10;
+	public final int DEFAULT_MARKUP = 1;
 
 	private final int TEXT_CORNER_OFFSET = 20;
 	private static final int CELL_CONTENT_OFFSET = 10;
@@ -52,7 +59,7 @@ public class HUDStore implements IClickableElement{
 	private final int MENU_SLOTS_Y = 10;
 	
 	private boolean inventoryDisplayedLastTick = false;
-	
+	public int amountToTransact = 1;
 	public StoreMode storeMode = StoreMode.BUY;
 	
 	int screenX,screenY, cellUnitSize, width, height;
@@ -90,7 +97,7 @@ public class HUDStore implements IClickableElement{
 	public static boolean showInventoryScreen = false;
 	public boolean toggleActivate = false;
 	public static boolean showEquippedItemFrame = true;
-	
+	private int pageStringX, pageStringY;
 	private BufferedImage[] images;
 	private BufferedImage[] itemImages;
 	private BufferedImage[] inventoryButtonImages;
@@ -119,6 +126,7 @@ public class HUDStore implements IClickableElement{
 		setButtonImages();
 		createGridBackground();
 		recalculateRows();
+		setPageStringLocation();
 		gp.clickableElements.add(this);
 
 	}
@@ -129,6 +137,11 @@ public class HUDStore implements IClickableElement{
 		pageButtons[2].setImage(inventoryButtonImages[3]);
 		
 	}
+	
+private void setPageStringLocation() {
+	pageStringX = pageControlButtonY-pageControlButtonSize*3;
+	pageStringY = pageControlButtonX1+10;
+}
 
 	private void initLayoutDimensions() {
 		screenX = GamePanel.WIDTH / 10;
@@ -212,11 +225,21 @@ public class HUDStore implements IClickableElement{
 			 */
 			rsBuy = RasterString.getRasterStringAsSingleImage(new RasterString(gp,"BUY",0,0));
 			rsSell = RasterString.getRasterStringAsSingleImage(new RasterString(gp,"SELL",0,0));
-			rsSellItems = RasterString.getRasterStringAsSingleImage(new RasterString(gp,"BUY ITEMS",0,0));
-			rsBuyItems = RasterString.getRasterStringAsSingleImage(new RasterString(gp,"SELL ITEMS",0,0));
-			rsTalk = RasterString.getRasterStringAsSingleImage(new RasterString(gp,"TALK",0,0));
-			rsUp = RasterString.getRasterStringAsSingleImage(new RasterString(gp,"UP",0,0));
-			rsDown = RasterString.getRasterStringAsSingleImage(new RasterString(gp,"DOWN",0,0));
+//			rsSellItems = RasterString.getRasterStringAsSingleImage(new RasterString(gp,"BUY ITEMS",0,0));
+//			rsBuyItems = RasterString.getRasterStringAsSingleImage(new RasterString(gp,"SELL ITEMS",0,0));
+//			rsTalk = RasterString.getRasterStringAsSingleImage(new RasterString(gp,"TALK",0,0));
+//			rsUp = RasterString.getRasterStringAsSingleImage(new RasterString(gp,"UP",0,0));
+//			rsDown = RasterString.getRasterStringAsSingleImage(new RasterString(gp,"DOWN",0,0));
+			
+			
+			BufferedImage defImage = pageButtons[3].getImage();
+			
+			buttonImageBuyItems = stampTextOnImageCentered(defImage, "Buy Items", 3, 3);
+			buttonImageSellItems = stampTextOnImageCentered(defImage, "Sell Items", 3, 3);
+			buttonImageTalk = stampTextOnImageCentered(defImage, "Talk", 3, 3);
+			pageButtons[2].setImage(buttonImageSellItems);
+			pageButtons[3].setImage(buttonImageBuyItems);
+			pageButtons[4].setImage(buttonImageTalk);
 			
 			
 			
@@ -238,6 +261,36 @@ public class HUDStore implements IClickableElement{
 		graphics.drawImage(rsText,offsetX,offsetY,rsText.getWidth(),rsText.getHeight(),null);
 		
 		button.setImage(output);
+	}
+	
+	public BufferedImage stampTextOnImage(BufferedImage orig, String text, int offsetX, int offsetY) {
+		//BufferedImage buttonImage = button.getImage();
+		int w = orig.getWidth();
+		int h = orig.getHeight();
+		BufferedImage output = new BufferedImage(w, h, orig.getType());
+		Graphics2D graphics = (Graphics2D) output.getGraphics();
+		graphics.drawImage(orig,0,0,w,h,null);
+		BufferedImage rsText = RasterString.getRasterStringAsSingleImage(new RasterString(this.gp,text,0,0));
+		graphics.drawImage(rsText,offsetX,offsetY,rsText.getWidth(),rsText.getHeight(),null);
+		
+		return output;
+	}
+	
+	public BufferedImage stampTextOnImageCentered(BufferedImage orig, String text, int textScaleX ,int textScaleY) {
+		//BufferedImage buttonImage = button.getImage();
+		int w = orig.getWidth();
+		int h = orig.getHeight();
+
+		BufferedImage rsText = RasterString.getRasterStringAsSingleImage(new RasterString(this.gp,text,0,0));
+		rsText.getScaledInstance(textScaleX, textScaleY, java.awt.Image.SCALE_DEFAULT);
+		int xStart = (w/2) - (rsText.getWidth()/2);
+		int yStart = (h/2) - (rsText.getHeight()/2);
+		BufferedImage output = new BufferedImage(w, h, orig.getType());
+		Graphics2D graphics = (Graphics2D) output.getGraphics();
+		graphics.drawImage(orig,0,0,w,h,null);
+		graphics.drawImage(rsText,xStart,yStart,rsText.getWidth(),rsText.getHeight(),null);
+		
+		return output;
 	}
 	
 	private void createGridBackground() {
@@ -310,11 +363,25 @@ public class HUDStore implements IClickableElement{
 		}
 		return toolbar;
 	}
+	
+	public int getActiveCollection() {
+		if(gp.gameState==GameState.STORE) {
+			if(this.storeMode==StoreMode.BUY) {
+				return STORE_COLLECTION_ID;
+			}else {
+				return INVENTORY_COLLECTION_ID;
+			}
+			
+		}else {
+			return INVENTORY_COLLECTION_ID;
+		}
+		//return INVENTORY_COLLECTION_ID;
+	}
 
 	public void drawMenuItemSprites() {
 
 		if(null==inventoryKindAmount) {
-			this.inventoryKindAmount = gp.inventory.queryKindAndAmount();
+			this.inventoryKindAmount = gp.inventory.queryKindAndAmount(getActiveCollection());
 		}
 		int items = MENU_SLOTS_Y;
 		if (inventoryKindAmount.length < MENU_SLOTS_Y) {
@@ -416,7 +483,14 @@ public class HUDStore implements IClickableElement{
 	}
 	
 	public void drawPageControls() {
-		GamePanel.g2.drawString(pageString, pageControlButtonX1+10, pageControlButtonY-20);
+		/*
+		 * 0 = down
+		 * 1 = up
+		 * 2 = close
+		 * 3 = buy/sell
+		 * 4 = talk
+		 */
+		GamePanel.g2.drawString(pageString, pageStringX, pageStringY);
 		GamePanel.g2.drawString(moneyString, pageControlButtonX1+10, screenX + 20);
 		for(Button button: pageButtons) {
 			button.draw();
@@ -510,6 +584,26 @@ public class HUDStore implements IClickableElement{
 					showInventoryScreen = false;
 					gp.gameState=GameState.PLAY;
 					break;
+				case 3:
+					if(storeMode==StoreMode.BUY) {
+						pageButtons[3].setImage(buttonImageBuyItems);
+						storeMode = StoreMode.SELL;
+						inventoryKindAmount = gp.inventory.queryKindAndAmount(0);
+						menuTitle = SELL_MODE_TITLE;
+					}else {
+						pageButtons[3].setImage(buttonImageSellItems);
+						storeMode = StoreMode.BUY;
+						inventoryKindAmount = gp.inventory.queryKindAndAmount(1);
+						menuTitle = BUY_MODE_TITLE;
+					}
+
+					recalculateRows();
+					break;
+				case 4:
+					System.out.println("talk");
+					gp.gameState=GameState.PLAY;
+					gp.conversation.startConversation(gp.conversation.speakerNPC);
+					gp.brain.talkWithShopkeeper = true;
 				default:
 					showInventoryScreen = false;
 					gp.gameState=GameState.PLAY;
@@ -519,34 +613,45 @@ public class HUDStore implements IClickableElement{
 				return;
 			}
 		}
-		//delete buttons
+		//buy-sell buttons
 		int kind = -1;
 		for(var button: sellButtons) {
 			
 			if (button.contains(clickPoint)) {
-				System.out.println("Player delete item");
+				
 				kind = getItemTypeFromRowID(button.id);
-				gp.inventory.deleteAllItemOfType(kind);
-				recalculateRows();
-				this.inventoryKindAmount = gp.inventory.queryKindAndAmount();
+
+				System.out.println("  info item kind: "+kind);
 				return;
 			}
 		}
+		//info buttons
 		for(var button: buyButtons) {
 			if (button.contains(clickPoint)) {
-				System.out.println("Player select item");
 				kind = getItemTypeFromRowID(button.id);
-				System.out.println("  select item kind: "+kind);
-				gp.inventory.selectItem(kind);
-				//gp.hud.toolbar.itemEq=kind;
-				gp.hud.hudToolbar.toolbarSetActiveItem(kind);
-				gp.inventory.setEquippedItemType(kind);
-				gp.gameState=GameState.PLAY;
+				transactItem(kind);
 				return;
 			}
 		}
 		
 		
+	}
+	
+	private void transactItem(int kind) {
+		System.out.println("buy/sell");
+		
+		int source,dest;
+		if(storeMode==StoreMode.BUY) {
+			source = 1;
+			dest = 0;
+		}else {
+			source = 0;
+			dest = 1;
+		}
+		gp.inventory.transactItem(source, dest, kind, amountToTransact);
+		
+		inventoryKindAmount = gp.inventory.queryKindAndAmount(getActiveCollection());
+		recalculateRows();
 	}
 	
 	private int getItemTypeFromRowID(int rowID) {

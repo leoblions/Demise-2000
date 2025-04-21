@@ -44,7 +44,7 @@ public class Conversation implements IInputListener {
 	ArrayList<ConvRecord> currentConvRecords;
 	HashMap<Integer, Integer[]> conversationChains; // chain ID : messageIDS
 	Integer[] activeChainArray = null;
-	private int speakerNPC;
+	public int speakerNPC;
 
 	/*
 	 * conv.cfg files: messageID`actorID`MessageString

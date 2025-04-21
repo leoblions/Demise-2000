@@ -42,6 +42,7 @@ public class Inventory {
 		
 		testStore();
 
+		//System.out.println("PL inventory items "+inventoryItems.size());
 	}
 	
 	public HashMap<Integer, Integer> getInventoryDataCopy() {
@@ -109,15 +110,15 @@ public class Inventory {
 	
 	private void testStore() {
 
-		addItemTo(1, 10,storeItems);
-		addItemTo(2, 10,storeItems);
-		addItemTo(3, 10,storeItems);
-		addItemTo(4, 10,storeItems);
-		addItemTo(5, 10,storeItems);
-		addItemTo(6, 10,storeItems);
-		addItemTo(7, 10,storeItems);
-		addItemTo(8, 10,storeItems);
-		addItemTo(9, 10,storeItems);
+		addItemTo(1, 10,1);
+		addItemTo(2, 10,1);
+		addItemTo(3, 10,1);
+		addItemTo(4, 10,1);
+		addItemTo(5, 10,1);
+		addItemTo(6, 10,1);
+		addItemTo(7, 10,1);
+		addItemTo(8, 10,1);
+		addItemTo(9, 10,1);
 
 
 	}
@@ -136,8 +137,11 @@ public class Inventory {
 		}
 	}
 	
-	public void addItemTo(int itemID, int amountToAdd, HashMap<Integer,Integer>collection) {
-
+	public void addItemTo(int itemID, int amountToAdd, int colelctionID) {
+		var collection = getCollectionByID(colelctionID);
+		if(null==collection) {
+			collection = new HashMap<Integer,Integer>();
+		}
 		int oldValue = collection.getOrDefault(itemID, 0);
 		// System.out.println("add item");
 		int newValue = 0;
@@ -164,29 +168,43 @@ public class Inventory {
 			System.err.printf("Inventory cannot remove itemID: %d , amount: %d \n", itemID, amountToRemove);
 		}
 	}
+	
+	public void removeItemFrom(int itemID, int amountToRemove, int collectionID) {
+		
+		var collection = getCollectionByID(collectionID);
+
+		int oldValue = collection.getOrDefault(itemID, 0);
+		// System.out.println("add item");
+		int newValue = 0;
+		if (amountToRemove > 0 && amountToRemove >= oldValue) {
+			newValue = oldValue - amountToRemove;
+			collection.put(itemID, newValue);
+			System.out.printf("Inventory removed itemID: %d , amount: %d , new total: %d \n", itemID, amountToRemove,
+					newValue);
+		} else {
+			System.err.printf("Inventory cannot remove itemID: %d , amount: %d \n", itemID, amountToRemove);
+		}
+	}
 
 	public void deleteAllItemOfType(int itemID) {
 
 		inventoryItems.remove(itemID);
 	}
 	
-	public int[][] queryKindAndAmount(){
-		return queryKindAndAmount(  0);
-	}
+	
 	
 	private HashMap<Integer,Integer> getCollectionByID(int collectionID){
-		HashMap<Integer,Integer> collection = null;
+		//HashMap<Integer,Integer> collection = null;
 		switch(collectionID) {
 		case 0:
-			collection = inventoryItems;
+			return inventoryItems;
 			// player inventory
 		case 1:
-			collection = storeItems;
-			break;
+			return storeItems;
 		default:
-			collection = inventoryItems;
+			System.out.println("Inventory: getCollectionByID: collection not found");
+			return null;
 		}
-		return collection;
 	}
 
 	public int[][] queryKindAndAmount(int collectionID) {
@@ -209,6 +227,16 @@ public class Inventory {
 		}
 		// return new int[][]{{0,1},{1,1},{3,1}};
 		return kvpOuterArray;
+	}
+	
+	public boolean transactItem(int sourceCollection,int destCollection,int itemKind, int itemAmount) {
+		if(queryItemAmount(  itemKind,   sourceCollection) >= itemAmount){
+			removeItemFrom(itemKind, itemAmount, sourceCollection);
+			addItemTo(itemKind, itemAmount, destCollection);
+			return true;
+		}
+		
+		return false;
 	}
 	
 	

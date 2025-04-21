@@ -33,6 +33,7 @@ public class HUDToolbar {
 	private static int itemEqScreenX = 10;
 	private static int[] toolbarBoxOffsetsX;
 	private static int[][] inventoryKindAmount;
+	private final int INVENTORY_COLLECTION_ID =0;
 	private static int itemEq = BLANK_ITEM_ID; //only highlighted item in toolbar
 	public static boolean showToolbar = false;
 	public boolean toggleActivate = false;
@@ -104,7 +105,7 @@ public class HUDToolbar {
 
 	public void drawInventoryToolbarItemSprites() {
 		if (null == inventoryKindAmount ) {
-			inventoryKindAmount = gp.inventory.queryKindAndAmount();
+			inventoryKindAmount = gp.inventory.queryKindAndAmount(INVENTORY_COLLECTION_ID);
 		}
 		int spriteAmount = 10;
 		if (inventoryKindAmount.length < 10) {
@@ -195,7 +196,7 @@ public class HUDToolbar {
 		if (gp.gameState==GameState.TOOLBAR) {
 			if(!componentEnabledLastTick) {
 
-				inventoryKindAmount = gp.inventory.queryKindAndAmount();
+				inventoryKindAmount = gp.inventory.queryKindAndAmount(INVENTORY_COLLECTION_ID);
 				selectedBoxX = ITEM_EQ_OFFSET_X + (selectedSlot * ITEM_EQ_FRAME_SIZE);
 				selectedBoxY = gp.getHeight() - ITEM_EQ_OFFSET_Y - ITEM_EQ_FRAME_SIZE;
 				
@@ -217,7 +218,7 @@ public class HUDToolbar {
 		if (toggleActivate) {
 			toggleActivate = false;
 			showToolbar = !showToolbar;
-			inventoryKindAmount = gp.inventory.queryKindAndAmount();
+			inventoryKindAmount = gp.inventory.queryKindAndAmount(INVENTORY_COLLECTION_ID);
 			System.out.println("Show toolbar " + showToolbar);
 			if (!showToolbar)  {
 				gp.gameState = GameState.PLAY;

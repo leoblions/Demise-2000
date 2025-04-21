@@ -165,6 +165,8 @@ public class Plant implements IEditableComponent{
 		int screenX, screenY;
 		xend=clamp(0, GamePanel.MAP_TILES_X, xend);
 		yend=clamp(0, GamePanel.MAP_TILES_Y, yend);
+		xstart=clamp(0, GamePanel.MAP_TILES_X, xstart);
+		ystart=clamp(0, GamePanel.MAP_TILES_Y, ystart);
 		yCutoff = (gp.player.worldY+Y_CUTOFF_OFFSET)/GamePanel.TILE_SIZE_PX;
 
 		yCutoff=clamp(0, GamePanel.MAP_TILES_Y, yCutoff);
